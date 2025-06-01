@@ -9,10 +9,11 @@
 
 | Aspect | Details |
 | --- | --- |
-| **Portable Size** | 500 MP4 clips + CSV metadata, easy and fast to run |
-| **Diverse Categories** | *Abstract, Mathematical, Physical, Planning, Spatial, Temporal (+ Causal)* – evenly balanced |
-| **Vision-Centric & Open-Ended QA** | Questions seamlessly embedded in videos, 100% reliance on visual understanding |
-| **Viewer-Friendly** | A “[-view](https://huggingface.co/datasets/video-reasoning/morse-500-view)” subset streams natively on **Hugging Face** for rapid inspection |
+| **Fresh & Portable** | 500 newly cooked video clips + CSV metadata that runs fast |
+| **Scalable Difficulty** | Videos are generated programmatically so we can dial up complexity and release harder versions as models improve |
+| **Diverse Categories** | *Abstract, Mathematical, Physical, Planning, Spatial, Temporal (+ Causal)* – evenly distributed across reasoning types that actually matter |
+| **Pure Visual Reasoning** | Questions are baked right into the videos. No text crutches, no shortcuts – if you can't see it, you can't solve it |
+| **Developer-Friendly** | A “[-view](https://huggingface.co/datasets/video-reasoning/morse-500-view)” subset streams directly on **Hugging Face** for quick browsing and debugging |
 
 ---
 
@@ -36,7 +37,7 @@ python plot_table.py
 ```
 
 
-## 📂 Dataset Format
+## 📂 [Dataset](https://huggingface.co/datasets/video-reasoning/morse-500) Format
 
 ```
 morse-500/
@@ -66,13 +67,13 @@ morse-500-code/
 
 
 
-; <!-- ## 📝 Citation
-; If you use MORSE-500 or our evaluation code, please cite:
-; ```
+<!-- ## 📝 Citation
+If you use MORSE-500 or our evaluation code, please cite:
+```
 
-; ```
+```
 
 
-; ## 📄 License
-; - Code – MIT
-; - Dataset (videos + metadata) – CC BY-4.0 (attribution required)  --> 
+## 📄 License
+- Code – MIT
+- Dataset (videos + metadata) – CC BY-4.0 (attribution required)  -->
