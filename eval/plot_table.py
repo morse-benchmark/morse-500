@@ -37,7 +37,6 @@ main_categories = [
 
 # Prepare to collect data
 files_pattern = "extract/extract_sz512_*.csv"
-# files_pattern = "extract_gemini/extract_sz512_*.csv"
 files = glob.glob(files_pattern)
 if not files:
     raise ValueError(f"No files found matching the pattern: {files_pattern}")
