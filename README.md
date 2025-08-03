@@ -11,7 +11,7 @@
 | --- | --- |
 | **Fresh & Portable** | 500 newly cooked video clips + CSV metadata that runs fast |
 | **Scalable Difficulty** | Videos are generated programmatically so we can dial up complexity and release harder versions as models improve |
-| **Diverse Categories** | *Abstract, Mathematical, Physical, Planning, Spatial, Temporal (+ Causal)* – evenly distributed across reasoning types that actually matter |
+| **Diverse Categories** | *Abstract, Mathematical, Physical, Planning, Spatial, Temporal (+ Causal)* |
 | **Pure Visual Reasoning** | Questions are baked right into the videos. No text crutches, no shortcuts – if you can't see it, you can't solve it |
 | **Developer-Friendly** | A “[-view](https://huggingface.co/datasets/video-reasoning/morse-500-view)” subset streams directly on **Hugging Face** for quick browsing and debugging |
 
@@ -21,16 +21,35 @@
 
 ```bash
 # Clone repo & install dependencies
-git clone https://github.com/morse-benchmark/morse-500-code.git
-cd morse-500-code
-pip install -r requirements.txt        # datasets, moviepy …
+git clone https://github.com/morse-benchmark/morse-500.git
+cd morse-500
+
+# Install uv (if not already installed)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source ~/.bashrc
+
+# Create env and install packages
+uv venv .morse_venv
+source .morse_venv/bin/activate
+uv pip install datasets pandas numpy pillow "moviepy==1.0.3" tqdm openai google-genai
+# if also need video generation
+uv pip install manim opencv-python maze-dataset "gymnasium[toy-text]"
+
+
+# download data
+git clone https://huggingface.co/datasets/video-reasoning/morse-500
+cd morse-500
+unzip test_sz512.zip -d test_sz512
+cd ..
+
 
 cd eval
 # 1️⃣ Run a baseline model
 python eval_model.py
+python eval_model_async.py # or run async
 
 # 2️⃣ Extract answers from model output
-python extract_answers.py pred_sz512_o3.csv
+python extract_answers.py pred_o3.csv
 
 # 3️⃣ Compute benchmark scores / generate table
 python plot_table.py
@@ -67,13 +86,13 @@ morse-500-code/
 
 
 
-<!-- ## 📝 Citation
-If you use MORSE-500 or our evaluation code, please cite:
+## 📝 Citation
+If you use MORSE-500, please cite:
 ```
 
 ```
 
 
-## 📄 License
+<!-- ## 📄 License
 - Code – MIT
 - Dataset (videos + metadata) – CC BY-4.0 (attribution required)  -->

@@ -2,17 +2,18 @@ import os
 import io
 import time
 import base64
+import asyncio
 from collections import deque
 from datetime import datetime, timedelta
 import threading
-from openai import OpenAI
+from openai import AsyncOpenAI
 from datasets import load_dataset
 import pandas as pd
 import numpy as np
 from PIL import Image
 # pip install moviepy==1.0.3
 from moviepy.editor import VideoFileClip
-from tqdm import tqdm
+from tqdm.asyncio import tqdm
 
 
 def get_video_stats(video_path):
@@ -30,16 +31,16 @@ def encode_b64(file_path):
         return base64.b64encode(file.read()).decode("utf-8")
 
 
-class RateLimiter:
-    def __init__(self, max_calls, period_seconds):
-        self.max_calls = max_calls
-        self.period_seconds = period_seconds
+class AsyncRateLimiter:
+    def __init__(self, calls_per_minute):
+        self.calls_per_minute = calls_per_minute
+        self.period_seconds = 60
         self.calls_timestamps = deque()
-        self.lock = threading.Lock()
+        self.lock = asyncio.Lock()
     
-    def wait_if_needed(self):
+    async def wait_if_needed(self):
         """Wait if necessary to respect the rate limit"""
-        with self.lock:
+        async with self.lock:
             now = datetime.now()
             
             # Remove timestamps older than the period window
@@ -47,23 +48,23 @@ class RateLimiter:
                 self.calls_timestamps.popleft()
             
             # If we've reached the max calls within the window, wait until we can make another call
-            if len(self.calls_timestamps) >= self.max_calls:
+            if len(self.calls_timestamps) >= self.calls_per_minute:
                 # Calculate how long to wait
                 oldest_timestamp = self.calls_timestamps[0]
                 wait_time = (oldest_timestamp + timedelta(seconds=self.period_seconds) - now).total_seconds()
                 if wait_time > 0:
                     print(f"Rate limit reached. Waiting {wait_time:.2f} seconds...")
-                    # Ensure we're using the correct time.sleep
-                    import time as time_module  # Local import to ensure we get the right module
-                    time_module.sleep(wait_time)
+                    await asyncio.sleep(wait_time)
             
             # Record this call
             self.calls_timestamps.append(datetime.now())
 
 
-def query_video(model_name, video_path, query, max_retries=3, retry_delay=2):
+async def query_video(client, model_name, video_path, query, rate_limiter, max_retries=3, retry_delay=2):
     for attempt in range(max_retries):
         try:
+            await rate_limiter.wait_if_needed()
+            
             # Encode video
             try:
                 base64_video = encode_b64(video_path)
@@ -74,7 +75,7 @@ def query_video(model_name, video_path, query, max_retries=3, retry_delay=2):
 
             # Make API request
             try:
-                response = client.chat.completions.create(
+                response = await client.chat.completions.create(
                     model=model_name,
                     messages=[
                         {
@@ -94,6 +95,11 @@ def query_video(model_name, video_path, query, max_retries=3, retry_delay=2):
                 )
             except Exception as e:
                 print(f"API request failed for {video_path}: {str(e)}")
+                if attempt < max_retries - 1:
+                    print(f"Retrying in {retry_delay} seconds...")
+                    await asyncio.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                    continue
                 return None
 
             # Process response
@@ -118,13 +124,10 @@ def query_video(model_name, video_path, query, max_retries=3, retry_delay=2):
             return result
             
         except Exception as e:
-            # print(f"Unexpected error processing {video_path}: {str(e)}")
-            # print(f"Error type: {type(e).__name__}")
-            # return None
             print(f"Attempt {attempt+1}/{max_retries} failed for {video_path}: {str(e)}")
             if attempt < max_retries - 1:
                 print(f"Retrying in {retry_delay} seconds...")
-                time.sleep(retry_delay)
+                await asyncio.sleep(retry_delay)
                 retry_delay *= 2  # Exponential backoff
     
     print(f"All {max_retries} attempts failed for {video_path}")
@@ -142,14 +145,16 @@ def encode_image_b64(image):
     return base64.b64encode(buffer.getvalue()).decode("utf-8")
 
 
-def query_video_frames(model_name, video_path, query, fps=2, max_num_frames=32, max_retries=3, retry_delay=2):
+async def query_video_frames(client, model_name, video_path, query, rate_limiter, fps=2, max_num_frames=32, max_retries=3, retry_delay=2):
     """
     Query a model using frames extracted from a video using moviepy.
     
     Args:
+        client: AsyncOpenAI client
         model_name: The model to query
         video_path: Path to the video file
         query: Text query to send along with the frames
+        rate_limiter: AsyncRateLimiter instance
         fps: Frames per second to sample (default: 2)
         max_num_frames: Maximum number of frames to use
         max_retries: Number of retries if the query fails
@@ -159,7 +164,7 @@ def query_video_frames(model_name, video_path, query, fps=2, max_num_frames=32, 
         The model's response
     """
     try:
-        rate_limiter.wait_if_needed()
+        await rate_limiter.wait_if_needed()
         
         # Load the video
         clip = VideoFileClip(video_path)
@@ -204,7 +209,7 @@ def query_video_frames(model_name, video_path, query, fps=2, max_num_frames=32, 
         # Query the model with retries
         for attempt in range(max_retries):
             try:
-                response = client.chat.completions.create(
+                response = await client.chat.completions.create(
                     model=model_name,
                     messages=[
                         {
@@ -214,75 +219,103 @@ def query_video_frames(model_name, video_path, query, fps=2, max_num_frames=32, 
                     ],
                 )
                 print(response)
+                break
             except Exception as e:
                 if attempt < max_retries - 1:
                     print(f"Error on attempt {attempt + 1}: {str(e)}. Retrying in {retry_delay} seconds...")
-                    time.sleep(retry_delay)
+                    await asyncio.sleep(retry_delay)
+                    retry_delay *= 2
                 else:
                     print(f"Failed after {max_retries} attempts: {str(e)}")
                     return None
             
-            # Process response
-            if response is None:
-                print(f"Received null response for {video_path}")
-                return None
-                
-            if not hasattr(response, 'choices') or not response.choices:
-                print(f"Response for {video_path} has no choices")
-                return None
-                
-            choice = response.choices[0]
-            if not hasattr(choice, 'message') or choice.message is None:
-                print(f"Choice for {video_path} has no message")
-                return None
-                
-            if not hasattr(choice.message, 'content') or choice.message.content is None:
-                print(f"Message for {video_path} has no content")
-                return ""  # Return empty string instead of None to avoid subscript errors
-                
-            result = choice.message.content
-            return result
+        # Process response
+        if response is None:
+            print(f"Received null response for {video_path}")
+            return None
+            
+        if not hasattr(response, 'choices') or not response.choices:
+            print(f"Response for {video_path} has no choices")
+            return None
+            
+        choice = response.choices[0]
+        if not hasattr(choice, 'message') or choice.message is None:
+            print(f"Choice for {video_path} has no message")
+            return None
+            
+        if not hasattr(choice.message, 'content') or choice.message.content is None:
+            print(f"Message for {video_path} has no content")
+            return ""  # Return empty string instead of None to avoid subscript errors
+            
+        result = choice.message.content
+        return result
 
     except Exception as e:
         print(f"Error processing video {video_path}: {str(e)}")
         return None
+
+
+async def process_single_example(client, model_name, example, idx, video_root, rate_limiter, fps=2, max_frames=32):
+    """Process a single example asynchronously"""
+    try:
+        video_path = f"{video_root}/" + example["video"]
+        print(f"Processing {idx} {video_path}")
+        query = "Answer the question in this video."
+        
+        # Choose between frame-based or video-based processing
+        if fps is not None and max_frames is not None:
+            # Use frame-based query
+            print(f"Using frame-based query with fps={fps} and max_frames={max_frames}")
+            answer = await query_video_frames(client, model_name, video_path, query, rate_limiter, fps=fps, max_num_frames=max_frames)
+        else:
+            # Use video-based query
+            print("Using video-based query")
+            answer = await query_video(client, model_name, video_path, query, rate_limiter)
+        
+        # Create result dictionary
+        result = {
+            "idx": idx + 1,
+            "video": example["video"],
+            "ground_truth": example["ground_truth"],
+            "prediction": answer if answer is not None else "ERROR: No response from model",
+            "question_text": example["question_text"]
+        }
+        
+        return result
+        
+    except Exception as e:
+        print(f"Error processing example {idx+1}: {str(e)}")
+        
+        # Record the error in the results
+        error_result = {
+            "idx": idx + 1,
+            "video": example["video"],
+            "ground_truth": example.get("ground_truth", "None"),
+            "prediction": f"ERROR: {str(e)}",
+            "question_text": example["question_text"]
+        }
+        
+        return error_result
+
+
+async def process_dataset(dataset, model_name, size, hf_repo_path, results_file, max_concurrent=10, fps=2, max_frames=32):
+    """Process the entire dataset with controlled concurrency"""
     
-
-##########################################################################################
-################################## NOTES ABOUT SERVING ###################################
-##########################################################################################
-# Set OpenAI's API key and API base to use vLLM's API server.
-openai_api_key = "xxx"
-model_name = "o3"
-client = OpenAI(
-    api_key=openai_api_key,
-)
-##########################################################################################
-##########################################################################################
-##########################################################################################
-# Add rate limiting if needed
-# Create a global rate limiter instance (20 calls per minute)
-rate_limiter = RateLimiter(max_calls=20, period_seconds=60)
-
-
-if __name__ == "__main__":
+    # Set up client
+    port = 8000
+    openai_api_key = "EMPTY"
+    openai_api_base = f"http://localhost:{port}/v1"
+    client = AsyncOpenAI(
+        api_key=openai_api_key,
+        base_url=openai_api_base,
+    )
     
-    # Load the dataset from the directory where you saved it
-    dataset = load_dataset("video-reasoning/morse-500")
-    dataset = dataset['test']
-    # load the 512px resized videos
-    size = 512
-    video_root = '../morse-500/test_sz512'
+    # Set up rate limiter
+    rate_limiter = AsyncRateLimiter(calls_per_minute=20)
     
-    model_base_name = model_name.split('/')[-1]
-    # image based model
-    fps = 2
-    max_frames = 32
-    results_file = f"pred_sz{size}_{model_base_name}_fps{fps}_max{max_frames}.csv"
-    # video based model
-    # fps = max_frames = None
-    # results_file = f"pred_sz{size}_{model_base_name}.csv"
-
+    # Set up video root path
+    video_root = f'../{hf_repo_path}/test_sz{size}'
+    
     # Initialize results DataFrame - either from existing file or new
     if os.path.exists(results_file):
         print(f"Loading existing results from {results_file}")
@@ -299,9 +332,9 @@ if __name__ == "__main__":
         results_df = pd.DataFrame(columns=["idx", "video", "ground_truth", "prediction", "question_text"])
         existing_results = {}
 
-    # Process examples one by one
-    for i, example in tqdm(enumerate(dataset)):
-        # Skip examples that already have non-empty predictions
+    # Filter examples that need processing
+    examples_to_process = []
+    for i, example in enumerate(dataset):
         example_idx = i + 1  # Match the idx in results
         
         # Check if we should process this example
@@ -314,85 +347,110 @@ if __name__ == "__main__":
             (isinstance(prediction, str) and prediction.startswith("ERROR"))
         )
         
-        if not should_process:
+        if should_process:
+            examples_to_process.append((i, example))
+        else:
             print(f"Skipping example {i+1} - already processed")
-            continue
-            
-        # Process this example
-        try:
-            video_path = f"{video_root}/" + example["video"]
-            print(f"Processing {i} {video_path}")
-            query = "Answer the question in this video."
-            if fps is not None and max_frames is not None:
-                # Use frame-based query 
-                answer = query_video_frames(model_name, video_path, query, fps=fps, max_num_frames=max_frames)
-            else:
-                # Use video-based query
-                answer = query_video(model_name, video_path, query)
-            
-            # Create result dictionary
-            result = {
-                "idx": i+1,
-                "video": example["video"],
-                "ground_truth": example["ground_truth"],
-                "prediction": answer if answer is not None else "ERROR: No response from model",
-                "question_text": example["question_text"]
-            }
-            
-            # Update the DataFrame with the new result
-            idx_value = result["idx"]
-            
-            # If row exists, update it; otherwise, append it
-            if idx_value in existing_results:
-                # Update existing row
-                mask = results_df['idx'] == idx_value
-                for col, value in result.items():
-                    results_df.loc[mask, col] = value
-            else:
-                # Append new row
-                results_df = pd.concat([results_df, pd.DataFrame([result])], ignore_index=True)
-            
-            # Update existing_results dictionary
-            existing_results[idx_value] = result["prediction"]
-            
-            # Print progress
-            print(f"Processed example {i+1}/{len(dataset)}")
-            
-            # Sort by idx and save after error to ensure we don't lose progress
+
+    print(f"Processing {len(examples_to_process)} examples with max concurrency: {max_concurrent}")
+    
+    # Create semaphore to limit concurrent requests
+    semaphore = asyncio.Semaphore(max_concurrent)
+    
+    async def process_with_semaphore(idx_example_tuple):
+        async with semaphore:
+            idx, example = idx_example_tuple
+            return await process_single_example(client, model_name, example, idx, video_root, rate_limiter, fps, max_frames)
+    
+    # Process examples with progress bar
+    tasks = [process_with_semaphore(idx_example) for idx_example in examples_to_process]
+    
+    # Use tqdm.asyncio for async progress tracking
+    results = []
+    for task in tqdm.as_completed(tasks, total=len(tasks), desc="Processing videos"):
+        result = await task
+        results.append(result)
+        
+        # Update the DataFrame with the new result
+        idx_value = result["idx"]
+        
+        # If row exists, update it; otherwise, append it
+        if idx_value in existing_results:
+            # Update existing row
+            mask = results_df['idx'] == idx_value
+            for col, value in result.items():
+                results_df.loc[mask, col] = value
+        else:
+            # Append new row
+            results_df = pd.concat([results_df, pd.DataFrame([result])], ignore_index=True)
+        
+        # Update existing_results dictionary
+        existing_results[idx_value] = result["prediction"]
+        
+        # Sort by idx and save periodically to ensure we don't lose progress
+        if len(results) % 10 == 0:  # Save every 10 results
             results_df = results_df.sort_values(by="idx").reset_index(drop=True)
-            # Save after each example to ensure we don't lose progress
             results_df.to_csv(results_file, index=False)
-            
-        except Exception as e:
-            print(f"Error processing example {i+1}: {str(e)}")
-            
-            # Record the error in the results
-            error_result = {
-                "idx": i+1,
-                "video": example["video"],
-                "ground_truth": example.get("ground_truth", "None"),
-                "prediction": f"ERROR: {str(e)}",
-                "question_text": example["question_text"]
-            }
-            
-            # Update the DataFrame with the error result
-            if i+1 in existing_results:
-                mask = results_df['idx'] == i+1
-                for col, value in error_result.items():
-                    results_df.loc[mask, col] = value
-            else:
-                results_df = pd.concat([results_df, pd.DataFrame([error_result])], ignore_index=True)
-            
-            # Update existing_results dictionary
-            existing_results[i+1] = error_result["prediction"]
-            
-            # Sort by idx and save after error to ensure we don't lose progress
-            results_df = results_df.sort_values(by="idx").reset_index(drop=True)
-            # Save after error to ensure we don't lose progress
-            results_df.to_csv(results_file, index=False)
+            print(f"Saved progress: {len(results)} results processed")
 
     # Final save
-    # Sort by idx and save after error to ensure we don't lose progress
     results_df = results_df.sort_values(by="idx").reset_index(drop=True)
     results_df.to_csv(results_file, index=False)
     print(f"All results saved to {results_file}")
+    
+    await client.close()
+
+
+##########################################################################################
+################################## NOTES ABOUT SERVING ###################################
+##########################################################################################
+# For OpenAI API:
+# openai_api_key = "xxx"
+# model_name = "o3"
+# client = AsyncOpenAI(
+#     api_key=openai_api_key,
+# )
+
+# For local vLLM serving:
+model_name = "Qwen/Qwen2.5-VL-7B-Instruct"
+# model_name = "Qwen/QVQ-72B-Preview"
+
+##########################################################################################
+##########################################################################################
+##########################################################################################
+
+if __name__ == "__main__":
+    # Load the dataset from the directory where you saved it
+    hf_repo_path = f"morse-500"
+    dataset = load_dataset("video-reasoning/morse-500")
+    # from datasets import load_from_disk
+    # dataset = load_from_disk("./morse-500-local")
+    dataset = dataset['test']
+    # load the 512px resized videos
+    size = 512
+    video_root = '../morse-500/test_sz512'
+
+    # Load the dataset
+    model_base_name = model_name.split('/')[-1]
+    # video based query
+    fps = max_frames = None
+    results_file = f"results_sz{size}_{model_base_name}.csv"
+    # images based query
+    # fps = 2
+    # max_frames = 32
+    # results_file = f"pred_sz{size}_{model_base_name}_fps{fps}_max{max_frames}.csv"
+    
+    # Create a global rate limiter instance
+    max_concurrent_queries = 10  # Set this to N, your desired max concurrent queries
+    
+    # Run the async processing
+    asyncio.run(process_dataset(
+        dataset=dataset,
+        model_name=model_name,
+        size=size,
+        hf_repo_path=hf_repo_path,
+        results_file=results_file,
+        max_concurrent=max_concurrent_queries,
+        fps=fps,
+        max_frames=max_frames,
+    ))

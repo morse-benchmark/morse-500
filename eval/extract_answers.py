@@ -194,11 +194,6 @@ SAVE_EVERY  = 100                # rows after which we flush to disk
 # Create new column for extracted answers
 df = pd.read_csv(CSV_FILE)
 df['extracted_answer'] = None
-df["question_text"] = None
-
-
-dataset = load_dataset("video-reasoning/morse-500")
-dataset = dataset['test']
 
 def build_prompt(question: str, response: str) -> str:
     """
@@ -221,7 +216,7 @@ async def producer() -> None:
     tasks  = []
 
     for row_idx, row in df.iterrows():
-        q_text = dataset[row_idx]["question_text"]
+        q_text = row["question_text"]
         m_resp = str(row["prediction"])
 
         task = asyncio.create_task(
@@ -253,4 +248,3 @@ async def main():
 # 3.  Kick off the event loop ─────────────────────────────────────────────────
 if __name__ == "__main__":
     asyncio.run(main())
-

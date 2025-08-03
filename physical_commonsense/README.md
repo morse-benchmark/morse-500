@@ -173,7 +173,7 @@ This framework can be used for:
 
 To facilitate further research in physical commonsense reasoning and video generation evaluation, we are making all generated videos publicly available on Hugging Face:
 
-🤗 **[Dataset Link: Physical Commonsense Videos](https://huggingface.co/video-reasoning/physical-commonsense-videos)**
+🤗 **[Dataset Link: Physical Commonsense Videos](https://huggingface.co/video-reasoning/physical-commonsense)**
 
 ### Dataset Contents
 
