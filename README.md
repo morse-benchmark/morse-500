@@ -89,7 +89,12 @@ morse-500-code/
 ## 📝 Citation
 If you use MORSE-500, please cite:
 ```
-
+@article{cai2025morse500,
+  title={MORSE-500: A Programmatically Controllable Video Benchmark to Stress-Test Multimodal Reasoning},
+  author={Cai, Zikui and Wang, Andrew and Satheesh, Anirudh and Nakhawa, Ankit and Jae, Hyunwoo and Powell, Keenan and Liu, Minghui and Jay, Neel and Oh, Sungbin and Wang, Xiyao and Liang, Yongyuan and Goldstein, Tom and Huang, Furong},
+  journal={arXiv preprint arXiv:2506.05523},
+  year={2025}
+}
 ```
 
 
