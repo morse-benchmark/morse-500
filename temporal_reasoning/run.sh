@@ -5,7 +5,10 @@ NUM_SHAPES=3 python duration_3d.py # you can change the NUM_SHAPES. Range from 3
 DIFFICULTY=1 python color_sequence.py # DIFFICULTY can be 1, 2, 3
 DIFFICULTY=1 python color_objects.py # DIFFICULTY can be 1, 2, 3
 DIFFICULTY=1 python pause_seq.py # DIFFICULTY can be 1 - 5
-
+NUM_BOUNCES=1 python3 bounceball.py # NUM_BOUNCES [1-5] range
+NUM_SHAPES=2 python duration2D.py # NUM_SHAPES [2 - 8] range 
+NUM_TRANSFORMS=2 python3 color_change.py # NUM_TRANSFORMS [2 - 8] range
+NUM_SHAPES=5 python3 numShape.py # NUM_SHAPES [3-8] range
 
 # Configuration
 REPEAT_TIMES=1
