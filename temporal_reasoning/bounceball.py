@@ -150,6 +150,9 @@ class BallHitsWall(Scene):
             "Answer in seconds (rounded to 1 decimal place)"
         ]
         
+        self.clear()
+        self.wait(0.2)
+        
         # Display question
         question_texts = []
         line_height = 0.8

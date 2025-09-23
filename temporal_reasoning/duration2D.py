@@ -96,12 +96,13 @@ class duration2D(ThreeDScene):
             self.play(Create(shape), run_time=duration)
         
         # Wait a moment before showing question
+        self.clear()
         self.wait(0.5)
 
         # Create question text
         question_lines = [
             "List the duration of each of the shapes from the beginning",
-            "(from drawing the object to disappearing).",
+            "(from the start of drawing).",
             "",
             "Answer to 1 decimal point and list them with comma separated values:",
             "e.g., 3.2s, 1.5s, 1.0s"
@@ -145,7 +146,7 @@ class duration2D(ThreeDScene):
             f.write(answer_string)
         
         question_text_content = (
-            "List the duration of each of the shapes from the beginning (from drawing the object to disappearing).\n"
+            "List the duration of each of the shapes from the beginning (from the start of drawing).\n"
             "Answer to 1 decimal point and list them with comma separated values: e.g., 3.2s, 1.5s, 1.0s\n"
             "List the durations in the order the shapes appeared."
         )
