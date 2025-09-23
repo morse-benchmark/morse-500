@@ -17,7 +17,7 @@ config.pixel_width = 1920
 config.frame_rate = 30
 config.preview = False
 
-# NUM_TRANSFORMS=[2-8] python3 color_change.py
+# NUM_TRANSFORMS=[3-8] python3 color_change.py
 class ColorChange2(Scene):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

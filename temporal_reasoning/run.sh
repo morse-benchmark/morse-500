@@ -7,7 +7,7 @@ DIFFICULTY=1 python color_objects.py # DIFFICULTY can be 1, 2, 3
 DIFFICULTY=1 python pause_seq.py # DIFFICULTY can be 1 - 5
 NUM_BOUNCES=1 python3 bounceball.py # NUM_BOUNCES [1-5] range
 NUM_SHAPES=2 python duration2D.py # NUM_SHAPES [2 - 8] range 
-NUM_TRANSFORMS=2 python3 color_change.py # NUM_TRANSFORMS [2 - 8] range
+NUM_TRANSFORMS=2 python3 color_change.py # NUM_TRANSFORMS [3 - 8] range
 NUM_SHAPES=5 python3 numShape.py # NUM_SHAPES [3-8] range
 
 # Configuration
