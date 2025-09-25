@@ -91,16 +91,6 @@ class BallHitsWall(Scene):
             if bounce_idx == 0:
                 time_before_hit = travel_time
             current_time += travel_time
-            
-            # Bounce effect - change color and slight squish
-            bounce_color = ball_colors[(bounce_idx + 1) % len(ball_colors)]
-            self.play(
-                ball.animate.scale([1.2, 0.8, 1]).set_fill(bounce_color), 
-                run_time=0.3
-            )
-            self.play(ball.animate.scale([1/1.2, 1/0.8, 1]), run_time=0.2)
-            
-            self.wait(0.2)
         
         # Final movement after last bounce (or only movement if no bounces)
         if bounces > 0:
