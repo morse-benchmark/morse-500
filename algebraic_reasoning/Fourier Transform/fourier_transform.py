@@ -6,10 +6,11 @@ import shutil
 import os
 from scipy.fft import fft, fftfreq
 
-
+# Setup directories
 Path("questions").mkdir(exist_ok=True)
 Path("solutions").mkdir(exist_ok=True)
 Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
 
 config.media_dir = "manim_output"
 config.verbosity = "WARNING"
@@ -25,22 +26,23 @@ class FourierTransformQuiz(Scene):
         self.signal_params = self.generate_signal()
         self.correct_spectrum = self.calculate_spectrum()
 
-    def generate_signal(self):
+        # To store reasoning info about options
+        self.options_meta = []
 
+    def generate_signal(self):
         components = []
         n_components = random.randint(2, 4)
         fundamental_freq = random.uniform(0.5, 2.0)
 
         for i in range(1, n_components + 1):
-            freq = fundamental_freq * i
-            amp = random.uniform(0.2, 1.0) / i
+            freq = round(fundamental_freq * i, 2)
+            amp = round(random.uniform(0.2, 1.0) / i, 2)
             phase = random.uniform(0, 2 * np.pi)
             components.append((freq, amp, phase))
 
         return {"components": components, "duration": 4, "sample_rate": 100}
 
     def calculate_spectrum(self):
-
         t = np.linspace(
             0,
             self.signal_params["duration"],
@@ -58,43 +60,47 @@ class FourierTransformQuiz(Scene):
 
         idx = np.where(xf >= 0)
         xf_pos = xf[idx]
-        yf_pos = np.abs(yf[idx]) / n
+        yf_pos = (
+            np.abs(yf[idx]) / n * 2
+        )  # Multiply by 2 for single-sided spectrum amplitude normalization
 
-        sorted_indices = np.argsort(yf_pos)[::-1]
-        top_indices = sorted_indices[:10]
-
-        return xf_pos[top_indices], yf_pos[top_indices]
+        # Just return the arrays, we'll plot them
+        return xf_pos, yf_pos
 
     def create_signal_graph(self, axes, t, signal, color, label):
-
         graph = axes.plot_line_graph(t, signal, line_color=color, add_vertex_dots=False)
-        label = Text(label, color=color, font_size=24).next_to(axes, UP, buff=0.1)
-        return VGroup(axes, graph, label)
+        label_obj = Text(label, color=color, font_size=24).next_to(axes, UP, buff=0.1)
+        return VGroup(axes, graph, label_obj)
 
     def create_spectrum_graph(self, axes, freqs, amps, color, label):
+        # Filter for significant peaks for plotting clean lines
+        max_freq = 10
+        if self.signal_params["components"]:
+            max_freq = max(c[0] for c in self.signal_params["components"]) * 1.5
 
-        max_freq = max(freqs) if len(freqs) > 0 else 1
-        axes.x_range = [0, max(10, max_freq * 1.2), max(2, int(max_freq / 2))]
+        axes.x_range = [0, max(10, max_freq), 1]
 
         stems = VGroup()
-        for f, a in zip(freqs, amps):
+        dots = VGroup()
+
+        # We only plot indices where amp is significant to save rendering time/clutter
+        indices = np.where((freqs <= axes.x_range[1]) & (amps > 0.05))[0]
+
+        for idx in indices:
+            f = freqs[idx]
+            a = amps[idx]
             stem = Line(
                 start=axes.c2p(f, 0), end=axes.c2p(f, a), stroke_width=3, color=color
             )
+            dot = Dot(axes.c2p(f, a), color=color, radius=0.05)
             stems.add(stem)
+            dots.add(dot)
 
-        dots = VGroup(
-            *[
-                Dot(axes.c2p(f, a), color=color, radius=0.05)
-                for f, a in zip(freqs, amps)
-            ]
-        )
-
-        label = Text(label, color=color, font_size=24).next_to(axes, UP, buff=0.1)
-        return VGroup(axes, stems, dots, label)
+        label_obj = Text(label, color=color, font_size=24).next_to(axes, UP, buff=0.1)
+        return VGroup(axes, stems, dots, label_obj)
 
     def construct(self):
-
+        # Generate Time Domain Data
         t = np.linspace(
             0,
             self.signal_params["duration"],
@@ -106,9 +112,10 @@ class FourierTransformQuiz(Scene):
             for freq, amp, phase in self.signal_params["components"]
         )
 
+        # --- PART 1: SHOW TIME DOMAIN ---
         time_axes = Axes(
             x_range=[0, self.signal_params["duration"], 1],
-            y_range=[-1.5, 1.5, 0.5],
+            y_range=[-2, 2, 0.5],
             x_length=10,
             y_length=3,
         ).shift(DOWN * 1.5)
@@ -126,32 +133,58 @@ class FourierTransformQuiz(Scene):
         self.play(Create(time_graph), run_time=2)
         self.wait(2)
 
-        options = []
+        # --- PART 2: GENERATE OPTIONS ---
+        raw_options = []
         xf, yf = self.correct_spectrum
+
+        # 1. Correct Option
+        raw_options.append(
+            {"freqs": xf, "amps": yf, "type": "correct", "desc": "Matches components"}
+        )
+
+        # 2. Distractors
         for _ in range(3):
             if random.random() > 0.5:
-
-                shift = random.choice([-1, 1]) * random.uniform(0.2, 0.5)
+                # Shifted Frequencies
+                shift = random.choice([-1, 1]) * random.uniform(0.5, 1.0)
                 wrong_freqs = xf + shift
-                wrong_freqs[wrong_freqs < 0] = 0
-                wrong_amps = yf
-            else:
+                wrong_freqs[wrong_freqs < 0] = 0  # Clamp
 
-                wrong_freqs = xf
-                scale = random.uniform(0.5, 1.5)
+                raw_options.append(
+                    {
+                        "freqs": wrong_freqs,
+                        "amps": yf,
+                        "type": "shifted",
+                        "desc": f"Frequencies shifted by {shift:.2f}Hz",
+                    }
+                )
+            else:
+                # Scaled Amplitudes
+                scale = random.choice([0.5, 2.0])
                 wrong_amps = yf * scale
 
-            options.append((wrong_freqs, wrong_amps))
+                raw_options.append(
+                    {
+                        "freqs": xf,
+                        "amps": wrong_amps,
+                        "type": "scaled",
+                        "desc": f"Amplitudes scaled by {scale}x",
+                    }
+                )
 
-        correct_index = random.randint(0, len(options))
-        options.insert(correct_index, (xf, yf))
+        random.shuffle(raw_options)
         letters = ["A", "B", "C", "D"]
 
-        self.play(
-            FadeOut(title),
-            FadeOut(subtitle),
-            FadeOut(time_graph),
-        )
+        # Map letters to options
+        self.options_meta = []
+        for i, opt in enumerate(raw_options):
+            opt["label"] = letters[i]
+            self.options_meta.append(opt)
+            if opt["type"] == "correct":
+                correct_letter = letters[i]
+
+        # --- PART 3: SHOW QUIZ ---
+        self.play(FadeOut(title), FadeOut(subtitle), FadeOut(time_graph))
 
         question = (
             VGroup(
@@ -174,19 +207,20 @@ class FourierTransformQuiz(Scene):
             DOWN * 2.75 + RIGHT * 3.5,
         ]
 
-        for i, ((freqs, amps), pos) in enumerate(zip(options, positions)):
+        max_freq_disp = max(c[0] for c in self.signal_params["components"]) * 1.5
 
-            max_freq = max(freqs) if len(freqs) > 0 else 1
-            x_max = max(10, max_freq * 1.2)
-
+        for i, pos in enumerate(positions):
+            opt = self.options_meta[i]
             ax = Axes(
-                x_range=[0, x_max, max(2, int(x_max / 5))],
-                y_range=[0, 1.2, 0.2],
+                x_range=[0, max_freq_disp, 1],
+                y_range=[0, 1.5, 0.5],
                 x_length=5,
                 y_length=2.5,
             ).move_to(pos)
 
-            graph = self.create_spectrum_graph(ax, freqs, amps, GREEN, letters[i])
+            graph = self.create_spectrum_graph(
+                ax, opt["freqs"], opt["amps"], GREEN, opt["label"]
+            )
             option_graphs.add(graph)
 
         self.play(Write(question))
@@ -196,24 +230,86 @@ class FourierTransformQuiz(Scene):
         )
         self.wait(3)
 
+        # --- SAVE OUTPUTS ---
         with open(f"solutions/fourier_{self.file_index}.txt", "w") as f:
-            f.write(f"{letters[correct_index]}")
+            f.write(correct_letter)
+
         with open(f"question_text/fourier_{self.file_index}.txt", "w") as f:
             f.write(
-                f"Which spectrum matches the time-domain signal? Output just the letter of the correct answer."
+                "Which spectrum matches the time-domain signal? Output just the letter of the correct answer."
             )
 
+        trace = self.generate_reasoning_trace(correct_letter)
+        with open(f"reasoning_traces/fourier_{self.file_index}.txt", "w") as f:
+            f.write(trace)
 
-for i in range(3):
-    if os.path.exists("manim_output"):
-        shutil.rmtree("manim_output")
+    def generate_reasoning_trace(self, correct_letter):
+        trace = []
+        trace.append("=== Signal Analysis ===")
+        trace.append(
+            "The time-domain signal was constructed by summing the following sinusoidal components:"
+        )
 
-    scene = FourierTransformQuiz(file_index=i)
-    scene.render()
+        # Sort by frequency for clarity
+        comps = sorted(self.signal_params["components"], key=lambda x: x[0])
+        for f, a, p in comps:
+            trace.append(f"  - Frequency: {f:.2f} Hz, Amplitude: {a:.2f}")
 
-    output = Path("manim_output/videos/1080p60/FourierTransformQuiz.mp4")
-    if output.exists():
-        shutil.move(str(output), f"questions/fourier_{i}.mp4")
+        trace.append("\n=== Frequency Spectrum Prediction ===")
+        trace.append(
+            "The Fourier Transform decomposes a signal into its constituent frequencies."
+        )
+        trace.append(
+            "Therefore, the correct magnitude spectrum should show distinct vertical spikes (peaks) at exactly the frequencies listed above."
+        )
+        trace.append(
+            "The height of these spikes should be proportional to the amplitudes."
+        )
 
-    if os.path.exists("manim_output"):
-        shutil.rmtree("manim_output")
+        trace.append("\n=== Evaluating Options ===")
+        # Sort options by label
+        sorted_opts = sorted(self.options_meta, key=lambda x: x["label"])
+
+        for opt in sorted_opts:
+            label = opt["label"]
+            desc = opt["desc"]
+            if opt["type"] == "correct":
+                trace.append(
+                    f"Option {label}: This spectrum shows peaks at {', '.join([str(c[0]) for c in comps])} Hz with correct relative heights. This matches our prediction."
+                )
+            elif opt["type"] == "shifted":
+                trace.append(
+                    f"Option {label}: The peaks in this spectrum are shifted along the x-axis (frequency). They do not align with the components of the signal. ({desc})"
+                )
+            elif opt["type"] == "scaled":
+                trace.append(
+                    f"Option {label}: The frequencies are correct, but the heights (amplitudes) are wrong. ({desc})"
+                )
+
+        trace.append("\n=== Conclusion ===")
+        trace.append(
+            f"Option {correct_letter} is the only graph that accurately represents the frequency content of the generated signal."
+        )
+
+        return "\n".join(trace)
+
+
+if __name__ == "__main__":
+    for i in range(3):
+        if os.path.exists("manim_output"):
+            shutil.rmtree("manim_output")
+
+        scene = FourierTransformQuiz(file_index=i)
+        scene.render()
+
+        output = Path("manim_output/videos/1080p60/FourierTransformQuiz.mp4")
+        if output.exists():
+            shutil.move(str(output), f"questions/fourier_{i}.mp4")
+        else:
+            # Fallback search
+            found = list(Path("manim_output/videos").rglob("*.mp4"))
+            if found:
+                shutil.move(str(found[0]), f"questions/fourier_{i}.mp4")
+
+        if os.path.exists("manim_output"):
+            shutil.rmtree("manim_output")

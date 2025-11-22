@@ -9,6 +9,7 @@ from pathlib import Path
 Path("questions").mkdir(exist_ok=True)
 Path("solutions").mkdir(exist_ok=True)
 Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
 
 config.media_dir = "manim_output"
 config.verbosity = "WARNING"
@@ -20,13 +21,20 @@ config.preview = False
 class pause_seq(Scene):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         # Set random seed for reproducibility
         self.seed = random.randint(1000, 9999)
         random.seed(self.seed)
-        
+
         # Parameters
         self.difficulty = int(os.getenv("DIFFICULTY", 1))
+
+        # Initialize reasoning trace
+        self.reasoning_trace = []
+        self.reasoning_trace.append(f"Problem: Pause sequence summation")
+        self.reasoning_trace.append(f"Difficulty: {self.difficulty}")
+        self.reasoning_trace.append(f"Random Seed: {self.seed}")
+        self.reasoning_trace.append("")
         
     def construct(self):
         # Number of sequences based on difficulty (3-7 sequences)
@@ -38,28 +46,69 @@ class pause_seq(Scene):
             # Each sequence has 5 numbers, range scales with difficulty
             sequence = [random.randint(1, 100 * self.difficulty) for _ in range(5)]
             seqs.append(sequence)
-        
+
+        self.reasoning_trace.append(f"Number of sequences: {num_sequences}")
+        self.reasoning_trace.append("Sequences:")
+        for i, seq in enumerate(seqs):
+            self.reasoning_trace.append(f"  Sequence {i}: {seq}")
+
+        # Add chronological scene description
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("=== CHRONOLOGICAL REASONING TRACE ===")
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("Scene begins: The video starts with a blank screen. I'm about to see a series of numbers displayed one at a time, organized into sequences with pauses between them.")
+        self.reasoning_trace.append("")
+
+        # Track cumulative time for chronological trace
+        current_time = 0.0
+        pause_count = 0
+
         # Display all sequences with pauses between them
         for seq_idx, seq in enumerate(seqs):
+            # Add chronological description for the start of this sequence
+            if seq_idx == 0:
+                self.reasoning_trace.append(f"At t={current_time:.1f}s: The first sequence begins. I see numbers appearing one after another.")
+            else:
+                self.reasoning_trace.append(f"At t={current_time:.1f}s: After the pause, sequence {seq_idx + 1} begins. Numbers start appearing again.")
+
             # Display each number in the sequence one by one
             for num_idx, num in enumerate(seq):
+                # Add chronological description for each number
+                self.reasoning_trace.append(f"  t={current_time:.1f}s: Number {num_idx + 1} of this sequence appears on screen: {num}")
+
                 # Create and display single number
-                num_text = Text(str(num), font_size=48, color=WHITE)         
+                num_text = Text(str(num), font_size=48, color=WHITE)
                 self.play(FadeIn(num_text), run_time=0.2)
+                current_time += 0.2
+
                 self.wait(0.1)  # Brief pause between numbers
+                current_time += 0.1
+
+                self.reasoning_trace.append(f"  t={current_time:.1f}s: The number fades out.")
                 self.play(FadeOut(num_text, run_time=0.2))
+                current_time += 0.2
 
             # Clear the sequence
             # current_numbers = [self.mobjects[-5+i] for i in range(5)]  # Get last 5 text objects
             # self.play(*[FadeOut(num) for num in current_numbers], run_time=0.3)
-            
+
             # Pause between sequences (except after the last one)
             if seq_idx < len(seqs) - 1:
+                pause_count += 1
+                ordinal = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh"][pause_count - 1]
+                self.reasoning_trace.append(f"At t={current_time:.1f}s: The {ordinal} PAUSE begins. The screen is blank - no numbers are showing.")
                 self.wait(2)  # Pause duration
+                current_time += 2.0
+                self.reasoning_trace.append(f"At t={current_time:.1f}s: The {ordinal} pause ends.")
         
+        # Add summary after all events
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"At t={current_time:.1f}s: All sequences have finished displaying. The video showed {num_sequences} sequences with {pause_count} pauses between them.")
+
         # Wait before showing question
         self.wait(1)
-        
+        current_time += 1.0
+
         # Generate question based on difficulty
         ordinal_numbers = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh"]
         
@@ -87,11 +136,72 @@ class pause_seq(Scene):
         # So sequences between pause X and pause Y are at indices start_pause to end_pause-1
         sequences_to_sum = seqs[start_pause:end_pause]
         answer = sum(sum(seq) for seq in sequences_to_sum)
-        
+
         # Create question text
         start_ordinal = ordinal_numbers[start_pause - 1]
         end_ordinal = ordinal_numbers[end_pause - 1]
-        
+
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"At t={current_time:.1f}s: The question appears on screen asking for the sum of sequences between the {start_ordinal} and {end_ordinal} pause.")
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("=== DERIVING THE ANSWER ===")
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"Now I need to think about what appeared between the {start_ordinal} and {end_ordinal} pause.")
+        self.reasoning_trace.append("")
+
+        # Add narrative reasoning about the structure
+        self.reasoning_trace.append("Let me recall the structure of what I saw:")
+        for i in range(num_sequences):
+            if i == 0:
+                self.reasoning_trace.append(f"- Sequence 1 appeared at the start (before any pauses)")
+            else:
+                if i < num_sequences - 1:
+                    pause_before = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh"][i - 1]
+                    self.reasoning_trace.append(f"- Then the {pause_before} pause occurred")
+                    self.reasoning_trace.append(f"- Sequence {i + 1} appeared after the {pause_before} pause")
+                else:
+                    pause_before = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh"][i - 1]
+                    self.reasoning_trace.append(f"- Then the {pause_before} pause occurred")
+                    self.reasoning_trace.append(f"- Sequence {i + 1} appeared last (after all pauses)")
+
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"The question asks for sequences BETWEEN the {start_ordinal} and {end_ordinal} pause.")
+        self.reasoning_trace.append(f"This means I need sequences that appeared AFTER the {start_ordinal} pause and BEFORE the {end_ordinal} pause.")
+        self.reasoning_trace.append("")
+
+        # Identify which sequences to sum
+        sequences_description = []
+        for i in range(start_pause, end_pause):
+            sequences_description.append(f"Sequence {i + 1}")
+
+        if len(sequences_description) == 1:
+            self.reasoning_trace.append(f"Only {sequences_description[0]} appeared between these two pauses.")
+        else:
+            sequences_list = ", ".join(sequences_description[:-1]) + f", and {sequences_description[-1]}"
+            self.reasoning_trace.append(f"The sequences that appeared between these pauses are: {sequences_list}.")
+
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("Now let me calculate the sum of all numbers in these sequences:")
+        self.reasoning_trace.append("")
+
+        # Show the calculation step by step
+        running_total = 0
+        for idx, seq_idx in enumerate(range(start_pause, end_pause)):
+            seq = seqs[seq_idx]
+            seq_sum = sum(seq)
+            running_total += seq_sum
+            numbers_str = " + ".join(str(n) for n in seq)
+            self.reasoning_trace.append(f"Sequence {seq_idx + 1}: {numbers_str} = {seq_sum}")
+            self.reasoning_trace.append(f"  Running total: {running_total}")
+
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"Therefore, the sum of all numbers in the sequences between the {start_ordinal} and {end_ordinal} pause is: {answer}")
+
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"Question: Between {start_ordinal} and {end_ordinal} pause")
+        self.reasoning_trace.append(f"Sequences to sum (indices {start_pause} to {end_pause-1}): {sequences_to_sum}")
+        self.reasoning_trace.append(f"Answer: {answer}")
+
         question_text = f"What is the sum of the sequences that appeared between \nthe {start_ordinal} and {end_ordinal} pause?"
         question = Text(question_text, font_size=24, weight=BOLD).move_to(UP * 2)
         
@@ -121,11 +231,17 @@ class pause_seq(Scene):
         
         # Save solution and question text
         question_for_file = f"What is the sum of the sequences that appeared between the {start_ordinal} and {end_ordinal} pause?\nReturn the answer as a number."
-        
+
         with open(f"solutions/pause_seq_d{self.difficulty}_seed{self.seed}.txt", "w") as f:
             f.write(str(answer))
         with open(f"question_text/pause_seq_d{self.difficulty}_seed{self.seed}.txt", "w") as f:
             f.write(question_for_file)
+
+        # Save detailed reasoning trace
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"Final Answer: {answer}")
+        with open(f"reasoning_traces/pause_seq_d{self.difficulty}_seed{self.seed}.txt", "w") as f:
+            f.write("\n".join(self.reasoning_trace))
         
         # Debug info for verification
         if os.getenv("DEBUG", "false").lower() == "true":

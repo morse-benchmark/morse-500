@@ -1,11 +1,25 @@
 from manim import *
 import json, itertools, random, copy
 import os
+import shutil
 from pathlib import Path
 from google import genai
 from pydantic import BaseModel
 from collections import Counter
 from itertools import chain
+
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
+
+config.media_dir = "manim_output"
+config.verbosity = "WARNING"
+config.pixel_height = 1080
+config.pixel_width = 1920
+config.frame_rate = 30
+config.preview = False
 
 API_KEY = os.environ['GEMINI_KEY']
 
@@ -88,6 +102,12 @@ class ARCScene(Scene):
         super().__init__()
         self.p_type = p_type
         self.DATA_PATH = data_path  # path to ARC json file
+
+        # Initialize reasoning trace
+        self.reasoning_trace = []
+        self.reasoning_trace.append(f"Problem Type: {self.p_type}")
+        self.reasoning_trace.append(f"Data Path: {self.DATA_PATH}")
+        self.reasoning_trace.append("")
 
         # ---------- Visual constants ----------
         self.CELL_SIZE = 0.35
@@ -256,12 +276,20 @@ class ARCScene(Scene):
         self.wait(1)
         task_raw, train_pairs, test_input, test_output = self.load_task()
 
+        self.reasoning_trace.append("Task loaded successfully")
+        self.reasoning_trace.append(f"Number of training examples: {len(train_pairs)}")
+        self.reasoning_trace.append(f"Test input shape: {len(test_input)}x{len(test_input[0]) if test_input else 0}")
+        self.reasoning_trace.append(f"Test output shape: {len(test_output)}x{len(test_output[0]) if test_output else 0}")
+        self.reasoning_trace.append("")
+
         arrow_proto = Arrow(LEFT, RIGHT, color=WHITE, buff=0.2)
         train_L = LEFT * 3
         train_R = RIGHT * 3
 
         # ---------- Training slideshow ----------
-        for inp, out in train_pairs:
+        self.reasoning_trace.append("Displaying training examples:")
+        for i, (inp, out) in enumerate(train_pairs):
+            self.reasoning_trace.append(f"  Example {i+1}: Input {len(inp)}x{len(inp[0])} -> Output {len(out)}x{len(out[0])}")
             lgrid = self.scale_grid(self.grid_to_vgroup(inp), self.MAX_GRID).move_to(
                 train_L
             )
@@ -301,6 +329,8 @@ class ARCScene(Scene):
             run_time=self.TRANSITION,
         )
         self.wait(self.TEST_BIG_STAY)
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("Generating question:")
         if self.p_type == "count":
 
             ca = Counter(chain.from_iterable(test_input))
@@ -308,8 +338,10 @@ class ARCScene(Scene):
             changed = {n for n in set(ca) | set(cb) if ca[n] != cb[n]} - {0, 9}
             color = random.choice(list(changed))
             color_str = self.NUM_TO_STR[color]
+            self.reasoning_trace.append(f"  Counting {color_str} squares in output")
             title = f"How many {color_str} squares should appear in the output grid?\nAnswer with a single integer"
         else:
+            self.reasoning_trace.append("  Multiple choice question type")
             title = "Which output grid should follow? Answer with one multiple choice option."
         lines = title.split("\n")
 
@@ -322,6 +354,7 @@ class ARCScene(Scene):
         # self.wait(1)
         if self.p_type == "count":
             self.answer = sum(row.count(color) for row in test_output)
+            self.reasoning_trace.append(f"  Answer: {self.answer} {color_str} squares")
         else:
             # ---------- Shrink to top & introduce options ----------
             L_small_anchor = UP * 1.2 + LEFT * 3
@@ -344,14 +377,19 @@ class ARCScene(Scene):
             )
 
             # Build MCQ row
+            self.reasoning_trace.append("")
+            self.reasoning_trace.append("Generating multiple choice options:")
             distractors = get_variants(task_raw)
+            self.reasoning_trace.append(f"  Generated {len(distractors)} distractor options using AI models")
             none_answer = False
             if random.random() < 0.3:
                 none_answer = True
                 test_output = self.color_perturb(test_output)
+                self.reasoning_trace.append("  Applied color perturbation to correct answer (none of the above scenario)")
 
             options = distractors + [test_output]
             random.shuffle(options)
+            self.reasoning_trace.append(f"  Total options: {len(options) + 1} (including 'none of the above')")
             options.append("none")
             labels = ["a", "b", "c", "d", "e"]
             row_y = DOWN * 2.2
@@ -379,8 +417,13 @@ class ARCScene(Scene):
             self.wait(self.TEST_STAY)
             if none_answer:
                 self.answer = "e"
+                self.reasoning_trace.append("  Correct answer: e (none of the above)")
             else:
                 self.answer = labels[options.index(test_output)]
+                self.reasoning_trace.append(f"  Correct answer: {self.answer}")
+
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"Final Answer: {self.answer}")
         self.question_text = title.replace("\n", " ")
 
 
@@ -389,22 +432,41 @@ if __name__ == "__main__":
     p_type = "count" # {mc, count}
     path_name = f"arcagi2_{p_type}"
 
-    os.makedirs(f"media/videos/1080p60/{path_name}/questions", exist_ok=True)
-    os.makedirs(f"media/videos/1080p60/{path_name}/solutions", exist_ok=True)
-    os.makedirs(f"media/videos/1080p60/{path_name}/question_text", exist_ok=True)
-
     folder = Path("arcagi2")
     random.seed(1)
     paths = random.sample(list(folder.iterdir()), N_EXAMPLES)
     for path in paths:
-        config.output_file = f"{path_name}/questions/{path.stem}"
         scene = ARCScene(path, p_type)
         scene.render()
-        with open(
-            f"media/videos/1080p60/{path_name}/solutions/{path.stem}.txt", "w"
-        ) as f:
+
+        # Move the output file with descriptive name
+        output = Path("manim_output/videos/1080p30/ARCScene.mp4")
+        if output.exists():
+            filename = f"{path.stem}.mp4"
+            shutil.move(str(output), f"questions/{filename}")
+        else:
+            # Debug: Print what files actually exist
+            videos_dir = Path("manim_output/videos")
+            if videos_dir.exists():
+                print(f"Available folders in videos/: {list(videos_dir.iterdir())}")
+                for folder_item in videos_dir.iterdir():
+                    if folder_item.is_dir():
+                        subfolder = folder_item / "1080p30"
+                        if subfolder.exists():
+                            print(f"Files in {subfolder}: {list(subfolder.iterdir())}")
+            else:
+                print("manim_output/videos directory doesn't exist")
+
+        # Save solution and question text
+        with open(f"solutions/{path.stem}.txt", "w") as f:
             f.write(str(scene.answer))
-        with open(
-            f"media/videos/1080p60/{path_name}/question_text/{path.stem}.txt", "w"
-        ) as f:
+        with open(f"question_text/{path.stem}.txt", "w") as f:
             f.write(scene.question_text)
+
+        # Save detailed reasoning trace
+        with open(f"reasoning_traces/{path.stem}.txt", "w") as f:
+            f.write("\n".join(scene.reasoning_trace))
+
+        # Final cleanup
+        if os.path.exists("manim_output"):
+            shutil.rmtree("manim_output")

@@ -20,6 +20,12 @@ import matplotlib.transforms as transforms
 import matplotlib.colors as mcolors
 import datetime
 
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
+
 
 
 def select_random_points(maze, N=0):
@@ -520,6 +526,73 @@ def create_professional_plt_animation(maze_frames, output_path, distance_list = 
     plt.close(fig)
 
 
+def generate_reasoning_trace(n_row, n_col, start, end, additional_points, letter_list, correct_answer, directions, solution):
+    """Generate a chronological reasoning trace describing the maze problem"""
+
+    trace = []
+    trace.append("=== PROBLEM SETUP ===\n")
+    trace.append(f"I am given a maze of size {n_row} x {n_col}.")
+    trace.append(f"The maze has walls and paths that I can traverse.")
+    trace.append(f"My starting position is marked with a green square at coordinates {start}.")
+    trace.append(f"There are {len(letter_list)} letters placed at different positions in the maze:")
+
+    # List all letter positions
+    trace.append(f"  - Letter '{correct_answer}' is at position {end}")
+    for idx, letter in enumerate(letter_list[1:]):
+        trace.append(f"  - Letter '{letter}' is at position {additional_points[idx]}")
+    trace.append("")
+
+    trace.append("\n=== DIRECTIONS GIVEN ===\n")
+    trace.append("I am given the following sequence of movements to follow:")
+    for i, direction in enumerate(directions, 1):
+        trace.append(f"  Step {i}: {direction}")
+    trace.append("")
+
+    trace.append("\n=== FRAME-BY-FRAME VISUALIZATION ===\n")
+    trace.append("The video shows multiple frames, each displaying the maze with one letter:")
+    trace.append(f"  - Frame 1: Shows letter '{correct_answer}' at position {end}")
+    for idx, letter in enumerate(letter_list[1:]):
+        trace.append(f"  - Frame {idx + 2}: Shows letter '{letter}' at position {additional_points[idx]}")
+    trace.append("")
+
+    trace.append("\n=== FOLLOWING THE PATH ===\n")
+    trace.append("Starting from the green square, I follow the given directions step by step:")
+    trace.append(f"  Starting position: {start}")
+
+    # Show the path step by step
+    for i, pos in enumerate(solution[1:], 1):
+        if i <= len(directions):
+            trace.append(f"  After step {i} ({directions[i-1]}): Position {pos}")
+
+    trace.append(f"  Final position: {solution[-1]}")
+    trace.append("")
+
+    trace.append("\n=== IDENTIFYING THE ENDPOINT ===\n")
+    trace.append(f"After following all the directions, I end at position {solution[-1]}.")
+    trace.append(f"Now I need to determine which letter is at this position.")
+    trace.append("")
+
+    # Check which letter is at the end position
+    trace.append("Checking the letter positions:")
+    if solution[-1] == end:
+        trace.append(f"  - Position {solution[-1]} matches the position of letter '{correct_answer}'")
+    else:
+        trace.append(f"  - Position {solution[-1]} does not match letter '{correct_answer}' at {end}")
+
+    for idx, letter in enumerate(letter_list[1:]):
+        if solution[-1] == additional_points[idx]:
+            trace.append(f"  - Position {solution[-1]} matches the position of letter '{letter}'")
+        else:
+            trace.append(f"  - Position {solution[-1]} does not match letter '{letter}' at {additional_points[idx]}")
+    trace.append("")
+
+    trace.append("\n=== FINAL ANSWER ===\n")
+    trace.append(f"The letter at position {solution[-1]} is: {correct_answer}")
+    trace.append(f"\nAnswer: {correct_answer}")
+
+    return "\n".join(trace)
+
+
 def chunk_text(text, max_width=40, min_width=20):
     """
     Split text into chunks with roughly similar width, breaking at whitespace.
@@ -569,13 +642,17 @@ def chunk_text(text, max_width=40, min_width=20):
 
 
 if __name__ == "__main__":
-    
+
     import argparse
     parser = argparse.ArgumentParser(description='Run Frozen Lake analysis with configurable parameters.')
     parser.add_argument('--size', type=int, default=10, help='Size of the random map (default: 10)')
     parser.add_argument('--question_name', type=str, default='count', choices=['count', 'min_length', 'agent_steps'], help='Name of the question for output files (default: script filename)')
     args = parser.parse_args()
-    
+
+    # Set random seed for reproducibility
+    seed = random.randint(1000, 9999)
+    random.seed(seed)
+
     n_row = n_col = args.size
     print(f"Maze size {n_row}x{n_col}")
     sample_lattice_maze = LatticeMazeGenerators.gen_dfs(
@@ -656,7 +733,7 @@ if __name__ == "__main__":
     script_path = __file__
     script_filename = os.path.basename(script_path)
     print(f"script_filename: {script_filename}")
-    question_name = script_filename.split('.')[0]+f'_sz{args.size}'
+    question_name = script_filename.split('.')[0]+f'_sz{args.size}_seed{seed}'
     question_dir = Path('questions')
     question_dir.mkdir(exist_ok=True)
     output_video = f"questions/{question_name}.mp4"
@@ -695,14 +772,25 @@ if __name__ == "__main__":
     #     dpi=200
     # )
 
+    # Save solution
     solution_dir = Path('solutions')
     solution_dir.mkdir(exist_ok=True)
     with open(f"solutions/{question_name}.txt", "w") as f:
         f.write(f"{correct_answer}")
 
-
-    question_text = f"{question_text}\n{credits[0]}. {credits[1]}"
+    # Save question text
+    question_text_full = f"{question_text}\n{credits[0]}. {credits[1]}"
     question_text_dir = Path('question_text')
     question_text_dir.mkdir(exist_ok=True)
     with open(question_text_dir/f"{question_name}.txt", "w") as f:
-        f.write(f"{question_text}")
+        f.write(f"{question_text_full}")
+
+    # Generate and save reasoning trace
+    reasoning_trace = generate_reasoning_trace(
+        n_row, n_col, start, end, additional_points,
+        letter_list, correct_answer, directions, solution
+    )
+    reasoning_trace_dir = Path('reasoning_traces')
+    reasoning_trace_dir.mkdir(exist_ok=True)
+    with open(reasoning_trace_dir/f"{question_name}.txt", "w") as f:
+        f.write(reasoning_trace)

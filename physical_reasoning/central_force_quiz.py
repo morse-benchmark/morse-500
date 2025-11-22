@@ -4,6 +4,21 @@ import random
 from scipy.integrate import solve_ivp
 import time
 import os
+import shutil
+from pathlib import Path
+
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
+
+config.media_dir = "manim_output"
+config.verbosity = "WARNING"
+config.pixel_height = 1080
+config.pixel_width = 1920
+config.frame_rate = 30
+config.preview = False
 
 
 DEFAULT_N_VALUES = [0, 1, 3] 
@@ -180,24 +195,48 @@ def adjust_ranges(difficulty):
 
 
 class CentralForceQuiz(Scene):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        # Set random seed for reproducibility
+        self.seed = int(os.environ.get('MANIM_SEED', time.time()))
+        self.difficulty = int(os.environ.get('MANIM_DIFFICULTY', 5))
+        self.object_count = int(os.environ.get('MANIM_OBJECT_COUNT', 1))
+
+        if self.object_count not in [1, 2, 3]:
+            print(f"Warning: object_count {self.object_count} is not valid. Using default value 1.")
+            self.object_count = 1
+
+        random.seed(self.seed)
+        np.random.seed(self.seed)
+
+        # Store for reasoning trace
+        self.scene_events = []
+        self.objects_params = []
+        self.objects_initial_states = []
+        self.object_colors = [RED, GREEN, BLUE]
+        self.correct_answer = None
+
     def construct(self):
-        seed = int(os.environ.get('MANIM_SEED', time.time()))
-        difficulty = int(os.environ.get('MANIM_DIFFICULTY', 5))
-        object_count = int(os.environ.get('MANIM_OBJECT_COUNT', 1))
-        
-        if object_count not in [1, 2, 3]:
-            print(f"Warning: object_count {object_count} is not valid. Using default value 1.")
-            object_count = 1
-        
+        seed = self.seed
+        difficulty = self.difficulty
+        object_count = self.object_count
+
         random.seed(seed); np.random.seed(seed)
 
         n_options_for_correct, k_range, r0_range, v0_range, phi0_range_deg = adjust_ranges(difficulty)
         m = DEFAULT_M_FIXED
 
-        objects_params = []
-        objects_initial_states = []
-        object_colors = [RED, GREEN, BLUE]
-        
+        # Track event for reasoning trace
+        cumulative_time = 0.0
+        self.scene_events.append({
+            'event': 'initial_setup',
+            'start_time': cumulative_time,
+            'description': f'Central Force Motion Quiz ({object_count} Object{"s" if object_count > 1 else ""})',
+            'difficulty': difficulty,
+            'seed': seed
+        })
+
         for i in range(object_count):
             n_correct = random.choice(n_options_for_correct + [2])
             k = random.uniform(*k_range)
@@ -233,9 +272,24 @@ class CentralForceQuiz(Scene):
                 err_msg = Text(f"Error: NaN in initial state for object {i+1}", color=RED, font_size=20).move_to(ORIGIN)
                 self.play(Write(err_msg)); self.wait(3); print(f"FINAL_ANSWER: ERROR_NAN_INIT"); return
 
-            objects_params.append(params_correct)
-            objects_initial_states.append(initial_state_correct)
-            
+            self.objects_params.append(params_correct)
+            self.objects_initial_states.append(initial_state_correct)
+
+            # Record object parameters for reasoning trace
+            self.scene_events.append({
+                'event': 'object_parameters',
+                'object_id': i + 1,
+                'n': n_correct,
+                'k': k,
+                'r0': r0,
+                'v0': v0_mag,
+                'phi0_deg': phi0_deg_magnitude,
+                'theta0_deg': theta0_deg,
+                'position': pos0,
+                'velocity': vel0,
+                'color': self.object_colors[i].name if hasattr(self.object_colors[i], 'name') else str(self.object_colors[i])
+            })
+
             print(f"Object {i+1}: n={n_correct}, k={k:.3f}, r0={r0:.2f}, v0={v0_mag:.2f}, phi0={phi0_deg_magnitude:.1f}deg")
 
         print(f"--- Quiz Setup (Seed: {seed}, Difficulty: {difficulty}, Objects: {object_count}) ---")
@@ -248,29 +302,29 @@ class CentralForceQuiz(Scene):
         particles = []
         arrows = []
         param_texts = []
-        
-        for i in range(object_count):
-            pos0 = np.array([objects_initial_states[i][0], objects_initial_states[i][1], 0])
-            vel0 = np.array([objects_initial_states[i][2], objects_initial_states[i][3], 0])
-            
 
-            particle = Dot(point=pos0, radius=PARTICLE_RADIUS, color=object_colors[i])
+        for i in range(object_count):
+            pos0 = np.array([self.objects_initial_states[i][0], self.objects_initial_states[i][1], 0])
+            vel0 = np.array([self.objects_initial_states[i][2], self.objects_initial_states[i][3], 0])
+
+
+            particle = Dot(point=pos0, radius=PARTICLE_RADIUS, color=self.object_colors[i])
             particles.append(particle)
-            
+
 
             if np.linalg.norm(vel0) > 1e-4:
-                arrow = Arrow(pos0, pos0 + vel0 * ARROW_SCALE, buff=PARTICLE_RADIUS, 
-                            color=object_colors[i], stroke_width=3, max_tip_length_to_length_ratio=0.25)
+                arrow = Arrow(pos0, pos0 + vel0 * ARROW_SCALE, buff=PARTICLE_RADIUS,
+                            color=self.object_colors[i], stroke_width=3, max_tip_length_to_length_ratio=0.25)
                 arrows.append(arrow)
-            
 
-            m, k, n = objects_params[i]
+
+            m, k, n = self.objects_params[i]
             r0 = np.linalg.norm(pos0)
             v0_mag = np.linalg.norm(vel0)
             phi0_deg = np.degrees(np.arccos(np.clip(np.dot(vel0, pos0) / (r0 * v0_mag), -1, 1)))
-            
+
             param_text = VGroup(
-                MathTex(f"\\text{{Object {i+1}:}}", font_size=20, color=object_colors[i]),
+                MathTex(f"\\text{{Object {i+1}:}}", font_size=20, color=self.object_colors[i]),
                 MathTex(f"n = {n}, k \\approx {k:.1f}", font_size=16),
                 MathTex(f"r_0 \\approx {r0:.1f}, v_0 \\approx {v0_mag:.1f}", font_size=16),
                 MathTex(f"\\phi_0 \\approx {phi0_deg:.0f}^\\circ", font_size=16)
@@ -297,11 +351,18 @@ class CentralForceQuiz(Scene):
             initial_setup_group.add(particle)
         for arrow in arrows:
             initial_setup_group.add(arrow)
-            
+
+        # Track initial setup display event
+        self.scene_events.append({
+            'event': 'display_initial_setup',
+            'start_time': cumulative_time,
+            'duration': 0.5
+        })
         self.add(initial_setup_group); self.wait(0.5)
+        cumulative_time += 0.5
 
         sim_duration_calc = SIM_DURATION
-        results_correct = simulate_multiple_objects(sim_duration_calc, objects_initial_states, objects_params)
+        results_correct = simulate_multiple_objects(sim_duration_calc, self.objects_initial_states, self.objects_params)
 
         if not results_correct or any(len(coords) < 2 for coords, _, _ in results_correct):
             err_msg = Text("Sim Error (Correct Path)", color=RED).move_to(ORIGIN)
@@ -313,19 +374,21 @@ class CentralForceQuiz(Scene):
 
         anim_particles = []
         anim_trails = []
-        
+
+        # Track trajectory animation event
+        anim_start_time = cumulative_time
         for i, (coords, time_pts, _) in enumerate(results_correct):
             if len(coords) >= 2:
                 anim_end_index = np.searchsorted(time_pts, initial_anim_duration_actual, side='right')
                 if anim_end_index < 2: anim_end_index = min(2, len(coords))
                 anim_coords = coords[:anim_end_index]
-                
+
                 if len(anim_coords) >= 2:
                     particle_anim = particles[i].copy()
-                    trail_anim = TracedPath(particle_anim.get_center, stroke_color=object_colors[i], 
+                    trail_anim = TracedPath(particle_anim.get_center, stroke_color=self.object_colors[i],
                                           stroke_width=TRACE_STROKE_WIDTH, dissipating_time=0.5, stroke_opacity=[0,1])
-                    
-                    anim_path_obj = create_trajectory_path(anim_coords, color=object_colors[i], stroke_width=TRACE_STROKE_WIDTH)
+
+                    anim_path_obj = create_trajectory_path(anim_coords, color=self.object_colors[i], stroke_width=TRACE_STROKE_WIDTH)
                     
                     if anim_path_obj.has_points():
                         self.add(trail_anim, particle_anim)
@@ -338,15 +401,33 @@ class CentralForceQuiz(Scene):
                         try:
                             if anim_play_time > 1e-4:
                                 self.play(MoveAlongPath(particle_anim, anim_path_obj), run_time=anim_play_time, rate_func=linear)
+                                cumulative_time += anim_play_time
                         except Exception as e:
                             print(f"Error during MoveAlongPath for object {i+1}: {e}")
-        
+
+        # Track trajectory animation event
+        self.scene_events.append({
+            'event': 'trajectory_animation',
+            'start_time': anim_start_time,
+            'duration': cumulative_time - anim_start_time,
+            'trajectories': results_correct
+        })
 
         fade_out_mobjects_after_anim.add(*anim_particles, *anim_trails)
 
         question = Text(f"Which path corresponds to this motion?", font_size=28).to_edge(DOWN, buff=MED_LARGE_BUFF)
         self.play(Write(question), run_time=0.75)
+        cumulative_time += 0.75
         self.wait(0.5)
+        cumulative_time += 0.5
+
+        # Track question display event
+        self.scene_events.append({
+            'event': 'display_question',
+            'start_time': cumulative_time - 1.25,
+            'question': "Which path corresponds to this motion?"
+        })
+
         fade_out_mobjects_after_anim.add(question)
         
 
@@ -366,34 +447,34 @@ class CentralForceQuiz(Scene):
                 return True
             return False
 
-        possible_n_dist = [n_val for n_val in (DEFAULT_N_VALUES + [2]) if n_val not in [params[2] for params in objects_params]]
+        possible_n_dist = [n_val for n_val in (DEFAULT_N_VALUES + [2]) if n_val not in [params[2] for params in self.objects_params]]
         random.shuffle(possible_n_dist)
         for n_d in possible_n_dist:
-            params_different_n = [[m, k, n_d] for m, k, _ in objects_params]
-            if add_distractor(simulate_multiple_objects, (sim_duration_calc, objects_initial_states, params_different_n), f"n={n_d}", distractor_results_list):
+            params_different_n = [[m, k, n_d] for m, k, _ in self.objects_params]
+            if add_distractor(simulate_multiple_objects, (sim_duration_calc, self.objects_initial_states, params_different_n), f"n={n_d}", distractor_results_list):
                 if len(distractor_results_list) >= num_needed_distractors: break
 
-        if any(k != 0 and abs(k) > 1e-3 for _, k, _ in objects_params):
-            params_zero_k = [[m, 0, n] for m, _, n in objects_params]
-            add_distractor(simulate_multiple_objects, (sim_duration_calc, objects_initial_states, params_zero_k), "k=0", distractor_results_list)
+        if any(k != 0 and abs(k) > 1e-3 for _, k, _ in self.objects_params):
+            params_zero_k = [[m, 0, n] for m, _, n in self.objects_params]
+            add_distractor(simulate_multiple_objects, (sim_duration_calc, self.objects_initial_states, params_zero_k), "k=0", distractor_results_list)
 
         k_factors = [0.5, 1.5, 2.0]
         for k_factor in k_factors:
-            params_k_factor = [[m, k * k_factor, n] for m, k, n in objects_params]
-            add_distractor(simulate_multiple_objects, (sim_duration_calc, objects_initial_states, params_k_factor), f"k_factor={k_factor}", distractor_results_list)
+            params_k_factor = [[m, k * k_factor, n] for m, k, n in self.objects_params]
+            add_distractor(simulate_multiple_objects, (sim_duration_calc, self.objects_initial_states, params_k_factor), f"k_factor={k_factor}", distractor_results_list)
             if len(distractor_results_list) >= num_needed_distractors: break
 
 
         v0_factors = [0.5, 1.5, 2.0]
         for v0_factor in v0_factors:
             new_initial_states = []
-            for i, initial_state in enumerate(objects_initial_states):
+            for i, initial_state in enumerate(self.objects_initial_states):
                 pos0 = np.array([initial_state[0], initial_state[1], 0])
                 vel0 = np.array([initial_state[2], initial_state[3], 0])
                 new_vel0 = vel0 * v0_factor
                 new_initial_states.append([pos0[0], pos0[1], new_vel0[0], new_vel0[1]])
-            
-            add_distractor(simulate_multiple_objects, (sim_duration_calc, new_initial_states, objects_params), f"v0_factor={v0_factor}", distractor_results_list)
+
+            add_distractor(simulate_multiple_objects, (sim_duration_calc, new_initial_states, self.objects_params), f"v0_factor={v0_factor}", distractor_results_list)
             if len(distractor_results_list) >= num_needed_distractors: break
 
         if len(distractor_results_list) < num_needed_distractors:
@@ -423,7 +504,7 @@ class CentralForceQuiz(Scene):
         for i, current_choice_coords_list in enumerate(all_choice_coords_for_display):
             content_mobject = None
             if all(coords is not None and len(coords) >= 2 for coords in current_choice_coords_list):
-                content_mobject = create_multi_object_choice_content(current_choice_coords_list, object_colors[:object_count])
+                content_mobject = create_multi_object_choice_content(current_choice_coords_list, self.object_colors[:object_count])
                 has_actual_paths = any(isinstance(mobj, VMobject) and mobj.has_points() and mobj is not content_mobject.submobjects[0] for mobj in content_mobject.submobjects)
                 if has_actual_paths:
                     choices_vgroups.append(content_mobject)

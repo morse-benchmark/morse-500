@@ -19,6 +19,12 @@ import matplotlib.transforms as transforms
 import matplotlib.colors as mcolors
 import datetime
 
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
+
 
 
 def select_random_points(maze, N=0):
@@ -459,12 +465,12 @@ def create_professional_plt_animation(maze_frames, output_path, distance_list = 
 def chunk_text(text, max_width=40, min_width=20):
     """
     Split text into chunks with roughly similar width, breaking at whitespace.
-    
+
     Parameters:
     text (str): The input text to chunk
     max_width (int): Maximum preferred width for each line
     min_width (int): Minimum preferred width for each line (except last line)
-    
+
     Returns:
     list: A list of text chunks
     """
@@ -472,19 +478,19 @@ def chunk_text(text, max_width=40, min_width=20):
     chunks = []
     current_chunk = []
     current_width = 0
-    
+
     for word in words:
         # Calculate width if we add this word (plus a space)
         word_width = len(word)
         new_width = current_width + word_width + (1 if current_width > 0 else 0)
-        
+
         if new_width <= max_width:
             # Word fits in current chunk, add it
             current_chunk.append(word)
             current_width = new_width
         else:
             # Word doesn't fit, start a new chunk
-            
+
             # If current chunk is too short, and we can afford to go over max_width,
             # and this isn't the last word, put the word in the current chunk
             if current_width < min_width and len(current_chunk) > 0 and word != words[-1]:
@@ -496,12 +502,89 @@ def chunk_text(text, max_width=40, min_width=20):
                     chunks.append(' '.join(current_chunk))
                 current_chunk = [word]
                 current_width = word_width
-    
+
     # Add the last chunk if there's anything left
     if current_chunk:
         chunks.append(' '.join(current_chunk))
-    
+
     return chunks
+
+
+def generate_reasoning_trace(n_row, n_col, path_pairs, distance_list, correct_answer):
+    """
+    Generate a detailed chronological reasoning trace for the maze problem.
+
+    Parameters:
+    n_row, n_col: Maze dimensions
+    path_pairs: List of (start, end) coordinate pairs for each frame
+    distance_list: List of shortest path distances for each frame
+    correct_answer: The maximum distance found
+
+    Returns:
+    str: A formatted reasoning trace
+    """
+    trace = []
+    trace.append("=== PROBLEM SETUP ===\n")
+    trace.append(f"I am presented with a maze visualization task.")
+    trace.append(f"The maze has dimensions: {n_row} rows × {n_col} columns")
+    trace.append(f"The video shows {len(path_pairs)} different frames, each with different start (green) and end (red) positions.")
+    trace.append("")
+
+    trace.append("\n=== MAZE GENERATION ===\n")
+    trace.append("A maze is generated using depth-first search (DFS) algorithm.")
+    trace.append("This creates a perfect maze - a maze with exactly one path between any two points.")
+    trace.append("The maze structure remains constant throughout the video.")
+    trace.append("")
+
+    trace.append("\n=== POINTS SELECTION PROCESS ===\n")
+    trace.append("For each frame in the animation:")
+    trace.append("  - Two points (green and red squares) are positioned in the maze")
+    trace.append("  - These points move through the maze following random walks")
+    trace.append("  - At each step, the shortest path between them is calculated")
+    trace.append("")
+
+    trace.append("\n=== FRAME-BY-FRAME ANALYSIS ===\n")
+    trace.append("I observe each frame and record the positions and distances:\n")
+
+    for i, ((start, end), distance) in enumerate(zip(path_pairs, distance_list), 1):
+        trace.append(f"Frame {i}:")
+        trace.append(f"  - Green square (start) position: ({start[0]}, {start[1]})")
+        trace.append(f"  - Red square (end) position: ({end[0]}, {end[1]})")
+        trace.append(f"  - Shortest path distance: {distance} grid steps")
+        if i < len(path_pairs):
+            trace.append("")
+
+    trace.append("\n\n=== DISTANCE COMPARISON ===\n")
+    trace.append("Listing all measured distances:")
+    for i, distance in enumerate(distance_list, 1):
+        trace.append(f"  Frame {i}: {distance} steps")
+    trace.append("")
+
+    trace.append("\n=== FINDING THE LARGEST DISTANCE ===\n")
+    trace.append("To answer the question, I need to find the maximum value from all distances.")
+    trace.append(f"Distances: {distance_list}")
+    trace.append(f"Maximum distance: {correct_answer} steps")
+
+    # Find which frame(s) had the maximum distance
+    max_frames = [i+1 for i, d in enumerate(distance_list) if d == correct_answer]
+    if len(max_frames) == 1:
+        trace.append(f"This maximum occurred in Frame {max_frames[0]}.")
+    else:
+        trace.append(f"This maximum occurred in Frames: {', '.join(map(str, max_frames))}.")
+    trace.append("")
+
+    trace.append("\n=== FINAL ANSWER ===\n")
+    trace.append(f"The maximum shortest-path distance between the green and red squares")
+    trace.append(f"at any point during the animation is: {correct_answer}")
+    trace.append("")
+
+    trace.append("\n=== REASONING SUMMARY ===\n")
+    trace.append(f"I observed {len(path_pairs)} frames showing different positions of green and red squares in a {n_row}×{n_col} maze. ")
+    trace.append(f"For each frame, I measured the shortest path distance between the two squares. ")
+    trace.append(f"By comparing all {len(distance_list)} distances ({', '.join(map(str, distance_list))}), ")
+    trace.append(f"I determined that the maximum distance is {correct_answer} grid steps.")
+
+    return "\n".join(trace)
 
 
 if __name__ == "__main__":
@@ -510,7 +593,12 @@ if __name__ == "__main__":
     parser.add_argument('--size', type=int, default=10, help='Size of the random map (default: 10)')
     parser.add_argument('--question_name', type=str, default='count', choices=['count', 'min_length', 'agent_steps'], help='Name of the question for output files (default: script filename)')
     args = parser.parse_args()
-    
+
+    # Set random seed for reproducibility
+    seed = random.randint(1000, 9999)
+    random.seed(seed)
+    np.random.seed(seed)
+
     n_row = n_col = args.size
     print(f"Maze size {n_row}x{n_col}")
     sample_lattice_maze = LatticeMazeGenerators.gen_dfs(
@@ -547,21 +635,23 @@ if __name__ == "__main__":
     maze_frames = []
     maze_frames_solution = []
     distance_list = []
+    path_pairs = []  # Store (start, end) pairs for reasoning trace
     for start, end in zip(s_path_m1d2, e_path_m1d2):
 
         # start, end, additional_points = select_random_points(sample_lattice_maze, 3)
         print(f"Start: {start}, End: {end}")
-        
-        
+        path_pairs.append((start, end))
+
+
         tgt_maze = TargetedLatticeMaze.from_lattice_maze(
             sample_lattice_maze,
             start_pos=start,
             end_pos=end,
         )
-        
+
         solved_maze: SolvedMaze = SolvedMaze.from_targeted_lattice_maze(tgt_maze)
         solution = solved_maze.solution
-        
+
         maze_pixels = tgt_maze.as_pixels()
         maze_frames.append(maze_pixels)
         # solution
@@ -576,7 +666,7 @@ if __name__ == "__main__":
     script_path = __file__
     script_filename = os.path.basename(script_path)
     print(f"script_filename: {script_filename}")
-    question_name = script_filename.split('.')[0]+f'_sz{args.size}'
+    question_name = script_filename.split('.')[0]+f'_sz{args.size}_seed{seed}'
     question_dir = Path('questions')
     question_dir.mkdir(exist_ok=True)
     output_video = f"questions/{question_name}.mp4"
@@ -631,3 +721,9 @@ if __name__ == "__main__":
     question_text_dir.mkdir(exist_ok=True)
     with open(question_text_dir/f"{question_name}.txt", "w") as f:
         f.write(f"{question_text}")
+
+    # Generate and save reasoning trace
+    reasoning_trace = generate_reasoning_trace(n_row, n_col, path_pairs, distance_list, correct_answer)
+    with open(f"reasoning_traces/{question_name}.txt", "w") as f:
+        f.write(reasoning_trace)
+    print(f"Reasoning trace saved to reasoning_traces/{question_name}.txt")

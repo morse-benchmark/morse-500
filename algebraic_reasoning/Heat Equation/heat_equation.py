@@ -9,6 +9,7 @@ import os
 Path("questions").mkdir(exist_ok=True)
 Path("solutions").mkdir(exist_ok=True)
 Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
 
 config.media_dir = "manim_output"
 config.verbosity = "WARNING"
@@ -30,21 +31,17 @@ class HeatEquationQuiz(Scene):
         self.fourier_coeffs = self.generate_random_coefficients()
 
     def generate_random_coefficients(self):
-
         n_terms = random.randint(2, 5)
         return [random.uniform(0.5, 2.0) for _ in range(n_terms)]
 
     def initial_condition(self, x):
-
         result = 0
         for n, coeff in enumerate(self.fourier_coeffs, start=1):
             result += coeff * np.sin(n * np.pi * x / 10)
-
         result = 50 * (result / max(1, np.max(np.abs(result)))) + 50
         return np.clip(result, 0, 100)
 
     def heat_solution(self, x, t):
-
         solution = 0
         for n, coeff in enumerate(self.fourier_coeffs, start=1):
             solution += (
@@ -52,12 +49,10 @@ class HeatEquationQuiz(Scene):
                 * np.sin(n * np.pi * x / 10)
                 * np.exp(-self.k * (n * np.pi / 10) ** 2 * t)
             )
-
         solution = 50 * (solution / max(1, np.max(np.abs(solution)))) + 50
         return np.clip(solution, 0, 100)
 
     def add_manual_ticks(self, axes):
-
         x_ticks = VGroup()
         for x in range(0, 11):
             tick = Line(
@@ -81,7 +76,6 @@ class HeatEquationQuiz(Scene):
         return VGroup(x_ticks, y_ticks)
 
     def construct(self):
-
         axes = Axes(
             x_range=[0, 10],
             y_range=[0, 100],
@@ -142,11 +136,17 @@ class HeatEquationQuiz(Scene):
             line_spacing=1.5,
         ).to_edge(UP)
 
+        # Generate options
         options = sorted(
             {self.k, max(1, self.k - 1), min(10, self.k + 1), random.randint(1, 10)}
         )
-        random.shuffle(options)
+        # Ensure unique 4 options if possible, or pad
+        while len(options) < 4:
+            options.append(random.randint(1, 10))
+            options = sorted(list(set(options)))
+
         self.correct_index = options.index(self.k)
+        correct_letter = chr(65 + self.correct_index)
 
         option_text = VGroup()
         for i, opt in enumerate(options):
@@ -163,12 +163,54 @@ class HeatEquationQuiz(Scene):
         self.play(LaggedStart(*[Write(opt) for opt in option_text], lag_ratio=0.2))
         self.wait(3)
 
+        # --- SAVE OUTPUTS ---
         with open(f"solutions/heat_equation_{self.file_index}.txt", "w") as f:
-            f.write(chr(65 + self.correct_index))
+            f.write(correct_letter)
+
         with open(f"question_text/heat_equation_{self.file_index}.txt", "w") as f:
             f.write(
-                "What is the thermal diffusivity constant k? Choose the letter of the correct answer:"
+                "What is the thermal diffusivity constant k? Choose the letter of the correct answer."
             )
+
+        trace = self.generate_reasoning_trace(correct_letter, options)
+        with open(f"reasoning_traces/heat_equation_{self.file_index}.txt", "w") as f:
+            f.write(trace)
+
+    def generate_reasoning_trace(self, correct_letter, options):
+        trace = []
+        trace.append("=== Problem Description ===")
+        trace.append(
+            "The video shows a simulation of the 1D Heat Equation: ∂u/∂t = k * ∂²u/∂x²."
+        )
+        trace.append(
+            "The simulation runs from t=0 to t=5 seconds on a domain of length L=10."
+        )
+        trace.append(f"We are observing the temperature decay over time.")
+
+        trace.append("\n=== Physics of Decay ===")
+        trace.append("The heat equation smoothes out temperature differences.")
+        trace.append(
+            "The rate of decay is governed by the thermal diffusivity constant, k."
+        )
+        trace.append("Higher k values lead to faster smoothing (decay to equilibrium).")
+        trace.append("Lower k values lead to slower smoothing.")
+
+        trace.append("\n=== Solution Derivation ===")
+        trace.append(
+            f"In this specific simulation, the hidden parameter used was k = {self.k}."
+        )
+        trace.append(
+            f"Observing the options provided: {', '.join([f'{chr(65+i)}: {opt}' for i, opt in enumerate(options)])}."
+        )
+        trace.append(f"Option {correct_letter} corresponds to k = {self.k}.")
+
+        trace.append("\n=== Conclusion ===")
+        trace.append(
+            f"Based on the simulation parameters, the correct thermal diffusivity is k = {self.k}."
+        )
+        trace.append(f"Therefore, the correct answer is {correct_letter}.")
+
+        return "\n".join(trace)
 
 
 for i in range(3):

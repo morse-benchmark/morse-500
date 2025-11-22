@@ -9,6 +9,7 @@ from pathlib import Path
 Path("questions").mkdir(exist_ok=True)
 Path("solutions").mkdir(exist_ok=True)
 Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
 
 config.media_dir = "manim_output"
 config.verbosity = "WARNING"
@@ -20,13 +21,20 @@ config.preview = False
 class color_objects(Scene):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         # Set random seed for reproducibility
         self.seed = random.randint(1000, 9999)
         random.seed(self.seed)
-        
+
         # Parameters
         self.difficulty = int(os.getenv("DIFFICULTY", 1))
+
+        # Initialize reasoning trace
+        self.reasoning_trace = []
+        self.reasoning_trace.append(f"Problem: Color matching objects")
+        self.reasoning_trace.append(f"Difficulty: {self.difficulty}")
+        self.reasoning_trace.append(f"Random Seed: {self.seed}")
+        self.reasoning_trace.append("")
         
     def construct(self):
         # Define all possible shapes with their names
@@ -84,45 +92,93 @@ class color_objects(Scene):
                 transition_colors[i] = chosen_color
                 available_colors.remove(chosen_color)  # Ensure distinctness
         
+        # Build chronological description
+        self.reasoning_trace.append("=== CHRONOLOGICAL SCENE DESCRIPTION ===")
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"A sequence of {num_shapes} shapes appears and disappears in quick succession:")
+        self.reasoning_trace.append("")
+
         # Quickly display each shape in turn
         shape_color_pairs = []
+        current_time = 0.0
+
+        # Create color name map
+        color_name_map = {
+            RED: "red",
+            BLUE: "blue",
+            GREEN: "green",
+            YELLOW: "yellow",
+            PURPLE: "purple",
+            ORANGE: "orange",
+            PINK: "pink",
+            TEAL: "teal",
+            MAROON: "maroon",
+            GRAY: "gray"
+        }
+
         for i, (shape, color) in enumerate(zip(selected_shapes, selected_colors)):
             shape.set_fill(color, opacity=0.8)
             shape_color_pairs.append((shape, color, shape_names[i]))
+
+            # Add narrative description with timing
+            color_name = color_name_map[color]
+            self.reasoning_trace.append(f"At {current_time:.1f}s: A {color_name} {shape_names[i]} appears briefly and then fades out.")
+
             self.play(Create(shape), run_time=0.4)
+            current_time += 0.4
             self.play(FadeOut(shape), run_time=0.2)
+            current_time += 0.2
 
         # Final shape should be different from all initial shapes to avoid confusion
         # Get the shapes that weren't selected for the initial sequence
         remaining_shapes_with_names = [item for item in all_shapes_with_names if item not in selected_shape_data]
-        
+
         # If we have remaining shapes, pick one; otherwise create a simple circle as fallback
         if remaining_shapes_with_names:
             final_shape_data = random.choice(remaining_shapes_with_names)
             final_shape = final_shape_data[0].copy()
+            final_shape_name = final_shape_data[1]
         else:
             # Fallback to a circle if somehow all shapes were used (shouldn't happen with current setup)
             final_shape = Circle()
-        
+            final_shape_name = "circle"
+
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"At {current_time:.1f}s: After the initial sequence, a {final_shape_name} appears with {color_name_map[transition_colors[0]]} color.")
+
         # Set initial color for final shape to be the first transition color
         final_shape.set_fill(transition_colors[0], opacity=0.8)
         self.play(Create(final_shape), run_time=0.4)
+        current_time += 0.4
         self.wait(0.4)
-        
+        current_time += 0.4
+
+        # Build narrative for color transitions
+        transition_color_names = [color_name_map[col] for col in transition_colors]
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"The final {final_shape_name} then transitions through colors:")
+
         # Smoother color transitions with longer duration (4 more color changes)
-        for i, col in enumerate(transition_colors[1:], start=2):
+        for i, col in enumerate(transition_colors[1:], start=1):
+            prev_color = color_name_map[transition_colors[i-1]]
+            curr_color = color_name_map[col]
+            self.reasoning_trace.append(f"At {current_time:.1f}s: The {final_shape_name} transitions from {prev_color} to {curr_color}.")
+
             self.play(final_shape.animate.set_fill(col, opacity=0.8), run_time=0.4)
+            current_time += 0.4
 
         # Wait before showing question
         self.wait(0.5)
-        
+        current_time += 0.5
+
         # Remove final shape
         self.play(FadeOut(final_shape), run_time=0.5)
-        
+        current_time += 0.5
+
         # Create color map for names
         color_map = {
             RED: "Red",
-            BLUE: "Blue", 
+            BLUE: "Blue",
             GREEN: "Green",
             YELLOW: "Yellow",
             PURPLE: "Purple",
@@ -132,21 +188,46 @@ class color_objects(Scene):
             MAROON: "Maroon",
             GRAY: "Gray"
         }
-        
+
         # Find which original shape had the target color
         answer_shape = None
         for i, (shape, color, shape_name) in enumerate(shape_color_pairs):
             if color == target_color:
                 answer_shape = shape_name
                 break
-        
+
         # Since we guaranteed the target color exists in initial shapes, answer_shape should never be None
         if answer_shape is None:
             answer_shape = "error"  # This should never happen with the new logic
-        
-        # Question text - clearer about color numbering (1-5)
+
         ordinal_numbers = ["first", "second", "third", "fourth", "fifth"]
         ordinal = ordinal_numbers[target_color_index - 1]
+
+        # Add reasoning analysis
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("=== REASONING AND ANALYSIS ===")
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"To answer the question about the {ordinal} color of the final {final_shape_name}:")
+        self.reasoning_trace.append("")
+
+        # List all final shape colors
+        self.reasoning_trace.append(f"The final {final_shape_name} displayed {len(transition_colors)} colors in sequence:")
+        for idx, col in enumerate(transition_colors, start=1):
+            self.reasoning_trace.append(f"  {ordinal_numbers[idx-1]}: {color_name_map[col]}")
+
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"The {ordinal} color was {color_name_map[target_color]}.")
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("Looking back at the initial sequence of shapes:")
+
+        # List all initial shapes with their colors
+        for i, (shape, color, shape_name) in enumerate(shape_color_pairs):
+            self.reasoning_trace.append(f"  {shape_name}: {color_name_map[color]}")
+
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"The shape that had {color_name_map[target_color]} color in the initial sequence was the {answer_shape}.")
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"Therefore, the answer is: {answer_shape}")
         
         question_text = f"Which shape had the same color as \n the {ordinal} color of the final shape?"
         question = Text(question_text, font_size=30, weight=BOLD).move_to(UP * 2.5)
@@ -217,6 +298,12 @@ class color_objects(Scene):
             f.write(str(answer_shape))
         with open(f"question_text/color_objects_d{self.difficulty}_seed{self.seed}.txt", "w") as f:
             f.write(question_for_file)
+
+        # Save detailed reasoning trace
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"Final Answer: {answer_shape}")
+        with open(f"reasoning_traces/color_objects_d{self.difficulty}_seed{self.seed}.txt", "w") as f:
+            f.write("\n".join(self.reasoning_trace))
 
 # Generate color objects video
 scene = color_objects()

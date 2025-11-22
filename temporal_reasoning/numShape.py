@@ -9,6 +9,7 @@ from pathlib import Path
 Path("questions").mkdir(exist_ok=True)
 Path("solutions").mkdir(exist_ok=True)
 Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
 
 config.media_dir = "manim_output"
 config.verbosity = "WARNING"
@@ -22,20 +23,66 @@ config.preview = False
 class numShape(ThreeDScene):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         # Set random seed for reproducibility
         self.seed = random.randint(1000, 9999)
         random.seed(self.seed)
-        
+
         # Parameters - difficulty controls number of shapes
         self.num_shapes = int(os.getenv("NUM_SHAPES", 5))
+
+        # Initialize reasoning trace
+        self.reasoning_trace = []
+        self.reasoning_trace.append(f"Problem: Number and shape sequence")
+        self.reasoning_trace.append(f"Number of shapes: {self.num_shapes}")
+        self.reasoning_trace.append(f"Random Seed: {self.seed}")
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("=== CHRONOLOGICAL SCENE DESCRIPTION ===")
+        self.reasoning_trace.append("")
+
+    def get_position_description(self, position):
+        """Helper method to describe a position in natural language"""
+        x, y, z = position[0], position[1], position[2]
+
+        # Describe horizontal position
+        if x < -3:
+            horizontal = "on the far left side of the screen"
+        elif x < -1.5:
+            horizontal = "on the left side of the screen"
+        elif x < -0.5:
+            horizontal = "slightly left of center"
+        elif x < 0.5:
+            horizontal = "in the center"
+        elif x < 1.5:
+            horizontal = "slightly right of center"
+        elif x < 3.5:
+            horizontal = "on the right side of the screen"
+        else:
+            horizontal = "on the far right side of the screen"
+
+        # Describe vertical position
+        if y < -2:
+            vertical = " near the bottom"
+        elif y < -0.5:
+            vertical = " in the lower part"
+        elif y < 0.5:
+            vertical = ""
+        elif y < 1.5:
+            vertical = " in the upper part"
+        else:
+            vertical = " near the top"
+
+        return horizontal + vertical
 
     def construct(self):
         # Set camera orientation
         self.set_camera_orientation(phi=75 * DEGREES, theta=45 * DEGREES)
-        
+
         # Constrain count to reasonable bounds
         count = max(3, min(self.num_shapes, 8))
+
+        # Add initial scene description
+        self.reasoning_trace.append(f"The video begins with an empty 3D space viewed from an angled perspective. The scene is set up to display a sequence of {count} different 3D shapes, each followed by a number. As I watch, shapes will appear one at a time in various locations across the screen, with each shape being followed by its associated number.")
         
         # Full library of 3D shapes with names
         all_shapes_with_names = [
@@ -78,8 +125,13 @@ class numShape(ThreeDScene):
         # Create the sequence of shapes and numbers
         shape_sequence = []
         number_sequence = []
-        
+
         shown_objects = []
+
+        # Add chronological event tracking header
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("Now, let me describe each event as it happens chronologically:")
+        self.reasoning_trace.append("")
         
         for i in range(count):
             shape_original, shape_name = all_shapes_with_names[chosen_shape_indices[i]]
@@ -87,11 +139,15 @@ class numShape(ThreeDScene):
             obj_pos = chosen_object_positions[i]
             num_pos = chosen_number_positions[i]
             number = numbers[i]
-            
+
             # Store sequence information
             shape_sequence.append(shape_name)
             number_sequence.append(number)
-            
+
+            # Add chronological description for shape appearance
+            position_desc = self.get_position_description(obj_pos)
+            self.reasoning_trace.append(f"Event {i+1}a: A red {shape_name} appears {position_desc}. It takes about 1 second to fully form, stays visible for a brief moment (about 0.5 seconds), then fades away.")
+
             # Show the shape first
             shape.set_fill(RED, opacity=0.6)
             shape.move_to(obj_pos)
@@ -99,11 +155,24 @@ class numShape(ThreeDScene):
             shown_objects.append(shape)
             self.wait(0.5)
             self.play(FadeOut(shape), run_time=0.1)
-            
+
+            # Add chronological description for number appearance
+            num_position_desc = self.get_position_description(num_pos)
+            self.reasoning_trace.append(f"Event {i+1}b: Immediately after the {shape_name} disappears, the number {number} appears {num_position_desc}. It takes about 1 second to write out, then quickly fades away.")
+
             # Then show the number after the shape
             txt = Text(str(number), font_size=48).move_to(num_pos)
             self.play(Write(txt, run_time=1))
             self.play(FadeOut(txt, run_time=0.1))
+
+        # Add summary after all events
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("=== SEQUENCE SUMMARY ===")
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("Now that I've watched the entire sequence, let me list what appeared in order:")
+        self.reasoning_trace.append("")
+        for i, (shape_name, number) in enumerate(zip(shape_sequence, number_sequence)):
+            self.reasoning_trace.append(f"Position {i+1}: {shape_name} followed by {number}")
 
         self.wait(0.5)
 
@@ -156,8 +225,77 @@ class numShape(ThreeDScene):
             number_right_after = [number_sequence[idx2]] if idx2 < count else []
             numbers_to_sum = numbers_before + number_right_after
             question_text = f"Sum up the numbers before {shape1} and right after {shape2}."
-        
+
         total_sum = sum(numbers_to_sum) if numbers_to_sum else 0
+
+        # Add detailed reasoning for the answer
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("=== ANSWERING THE QUESTION ===")
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"The question asks: {question_text}")
+        self.reasoning_trace.append("")
+
+        if question_type == "between":
+            self.reasoning_trace.append(f"To answer this, I need to identify the positions of {shape1} and {shape2} in the sequence.")
+            self.reasoning_trace.append(f"Looking back at my sequence, {shape1} appeared at position {idx1+1}.")
+            self.reasoning_trace.append(f"And {shape2} appeared at position {idx2+1}.")
+            self.reasoning_trace.append("")
+            self.reasoning_trace.append(f"The numbers 'between' these two shapes means I need to include:")
+            if idx2 - idx1 <= 1:
+                self.reasoning_trace.append(f"- Actually, there are no numbers strictly between them since they are adjacent or the same.")
+                self.reasoning_trace.append(f"- However, 'between' typically includes the number with the first shape up to (and including) the number with the second shape.")
+            if numbers_to_sum:
+                self.reasoning_trace.append(f"- The number at position {idx1+1} (with {shape1}): {number_sequence[idx1]}")
+                for j in range(idx1+1, idx2):
+                    self.reasoning_trace.append(f"- The number at position {j+1}: {number_sequence[j]}")
+                self.reasoning_trace.append(f"- The number at position {idx2+1} (with {shape2}): {number_sequence[idx2]}")
+
+        elif question_type == "before_and_after":
+            self.reasoning_trace.append(f"To answer this, I need to identify which numbers came before {shape1} and which came after {shape2}.")
+            self.reasoning_trace.append(f"Looking back at my sequence, {shape1} appeared at position {idx1+1}.")
+            self.reasoning_trace.append(f"And {shape2} appeared at position {idx2+1}.")
+            self.reasoning_trace.append("")
+            self.reasoning_trace.append("Numbers BEFORE the first shape mentioned:")
+            if idx1 == 0:
+                self.reasoning_trace.append("- There are no numbers before the first position.")
+            else:
+                for j in range(idx1):
+                    self.reasoning_trace.append(f"- Position {j+1}: {number_sequence[j]}")
+            self.reasoning_trace.append("")
+            self.reasoning_trace.append("Numbers AFTER the second shape mentioned:")
+            if idx2 >= count - 1:
+                self.reasoning_trace.append("- There are no numbers after this position.")
+            else:
+                for j in range(idx2, count):
+                    self.reasoning_trace.append(f"- Position {j+1}: {number_sequence[j]}")
+
+        elif question_type == "before_and_right_after":
+            self.reasoning_trace.append(f"To answer this, I need to identify which numbers came before {shape1} and which number came right after {shape2}.")
+            self.reasoning_trace.append(f"Looking back at my sequence, {shape1} appeared at position {idx1+1}.")
+            self.reasoning_trace.append(f"And {shape2} appeared at position {idx2+1}.")
+            self.reasoning_trace.append("")
+            self.reasoning_trace.append("Numbers BEFORE the first shape mentioned:")
+            if idx1 == 0:
+                self.reasoning_trace.append("- There are no numbers before the first position.")
+            else:
+                for j in range(idx1):
+                    self.reasoning_trace.append(f"- Position {j+1}: {number_sequence[j]}")
+            self.reasoning_trace.append("")
+            self.reasoning_trace.append("Number RIGHT AFTER the second shape mentioned:")
+            if idx2 >= count - 1:
+                self.reasoning_trace.append("- There is no number after this position.")
+            else:
+                self.reasoning_trace.append(f"- Position {idx2+1}: {number_sequence[idx2]}")
+
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append("Now I'll add up all the relevant numbers:")
+        if numbers_to_sum:
+            calculation_steps = " + ".join([str(n) for n in numbers_to_sum])
+            self.reasoning_trace.append(f"{calculation_steps} = {total_sum:.2f}")
+        else:
+            self.reasoning_trace.append("There are no numbers to sum, so the answer is 0.00")
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"Therefore, the answer is: {total_sum:.2f}")
         
         # Create question text
         question_lines = [
@@ -197,6 +335,12 @@ class numShape(ThreeDScene):
         )
         with open(f"question_text/numshape_n{self.num_shapes}_seed{self.seed}.txt", "w") as f:
             f.write(question_text_content)
+
+        # Save detailed reasoning trace
+        self.reasoning_trace.append("")
+        self.reasoning_trace.append(f"Final Answer: {formatted_answer}")
+        with open(f"reasoning_traces/numshape_n{self.num_shapes}_seed{self.seed}.txt", "w") as f:
+            f.write("\n".join(self.reasoning_trace))
 
 
 if __name__ == "__main__":

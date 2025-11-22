@@ -5,6 +5,14 @@ import random
 from scipy.integrate import solve_ivp
 import time
 import os
+import shutil
+from pathlib import Path
+
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
 
 RHO_OBJ_BASE_RANGE = (1200, 5000)  
 RHO_FLUID_BASE_RANGE = (800, 1100) 
@@ -220,12 +228,29 @@ def adjust_fluid_fall_parameters(difficulty):
 
 
 class FluidFallQuizRefactored(Scene):
-    anim_time = 0.0 
+    anim_time = 0.0
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        # Set random seed for reproducibility
+        self.seed = int(os.environ.get('MANIM_SEED', random.randint(1000, 9999)))
+        self.difficulty = int(os.environ.get('MANIM_DIFFICULTY', 5))
+        self.object_count = int(os.environ.get('MANIM_OBJECT_COUNT', 1))
+
+        # Store for reasoning trace
+        self.events = []
+        self.objects_params = []
+        self.objects_initial_states = []
+        self.rho_fluid = None
+        self.correct_label = None
+        self.selected_descriptions = []
+        self.choice_labels_text = ["A", "B", "C", "D", "E"]
 
     def construct(self):
-        seed = int(os.environ.get('MANIM_SEED', time.time()))
-        difficulty = int(os.environ.get('MANIM_DIFFICULTY', 5))
-        object_count = int(os.environ.get('MANIM_OBJECT_COUNT', 1))
+        seed = self.seed
+        difficulty = self.difficulty
+        object_count = self.object_count
 
         if object_count not in [1, 2, 3]:
             print(f"Warning: object_count {object_count} is not valid. Using default value 1.")
@@ -237,11 +262,22 @@ class FluidFallQuizRefactored(Scene):
 
 
         rho_fluid = random.uniform(*adj_rho_fluid_range)
-        
+        self.rho_fluid = rho_fluid
+
 
         objects_params = []
         objects_initial_states = []
         object_colors = [RED, GREEN, BLUE]
+
+        # Record initial event
+        self.events.append({
+            "type": "setup",
+            "time": 0.0,
+            "description": f"Fluid setup with density {rho_fluid:.1f} kg/m³",
+            "rho_fluid": rho_fluid,
+            "difficulty": difficulty,
+            "object_count": object_count
+        })
         
         for i in range(object_count):
             rho_obj = random.uniform(*adj_rho_obj_range)
@@ -270,12 +306,34 @@ class FluidFallQuizRefactored(Scene):
 
             objects_params.append([m, V, rho_fluid, g, b])
             objects_initial_states.append([y0, v0])
-            
+
+            # Record object creation event
+            self.events.append({
+                "type": "object_created",
+                "time": 0.0,
+                "object_id": i + 1,
+                "color": object_colors[i].name if hasattr(object_colors[i], "name") else str(object_colors[i]),
+                "rho_obj": rho_obj,
+                "radius": r,
+                "drag_coeff": b,
+                "mass": m,
+                "volume": V,
+                "initial_y": y0,
+                "initial_v": v0,
+                "v_terminal": v_terminal,
+                "buoyant_force": Fb,
+                "gravitational_force": Fg
+            })
+
             print(f"Object {i+1}: rho_obj={rho_obj:.1f}, r={r:.3f}, b={b:.2f}, v_T={v_terminal:.2f}")
 
         print(f"--- Fluid Fall Setup (Seed: {seed}, Difficulty: {difficulty}, Objects: {object_count}) ---")
         print(f"Fluid density: {rho_fluid:.1f}")
         print(f"--------------------")
+
+        # Store for reasoning trace
+        self.objects_params = objects_params
+        self.objects_initial_states = objects_initial_states
 
         params_correct = objects_params
         
@@ -347,11 +405,21 @@ class FluidFallQuizRefactored(Scene):
             self.add(obj)
         self.wait(1)
 
+        # Record scene start event
+        self.events.append({
+            "type": "scene_start",
+            "time": 1.0,
+            "description": "Scene displayed with fluid container, ground, and objects at initial positions"
+        })
+
         sim_duration_total = SIM_DURATION
         print("Calculating Correct Trajectories for Animation...")
         
         results_correct = simulate_multiple_objects(sim_duration_total, objects_initial_states, params_correct)
-        
+
+        # Store results for reasoning trace
+        self.results_correct = results_correct
+
         if not results_correct or any(len(t) < 2 for t, y, v in results_correct):
             print("ERROR: Simulation failed to produce sufficient points.")
             self.play(Write(Text("Simulation Error!", color=RED).move_to(ORIGIN)))
@@ -380,8 +448,24 @@ class FluidFallQuizRefactored(Scene):
             self.remove(obj)
 
         print(f"  Playing {PREVIEW_ANIM_DURATION:.1f}s preview animation...")
+
+        # Record animation event
+        self.events.append({
+            "type": "animation_start",
+            "time": 1.0,
+            "description": f"Objects begin falling through fluid for {PREVIEW_ANIM_DURATION}s",
+            "duration": PREVIEW_ANIM_DURATION
+        })
+
         self.wait(PREVIEW_ANIM_DURATION)
-        
+
+
+        # Record animation end event
+        self.events.append({
+            "type": "animation_end",
+            "time": 1.0 + PREVIEW_ANIM_DURATION,
+            "description": "Objects finish falling animation"
+        })
 
         for obj_anim in obj_anims:
             obj_anim.clear_updaters()
@@ -391,6 +475,13 @@ class FluidFallQuizRefactored(Scene):
         question = Text("Which graph best represents the vertical velocities v_y(t)?", font_size=32).to_edge(DOWN, buff=MED_SMALL_BUFF)
         self.play(Write(question))
         self.wait(0.5)
+
+        # Record question display event
+        self.events.append({
+            "type": "question_displayed",
+            "time": 1.0 + PREVIEW_ANIM_DURATION + 0.5,
+            "description": "Question displayed: Which graph best represents the vertical velocities v_y(t)?"
+        })
 
         fade_out_group = VGroup(initial_static_group, question, *obj_anims)
 
@@ -452,20 +543,21 @@ class FluidFallQuizRefactored(Scene):
         choice_descriptions = [
             "Correct (All forces)",
             "No Drag",
-            "No Buoyancy", 
+            "No Buoyancy",
             "Different Drag",
             "Stronger Drag",
             "Weaker Drag"
         ]
-        
+
 
         correct_index = 0
         other_indices = list(range(1, len(all_choices)))
         random.shuffle(other_indices)
         selected_indices = [correct_index] + other_indices[:3]
-        
+
         choices = [all_choices[i] for i in selected_indices]
         selected_descriptions = [choice_descriptions[i] for i in selected_indices]
+        self.selected_descriptions = selected_descriptions
 
         indexed_choices = list(enumerate(choices))
         random.shuffle(indexed_choices)
@@ -515,11 +607,25 @@ class FluidFallQuizRefactored(Scene):
         correct_label = "ERROR"
         if new_correct_index != -1 and new_correct_index < len(choice_labels_text):
             correct_label = choice_labels_text[new_correct_index]
+            self.correct_label = correct_label
             print(f"\nFINAL_ANSWER: {correct_label}")
         else:
             print("\nError: Could not determine correct answer index after shuffling.")
             print(f"FINAL_ANSWER: ERROR_INDEX")
             error_text_reveal = Text("Internal Error finding correct answer!", color=RED, font_size=24).to_edge(BOTTOM)
             self.play(Write(error_text_reveal))
+            self.correct_label = "ERROR"
+
+        # Record choices displayed event
+        self.events.append({
+            "type": "choices_displayed",
+            "time": 1.0 + PREVIEW_ANIM_DURATION + 1.0,
+            "description": "Multiple choice graphs displayed",
+            "correct_answer": correct_label,
+            "choices": self.selected_descriptions
+        })
 
         self.wait(5)
+
+        # Save all outputs
+        self.save_outputs()

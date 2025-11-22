@@ -21,6 +21,12 @@ import matplotlib.transforms as transforms
 import matplotlib.colors as mcolors
 import datetime
 
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
+
 
 
 def select_random_points(maze, N=0):
@@ -521,6 +527,141 @@ def create_professional_plt_animation(maze_frames, output_path, distance_list = 
     plt.close(fig)
 
 
+def generate_reasoning_trace(maze, n_row, n_col, start, letter_points, letter_list,
+                              distance_matrix, best_path, all_points, min_total_distance, path_solutions):
+    """Generate a chronological reasoning trace for the maze letter visiting problem"""
+
+    trace = []
+    trace.append("=== PROBLEM SETUP ===\n")
+    trace.append(f"I am presented with a {n_row}x{n_col} maze.")
+    trace.append(f"There is a green square marking the starting position at coordinates {start}.")
+    trace.append(f"There are {len(letter_points)} letters placed in the maze at various locations.")
+    trace.append(f"The goal is to find the minimum number of moves to visit all letters exactly once, starting from the green square.")
+    trace.append(f"A move is defined as going one step in any valid direction (up, down, left, right) without crossing walls.\n")
+
+    trace.append("\n=== LETTERS PLACEMENT ===\n")
+    trace.append("The following letters are placed in the maze:")
+    for i, (letter, pos) in enumerate(zip(letter_list, letter_points)):
+        trace.append(f"  Letter {letter}: position {pos}")
+    trace.append("")
+
+    trace.append("\n=== FRAME-BY-FRAME OBSERVATION ===\n")
+    trace.append("The video shows frames where letters appear one by one:")
+    for i, (letter, pos) in enumerate(zip(letter_list, letter_points), 1):
+        trace.append(f"Frame {i}: Letter {letter} is revealed at position {pos}")
+    trace.append("\nAfter all frames, I can see the complete maze with all letters marked.\n")
+
+    trace.append("\n=== DISTANCE CALCULATION ===\n")
+    trace.append("To solve this problem, I first need to calculate the shortest path distance between all pairs of points.")
+    trace.append("This includes the starting position and all letter positions.\n")
+
+    trace.append("All points in the problem:")
+    trace.append(f"  Start (Green Square): {start}")
+    for i, (letter, pos) in enumerate(zip(letter_list, letter_points)):
+        trace.append(f"  {letter}: {pos}")
+    trace.append("")
+
+    trace.append("Distance matrix (shortest path distances between all points):")
+    trace.append("     ", end="")
+    for i in range(len(all_points)):
+        if i == 0:
+            trace.append("Start   ")
+        else:
+            trace.append(f"{letter_list[i-1]:^8}")
+    trace.append("")
+
+    for i in range(len(all_points)):
+        if i == 0:
+            trace.append("Start")
+        else:
+            trace.append(f"{letter_list[i-1]:5}")
+        for j in range(len(all_points)):
+            trace.append(f"{distance_matrix[i,j]:^8}")
+        trace.append("")
+    trace.append("")
+
+    trace.append("\n=== PLANNING THE PATH ===\n")
+    trace.append("This is a Traveling Salesman Problem (TSP) variant:")
+    trace.append("- I must start at the green square (Start position)")
+    trace.append("- I must visit all letters exactly once")
+    trace.append("- I want to minimize the total number of moves\n")
+
+    trace.append(f"Since there are {len(letter_points)} letters, there are {len(letter_points)}! = {np.math.factorial(len(letter_points))} possible orderings.")
+    trace.append("I will evaluate all permutations to find the optimal path.\n")
+
+    trace.append("\n=== EVALUATING PATH OPTIONS ===\n")
+    trace.append("Testing different orderings of visiting the letters (showing a sample):\n")
+
+    # Show a few example paths
+    import itertools
+    count = 0
+    max_examples = 5
+    for perm in itertools.permutations(range(1, len(all_points))):
+        if count >= max_examples and count < np.math.factorial(len(letter_points)) - 1:
+            continue
+
+        path = [0] + list(perm)
+        total_distance = 0
+        path_desc = "Start"
+
+        for i in range(len(path) - 1):
+            from_idx = path[i]
+            to_idx = path[i+1]
+            dist = distance_matrix[from_idx, to_idx]
+            total_distance += dist
+
+            if to_idx > 0:
+                path_desc += f" → {letter_list[to_idx-1]}"
+
+        trace.append(f"Path: {path_desc}")
+        trace.append(f"  Total distance: {total_distance} moves")
+
+        if total_distance == min_total_distance:
+            trace.append(f"  ✓ This is the OPTIMAL path!")
+        trace.append("")
+
+        count += 1
+        if count == max_examples:
+            remaining = np.math.factorial(len(letter_points)) - max_examples + 1
+            if remaining > 1:
+                trace.append(f"... ({remaining} more permutations evaluated) ...\n")
+
+    trace.append("\n=== OPTIMAL PATH FOUND ===\n")
+    optimal_path_desc = "Start"
+    trace.append(f"The optimal path requires {min_total_distance} moves:\n")
+
+    for i in range(len(best_path) - 1):
+        from_idx = best_path[i]
+        to_idx = best_path[i+1]
+        dist = distance_matrix[from_idx, to_idx]
+
+        from_name = "Start" if from_idx == 0 else letter_list[from_idx-1]
+        to_name = letter_list[to_idx-1]
+
+        trace.append(f"Step {i+1}: {from_name} → {to_name} ({dist} moves)")
+
+        if i > 0:
+            optimal_path_desc += f" → {letter_list[to_idx-1]}"
+        else:
+            optimal_path_desc += f" → {to_name}"
+
+    trace.append(f"\nComplete path: {optimal_path_desc}")
+    trace.append(f"Total moves: {min_total_distance}\n")
+
+    trace.append("\n=== FINAL ANSWER ===\n")
+    trace.append(f"The minimum number of moves required to visit all letters exactly once,")
+    trace.append(f"starting from the green square, is: {min_total_distance}\n")
+
+    trace.append("\n=== REASONING SUMMARY ===\n")
+    trace.append(f"I analyzed a {n_row}x{n_col} maze with {len(letter_points)} letters to visit.")
+    trace.append(f"By calculating shortest paths between all points and evaluating all possible")
+    trace.append(f"orderings of visiting the letters, I found that the optimal path requires")
+    trace.append(f"{min_total_distance} moves. This is a variant of the Traveling Salesman Problem,")
+    trace.append(f"solved by exhaustive enumeration of all {np.math.factorial(len(letter_points))} permutations.")
+
+    return "\n".join(trace)
+
+
 def chunk_text(text, max_width=40, min_width=20):
     """
     Split text into chunks with roughly similar width, breaking at whitespace.
@@ -570,13 +711,18 @@ def chunk_text(text, max_width=40, min_width=20):
 
 
 if __name__ == "__main__":
-    
+
     import argparse
     parser = argparse.ArgumentParser(description='Run Frozen Lake analysis with configurable parameters.')
     parser.add_argument('--size', type=int, default=10, help='Size of the random map (default: 10)')
     parser.add_argument('--question_name', type=str, default='count', choices=['count', 'min_length', 'agent_steps'], help='Name of the question for output files (default: script filename)')
     args = parser.parse_args()
-    
+
+    # Set random seed for reproducibility
+    seed = random.randint(1000, 9999)
+    random.seed(seed)
+    np.random.seed(seed)
+
     n_row = n_col = args.size
     print(f"Maze size {n_row}x{n_col}")
     sample_lattice_maze = LatticeMazeGenerators.gen_dfs(
@@ -716,7 +862,7 @@ if __name__ == "__main__":
     script_path = __file__
     script_filename = os.path.basename(script_path)
     print(f"script_filename: {script_filename}")
-    question_name = script_filename.split('.')[0]+f'_sz{args.size}'
+    question_name = script_filename.split('.')[0]+f'_sz{args.size}_seed{seed}'
     question_dir = Path('questions')
     question_dir.mkdir(exist_ok=True)
     output_video = f"questions/{question_name}.mp4"
@@ -754,6 +900,14 @@ if __name__ == "__main__":
     #     credits=credits,
     #     dpi=200
     # )
+
+    # Generate and save reasoning trace
+    reasoning_trace = generate_reasoning_trace(
+        sample_lattice_maze, n_row, n_col, start, letter_points, letter_list,
+        distance_matrix, best_path, all_points, min_total_distance, path_solutions
+    )
+    with open(f"reasoning_traces/{question_name}.txt", "w") as f:
+        f.write(reasoning_trace)
 
     solution_dir = Path('solutions')
     solution_dir.mkdir(exist_ok=True)

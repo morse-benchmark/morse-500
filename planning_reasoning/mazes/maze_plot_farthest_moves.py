@@ -20,6 +20,12 @@ import matplotlib.transforms as transforms
 import matplotlib.colors as mcolors
 import datetime
 
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
+
 
 
 def select_random_points(maze, N=0):
@@ -523,12 +529,12 @@ def create_professional_plt_animation(maze_frames, output_path, distance_list = 
 def chunk_text(text, max_width=40, min_width=20):
     """
     Split text into chunks with roughly similar width, breaking at whitespace.
-    
+
     Parameters:
     text (str): The input text to chunk
     max_width (int): Maximum preferred width for each line
     min_width (int): Minimum preferred width for each line (except last line)
-    
+
     Returns:
     list: A list of text chunks
     """
@@ -536,19 +542,19 @@ def chunk_text(text, max_width=40, min_width=20):
     chunks = []
     current_chunk = []
     current_width = 0
-    
+
     for word in words:
         # Calculate width if we add this word (plus a space)
         word_width = len(word)
         new_width = current_width + word_width + (1 if current_width > 0 else 0)
-        
+
         if new_width <= max_width:
             # Word fits in current chunk, add it
             current_chunk.append(word)
             current_width = new_width
         else:
             # Word doesn't fit, start a new chunk
-            
+
             # If current chunk is too short, and we can afford to go over max_width,
             # and this isn't the last word, put the word in the current chunk
             if current_width < min_width and len(current_chunk) > 0 and word != words[-1]:
@@ -560,22 +566,147 @@ def chunk_text(text, max_width=40, min_width=20):
                     chunks.append(' '.join(current_chunk))
                 current_chunk = [word]
                 current_width = word_width
-    
+
     # Add the last chunk if there's anything left
     if current_chunk:
         chunks.append(' '.join(current_chunk))
-    
+
     return chunks
 
 
+def generate_reasoning_trace(maze_size, start, additional_points, letter_list,
+                             distances, farthest_letter, path_details=None):
+    """
+    Generate a detailed chronological reasoning trace for the maze pathfinding problem.
+
+    Parameters:
+    maze_size: Tuple of (rows, cols)
+    start: Starting position tuple (row, col)
+    additional_points: List of additional point positions
+    letter_list: List of letter labels
+    distances: Dictionary mapping letters to distances
+    farthest_letter: Tuple of (letter, distance)
+    path_details: Optional list of dictionaries containing path information for each point
+
+    Returns:
+    str: The complete reasoning trace
+    """
+    trace = []
+    trace.append("=== PROBLEM SETUP ===\n")
+    trace.append(f"Maze Configuration:")
+    trace.append(f"  - Grid size: {maze_size[0]} x {maze_size[1]}")
+    trace.append(f"  - Starting position (green square): Row {start[0]}, Column {start[1]}")
+    trace.append(f"  - Number of target points: {len(additional_points)}")
+    trace.append("")
+
+    trace.append("Target Points:")
+    for i, (letter, point) in enumerate(zip(letter_list, additional_points)):
+        trace.append(f"  - Point {letter}: Row {point[0]}, Column {point[1]}")
+    trace.append("")
+
+    trace.append("\n=== MAZE GENERATION ===\n")
+    trace.append("The maze is generated using Depth-First Search (DFS) algorithm, which creates:")
+    trace.append("  - A connected path between all cells")
+    trace.append("  - Walls that form a complex navigation challenge")
+    trace.append("  - Guaranteed reachability from any cell to any other cell")
+    trace.append("")
+
+    trace.append("\n=== FRAME-BY-FRAME ANALYSIS ===\n")
+    trace.append("The video shows each target point sequentially, allowing us to observe:")
+    trace.append("")
+
+    for i, (letter, point) in enumerate(zip(letter_list, additional_points)):
+        trace.append(f"Frame {i+1}: Point {letter} (Row {point[0]}, Column {point[1]})")
+        trace.append(f"  - Position marked with letter '{letter}' on the maze")
+        trace.append(f"  - Computing shortest path from start to Point {letter}")
+
+        if path_details and i < len(path_details):
+            detail = path_details[i]
+            if 'path_length' in detail:
+                trace.append(f"  - Path consists of {detail['path_length']} cells")
+
+        trace.append(f"  - Minimum moves required: {distances[letter]}")
+        trace.append(f"  - Note: Each move represents one step in a valid direction (up, down, left, right)")
+        trace.append("")
+
+    trace.append("\n=== DISTANCE COMPARISON ===\n")
+    trace.append("Calculating and comparing all distances from the starting position:\n")
+
+    # Sort distances for clear comparison
+    sorted_distances = sorted(distances.items(), key=lambda x: x[1], reverse=True)
+
+    trace.append("Distance Summary (ordered from farthest to nearest):")
+    for letter, distance in sorted_distances:
+        marker = " <- FARTHEST" if letter == farthest_letter[0] else ""
+        trace.append(f"  - Point {letter}: {distance} moves{marker}")
+    trace.append("")
+
+    trace.append("\n=== PATHFINDING ANALYSIS ===\n")
+    trace.append("For each target point, the shortest path is computed using:")
+    trace.append("  1. Breadth-First Search (BFS) to ensure optimal shortest path")
+    trace.append("  2. Constraint: Can only move through open passages (no wall crossing)")
+    trace.append("  3. Valid moves: Up, Down, Left, Right (no diagonal movement)")
+    trace.append("  4. Distance metric: Number of steps/moves required")
+    trace.append("")
+
+    trace.append("\n=== DETERMINING THE FARTHEST POINT ===\n")
+    trace.append("To find the farthest point from the starting position:")
+    trace.append("")
+
+    trace.append("Step 1: List all computed distances")
+    for letter in letter_list:
+        trace.append(f"  - {letter}: {distances[letter]} moves")
+    trace.append("")
+
+    trace.append("Step 2: Identify the maximum distance")
+    max_distance = max(distances.values())
+    trace.append(f"  - Maximum distance found: {max_distance} moves")
+    trace.append("")
+
+    trace.append("Step 3: Identify which point(s) have this maximum distance")
+    farthest_points = [letter for letter, dist in distances.items() if dist == max_distance]
+    if len(farthest_points) == 1:
+        trace.append(f"  - Point {farthest_points[0]} is the farthest at {max_distance} moves")
+    else:
+        trace.append(f"  - Multiple points share the maximum distance: {', '.join(farthest_points)}")
+        trace.append(f"  - All are at {max_distance} moves from the start")
+    trace.append("")
+
+    trace.append("\n=== FINAL ANSWER DERIVATION ===\n")
+    trace.append(f"Question: What is the minimum number of moves required to reach the farthest letter from the green square?")
+    trace.append("")
+    trace.append(f"Answer: {farthest_letter[1]}")
+    trace.append("")
+    trace.append("Explanation:")
+    trace.append(f"  - The farthest point from the starting position is Point {farthest_letter[0]}")
+    trace.append(f"  - This point requires exactly {farthest_letter[1]} moves to reach")
+    trace.append(f"  - This is the minimum number of moves because the path is optimal (shortest possible)")
+    trace.append(f"  - No other point requires more moves to reach from the start")
+    trace.append("")
+
+    trace.append("\n=== REASONING SUMMARY ===\n")
+    trace.append(f"The problem involves navigating a {maze_size[0]}x{maze_size[1]} maze from a starting position ")
+    trace.append(f"to find which of {len(additional_points)} target points is farthest away. By computing the shortest ")
+    trace.append(f"path to each target point and comparing the distances, we determined that Point {farthest_letter[0]} ")
+    trace.append(f"is the farthest, requiring {farthest_letter[1]} moves to reach. The answer is derived from ")
+    trace.append(f"comparing all computed shortest paths and selecting the maximum distance value.")
+
+    return "\n".join(trace)
+
+
 if __name__ == "__main__":
-    
+
     import argparse
     parser = argparse.ArgumentParser(description='Run Frozen Lake analysis with configurable parameters.')
     parser.add_argument('--size', type=int, default=10, help='Size of the random map (default: 10)')
     parser.add_argument('--question_name', type=str, default='count', choices=['count', 'min_length', 'agent_steps'], help='Name of the question for output files (default: script filename)')
     args = parser.parse_args()
-    
+
+    # Set random seed for reproducibility
+    seed = random.randint(1000, 9999)
+    random.seed(seed)
+    np.random.seed(seed)
+
     n_row = n_col = args.size
     print(f"Maze size {n_row}x{n_col}")
     sample_lattice_maze = LatticeMazeGenerators.gen_dfs(
@@ -594,6 +725,7 @@ if __name__ == "__main__":
 
     # Calculate the shortest path from start to each letter position
     distances = {}
+    path_details = []
     for i, point in enumerate(additional_points):
         # Create a targeted maze with the start and the current point as end
         tgt_maze = TargetedLatticeMaze.from_lattice_maze(
@@ -601,13 +733,23 @@ if __name__ == "__main__":
             start_pos=start,
             end_pos=point,
         )
-        
+
         # Solve the maze to get the shortest path
         solved_maze = SolvedMaze.from_targeted_lattice_maze(tgt_maze)
         solution = solved_maze.solution
-        
+
         # The distance is the number of steps in the solution (minus 1 since the start position is included)
-        distances[letter_list[i]] = len(solution) - 1
+        distance = len(solution) - 1
+        distances[letter_list[i]] = distance
+
+        # Store path details for reasoning trace
+        path_details.append({
+            'letter': letter_list[i],
+            'point': point,
+            'path_length': len(solution),
+            'distance': distance,
+            'solution': solution
+        })
     
     # Find the farthest letter (maximum distance)
     farthest_letter = max(distances.items(), key=lambda x: x[1])
@@ -686,11 +828,22 @@ if __name__ == "__main__":
 
 
 
+    # Generate reasoning trace
+    reasoning_trace = generate_reasoning_trace(
+        maze_size=(n_row, n_col),
+        start=start,
+        additional_points=additional_points,
+        letter_list=letter_list,
+        distances=distances,
+        farthest_letter=farthest_letter,
+        path_details=path_details
+    )
+
     # Example usage:
     script_path = __file__
     script_filename = os.path.basename(script_path)
     print(f"script_filename: {script_filename}")
-    question_name = script_filename.split('.')[0]+f'_sz{args.size}'
+    question_name = script_filename.split('.')[0]+f'_sz{args.size}_seed{seed}'
     question_dir = Path('questions')
     question_dir.mkdir(exist_ok=True)
     output_video = f"questions/{question_name}.mp4"
@@ -729,13 +882,21 @@ if __name__ == "__main__":
     #     dpi=200
     # )
 
+    # Save solution
     solution_dir = Path('solutions')
     solution_dir.mkdir(exist_ok=True)
     with open(f"solutions/{question_name}.txt", "w") as f:
         f.write(f"{correct_answer}")
 
-    question_text = f"{question_text}\n{credits[0]}. {credits[1]}"
+    # Save question text
+    question_text_full = f"{question_text}\n{credits[0]}. {credits[1]}"
     question_text_dir = Path('question_text')
     question_text_dir.mkdir(exist_ok=True)
     with open(question_text_dir/f"{question_name}.txt", "w") as f:
-        f.write(f"{question_text}")
+        f.write(f"{question_text_full}")
+
+    # Save reasoning trace
+    reasoning_trace_dir = Path('reasoning_traces')
+    reasoning_trace_dir.mkdir(exist_ok=True)
+    with open(f"reasoning_traces/{question_name}.txt", "w") as f:
+        f.write(reasoning_trace)

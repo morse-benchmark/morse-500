@@ -1,9 +1,16 @@
-
 from manim import *
 import numpy as np
 import random
 import time
 import os
+import shutil
+from pathlib import Path
+
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
 
 DEFAULT_M_RANGE = (0.5, 3.0)
 DEFAULT_Q_MAG_RANGE = (0.5, 2.0)
@@ -238,18 +245,31 @@ def adjust_em_parameters(difficulty):
     return b_z_range, v_mag_range, prob_opposite_charge, prob_equal_mass, m_range, q_mag_range
 
 class EMCollisionTrajectoryQuizRefactoredDiverse(Scene):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        # Set seed for reproducibility
+        self.seed = int(os.environ.get('MANIM_SEED', time.time()))
+        self.difficulty = int(os.environ.get('MANIM_DIFFICULTY', 5))
+        self.particle_count = int(os.environ.get('MANIM_PARTICLE_COUNT', 2))
+
+        if self.particle_count not in [1, 2, 3]:
+            print(f"Warning: particle_count {self.particle_count} is not valid. Using default value 2.")
+            self.particle_count = 2
+
+        random.seed(self.seed)
+        np.random.seed(self.seed)
+
+        # Store for reasoning trace
+        self.simulation_events = []
+        self.particle_params = []
+        self.field_params = {}
+        self.correct_answer = ""
+
     def construct(self):
-
-        seed = int(os.environ.get('MANIM_SEED', time.time()))
-        difficulty = int(os.environ.get('MANIM_DIFFICULTY', 5))
-        particle_count = int(os.environ.get('MANIM_PARTICLE_COUNT', 2))
-        
-
-        if particle_count not in [1, 2, 3]:
-            print(f"Warning: particle_count {particle_count} is not valid. Using default value 2.")
-            particle_count = 2
-        
-        random.seed(seed); np.random.seed(seed)
+        seed = self.seed
+        difficulty = self.difficulty
+        particle_count = self.particle_count
         
         b_z_range, v_mag_range, prob_opposite, prob_equal_mass, m_range, q_mag_range = adjust_em_parameters(difficulty)
 
@@ -298,6 +318,13 @@ class EMCollisionTrajectoryQuizRefactoredDiverse(Scene):
         if abs(B_z) < 0.2: B_z = np.sign(B_z + 1e-9) * 0.2
         if random.random() < 0.5: B_z *= -1
         B_field = np.array([0.,0.,B_z])
+
+        # Store field parameters for reasoning trace
+        self.field_params = {
+            'B_z': B_z,
+            'B_field': B_field,
+            'direction': 'into page' if B_z > 0 else 'out of page'
+        }
         
         physics_dt = DEFAULT_PHYSICS_DT
         sim_duration = DEFAULT_SIM_DURATION_CHOICE
@@ -307,6 +334,15 @@ class EMCollisionTrajectoryQuizRefactoredDiverse(Scene):
         print(f"--- EM Quiz Setup (Seed: {seed}, Difficulty: {difficulty}, Particles: {particle_count}) ---")
         for i in range(particle_count):
             print(f"Particle {i+1}: q={charges[i]:.2f}, m={masses[i]:.2f}, v=[{velocities[i][0]:.1f},{velocities[i][1]:.1f}]")
+            # Store particle parameters for reasoning trace
+            self.particle_params.append({
+                'particle_num': i + 1,
+                'charge': charges[i],
+                'mass': masses[i],
+                'initial_velocity': velocities[i],
+                'initial_position': positions[i],
+                'color': 'red' if charges[i] > 0 else 'blue'
+            })
         print(f"Field: B_z={B_z:.2f}")
         print(f"--------------------")
 
@@ -347,6 +383,15 @@ class EMCollisionTrajectoryQuizRefactoredDiverse(Scene):
 
         print("Calculating Correct Trajectory (B Field + Elastic Collision)...")
         coords_correct, time_pts = simulate_em_collision_multi_particles(sim_duration, sim_points, initial_states, params, physics_dt)
+
+        # Store simulation event for reasoning trace
+        self.simulation_events.append({
+            'type': 'correct_trajectory',
+            'description': 'Correct motion with B field and elastic collision',
+            'coordinates': coords_correct,
+            'time_points': time_pts,
+            'sim_duration': sim_duration
+        })
         
         print("Calculating Distractor 1 (No B Field, Elastic Collision)...")
         coords_d1, _ = simulate_em_collision_multi_particles(sim_duration, sim_points, initial_states, params, physics_dt, apply_b_field=False, apply_collision=True)
@@ -518,4 +563,168 @@ class EMCollisionTrajectoryQuizRefactoredDiverse(Scene):
             print(f"FINAL_ANSWER: ERROR_INDEX")
             error_text_reveal = Text("Internal Error finding correct answer!", color=RED, font_size=24).to_edge(BOTTOM)
             self.play(Write(error_text_reveal))
+
+        # Store the correct answer
+        self.correct_answer = correct_label
+
+        # Store choice information for reasoning trace
+        self.choice_info = {
+            'correct_label': correct_label,
+            'correct_index': new_correct_index,
+            'all_choices': selected_descriptions,
+            'choice_labels': choice_labels_text[:len(indexed_choices)]
+        }
+
         self.wait(5)
+
+        # Save solution
+        with open(f"solutions/em_field_quiz_p{self.particle_count}_d{self.difficulty}_seed{self.seed}.txt", "w") as f:
+            f.write(correct_label)
+
+        # Save question text
+        question_text_content = (
+            f"Problem: Motion of {particle_count} Particle(s) in Magnetic Field\n\n"
+            f"A magnetic field B = {B_z:.1f} k is present.\n"
+            f"Particles have the following properties:\n"
+        )
+        for i, param in enumerate(self.particle_params):
+            question_text_content += f"  Particle {i+1}: charge q{i+1}={param['charge']:.1f}, mass m{i+1}={param['mass']:.1f}\n"
+        question_text_content += "\nWhich set of paths best represents the motion?\n"
+        question_text_content += "Choose from options A, B, C, D, or E.\n"
+
+        with open(f"question_text/em_field_quiz_p{self.particle_count}_d{self.difficulty}_seed{self.seed}.txt", "w") as f:
+            f.write(question_text_content)
+
+        # Generate and save reasoning trace
+        reasoning_trace = self.generate_reasoning_trace()
+        with open(f"reasoning_traces/em_field_quiz_p{self.particle_count}_d{self.difficulty}_seed{self.seed}.txt", "w") as f:
+            f.write(reasoning_trace)
+
+    def generate_reasoning_trace(self):
+        """Generate a detailed reasoning trace describing the electromagnetic field problem"""
+
+        trace = []
+        trace.append("=== ELECTROMAGNETIC FIELD PROBLEM ANALYSIS ===\n")
+
+        # Describe the setup
+        trace.append("=== PROBLEM SETUP ===\n")
+        trace.append(f"Number of particles: {self.particle_count}")
+        trace.append(f"Difficulty level: {self.difficulty}")
+        trace.append(f"Random seed: {self.seed}")
+        trace.append("")
+
+        # Describe the magnetic field
+        trace.append("\n=== MAGNETIC FIELD CONFIGURATION ===\n")
+        B_z = self.field_params['B_z']
+        direction = self.field_params['direction']
+        trace.append(f"Magnetic field strength: B_z = {B_z:.2f} T")
+        trace.append(f"Field direction: {direction} (z-direction)")
+        trace.append(f"Field vector: B = {B_z:.2f} k")
+        trace.append("")
+
+        # Describe each particle's initial conditions
+        trace.append("\n=== PARTICLE INITIAL CONDITIONS ===\n")
+        for param in self.particle_params:
+            trace.append(f"Particle {param['particle_num']}:")
+            trace.append(f"  - Charge: q{param['particle_num']} = {param['charge']:.2f} C")
+            trace.append(f"  - Mass: m{param['particle_num']} = {param['mass']:.2f} kg")
+            trace.append(f"  - Initial velocity: v{param['particle_num']} = [{param['initial_velocity'][0]:.2f}, {param['initial_velocity'][1]:.2f}, {param['initial_velocity'][2]:.2f}] m/s")
+            trace.append(f"  - Initial position: [{param['initial_position'][0]:.2f}, {param['initial_position'][1]:.2f}, {param['initial_position'][2]:.2f}]")
+            trace.append(f"  - Charge type: {param['color']} (positive charge)" if param['charge'] > 0 else f"  - Charge type: {param['color']} (negative charge)")
+            trace.append("")
+
+        # Explain the physics
+        trace.append("\n=== PHYSICAL PRINCIPLES ===\n")
+        trace.append("When charged particles move through a magnetic field, they experience the Lorentz force:")
+        trace.append("  F = q(v × B)")
+        trace.append("")
+        trace.append("Key observations:")
+        trace.append("1. The Lorentz force is perpendicular to both velocity and magnetic field")
+        trace.append("2. This causes particles to move in curved paths (circular or helical motion)")
+        trace.append(f"3. With B pointing {direction}, particles will curve based on their charge sign")
+        trace.append("4. Positive charges curve in one direction, negative charges curve in the opposite direction")
+        trace.append("5. The radius of curvature depends on mass, charge, velocity, and field strength: r = mv/(qB)")
+        trace.append("")
+
+        # Describe the motion
+        trace.append("\n=== MOTION ANALYSIS ===\n")
+        trace.append("Expected motion for each particle:")
+        for param in self.particle_params:
+            q = param['charge']
+            m = param['mass']
+            v_mag = np.linalg.norm(param['initial_velocity'])
+            if abs(B_z) > 0.01:
+                radius = (m * v_mag) / (abs(q * B_z))
+                trace.append(f"Particle {param['particle_num']}:")
+                trace.append(f"  - Radius of curvature: r ≈ {radius:.2f} units")
+                if (q > 0 and B_z > 0) or (q < 0 and B_z < 0):
+                    trace.append(f"  - Curves counterclockwise (when viewed from above)")
+                else:
+                    trace.append(f"  - Curves clockwise (when viewed from above)")
+            trace.append("")
+
+        # Describe collision physics (if multiple particles)
+        if self.particle_count > 1:
+            trace.append("\n=== COLLISION DYNAMICS ===\n")
+            trace.append("When particles collide, elastic collision physics applies:")
+            trace.append("1. Conservation of momentum: m1*v1 + m2*v2 = m1*v1' + m2*v2'")
+            trace.append("2. Conservation of kinetic energy (elastic collision)")
+            trace.append("3. The collision changes velocity directions but particles continue to experience Lorentz force")
+            trace.append("4. Post-collision trajectories are curved paths from the new velocities")
+            trace.append("")
+
+        # Describe the video chronology
+        trace.append("\n=== VIDEO CHRONOLOGY ===\n")
+        trace.append("The video shows the following sequence:")
+        trace.append(f"1. Initial setup: {self.particle_count} particle(s) with initial velocities shown as arrows")
+        trace.append(f"2. Preview animation: Particles move for {PREVIEW_ANIM_DURATION:.1f} seconds showing the start of their trajectories")
+        trace.append(f"3. Question display: Asked to identify which trajectory matches the physical laws")
+        trace.append(f"4. Multiple choice options: Showing different possible trajectories")
+        trace.append("")
+
+        # Explain the distractors
+        trace.append("\n=== UNDERSTANDING THE CHOICES ===\n")
+        trace.append("The problem presents multiple trajectory options:")
+        if hasattr(self, 'choice_info'):
+            for i, desc in enumerate(self.choice_info['all_choices']):
+                label = self.choice_info['choice_labels'][i] if i < len(self.choice_info['choice_labels']) else str(i)
+                trace.append(f"  - Option {label}: {desc}")
+        trace.append("")
+        trace.append("Common incorrect trajectories might show:")
+        trace.append("  - Straight lines (ignoring magnetic force)")
+        trace.append("  - Wrong curvature direction (sign error in Lorentz force)")
+        trace.append("  - Incorrect collision behavior (inelastic or sticky collisions)")
+        trace.append("  - Wrong field strength effects (too strong or too weak curvature)")
+        trace.append("")
+
+        # Reasoning process
+        trace.append("\n=== REASONING PROCESS ===\n")
+        trace.append("To solve this problem, I need to:")
+        trace.append("1. Calculate the expected trajectory using F = q(v × B)")
+        trace.append("2. Consider the direction of the Lorentz force for each particle's charge")
+        trace.append("3. Account for elastic collisions if particles interact")
+        trace.append("4. Compare the preview animation with the calculated trajectories")
+        trace.append("5. Identify which choice matches the correct physics")
+        trace.append("")
+
+        # Final answer
+        trace.append("\n=== FINAL ANSWER ===\n")
+        trace.append(f"The correct answer is: {self.correct_answer}")
+        trace.append("")
+        trace.append("This trajectory correctly represents:")
+        trace.append("- Lorentz force causing curved paths")
+        trace.append(f"- Proper curvature direction for the {direction} magnetic field")
+        trace.append("- Correct particle interactions (elastic collisions)")
+        trace.append("- Conservation of energy and momentum throughout the motion")
+        trace.append("")
+
+        trace.append("\n=== SUMMARY ===\n")
+        trace.append(f"This problem tests understanding of charged particle motion in magnetic fields. ")
+        trace.append(f"With {self.particle_count} particle(s) in a magnetic field of {B_z:.2f} T, ")
+        trace.append(f"the particles experience Lorentz forces causing curved trajectories. ")
+        if self.particle_count > 1:
+            trace.append(f"Elastic collisions between particles add complexity to the motion. ")
+        trace.append(f"By applying electromagnetic theory and collision physics, ")
+        trace.append(f"the correct answer is option {self.correct_answer}.")
+
+        return "\n".join(trace)

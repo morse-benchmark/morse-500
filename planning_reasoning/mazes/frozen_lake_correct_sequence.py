@@ -24,6 +24,12 @@ import matplotlib.transforms as transforms
 import matplotlib.colors as mcolors
 import datetime
 
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
+
 
 def count_holes(env):
     """Count holes in the environment"""
@@ -451,6 +457,10 @@ if __name__ == "__main__":
     parser.add_argument('--n_options', type=int, default=6, help='Number of multiple choice options (default: 6)')
     args = parser.parse_args()
 
+    # Set random seed
+    seed = random.randint(1000, 9999)
+    random.seed(seed)
+
     # Generate random map and setup environment
     random_map = generate_random_map(size=args.size)
     env = gym.make("FrozenLake-v1", desc=random_map, render_mode="rgb_array", is_slippery=False)
@@ -488,6 +498,201 @@ if __name__ == "__main__":
     correct_answer = answer
     print(f"Answer: {correct_answer}")
 
+    # Generate reasoning trace
+    hole_count, hole_positions = count_holes(env)
+    action_to_text = ['LEFT', 'DOWN', 'RIGHT', 'UP']
+    action_to_icon = ['⬅️', '⬇️', '➡️', '⬆️']
+
+    reasoning_trace = f"""FROZEN LAKE PATH FINDING - REASONING TRACE
+{'='*80}
+
+PROBLEM SETUP:
+- Grid size: {args.size}x{args.size}
+- Number of holes: {hole_count}
+- Fog enabled: {args.use_fog}"""
+
+    if args.use_fog:
+        reasoning_trace += f"\n- Visibility range: {args.visibility_range} cells (Manhattan distance)"
+
+    reasoning_trace += f"""
+- Number of multiple choice options: {args.n_options}
+- Start position: Top-left corner (0, 0)
+- Goal position: Bottom-right corner ({args.size-1}, {args.size-1})
+
+MAZE LAYOUT:
+"""
+
+    # Describe the maze layout
+    desc = env.unwrapped.desc
+    reasoning_trace += f"The maze is a {args.size}x{args.size} grid with the following structure:\n"
+    for i, row in enumerate(desc):
+        row_str = ""
+        for j, cell in enumerate(row):
+            if cell == b'S':
+                row_str += "S "
+            elif cell == b'G':
+                row_str += "G "
+            elif cell == b'H':
+                row_str += "H "
+            else:
+                row_str += ". "
+        reasoning_trace += f"Row {i}: {row_str}\n"
+
+    reasoning_trace += f"\nLegend: S=Start, G=Goal, H=Hole, .=Safe Ice\n"
+    reasoning_trace += f"\nHole positions (row, col): {hole_positions}\n"
+
+    reasoning_trace += f"""
+
+EXPLORATION SEQUENCE:
+The agent explores the maze to discover the safe paths. The exploration takes {len(path)} steps.
+"""
+
+    if args.use_fog:
+        reasoning_trace += f"""
+Due to the fog, the agent can only see {args.visibility_range} cells away (Manhattan distance).
+This means the agent discovers the maze layout gradually as it moves.
+"""
+
+    reasoning_trace += "\nFrame-by-frame exploration:\n"
+
+    # Describe key frames in the exploration
+    env_to_use.reset()
+    current_pos = (0, 0)
+    frame_desc_interval = max(1, len(path) // 20)  # Describe ~20 key frames
+
+    for step_num, action in enumerate(path):
+        if step_num % frame_desc_interval == 0 or step_num == len(path) - 1:
+            reasoning_trace += f"\nFrame {step_num + 1}: Agent at position {current_pos}, taking action {action_to_text[action]} {action_to_icon[action]}\n"
+
+        # Update position based on action
+        row, col = current_pos
+        if action == 0:  # LEFT
+            col = max(0, col - 1)
+        elif action == 1:  # DOWN
+            row = min(args.size - 1, row + 1)
+        elif action == 2:  # RIGHT
+            col = min(args.size - 1, col + 1)
+        elif action == 3:  # UP
+            row = max(0, row - 1)
+        current_pos = (row, col)
+
+    reasoning_trace += f"""
+
+SHORTEST PATH ANALYSIS:
+After exploring the maze, we need to find the shortest path from Start to Goal.
+- Number of shortest paths found: {len(shortest_paths)}
+- Shortest path length: {shortest_path_length} moves
+
+"""
+
+    # Describe all shortest paths
+    for idx, sp in enumerate(shortest_paths[:5]):  # Show up to 5 shortest paths
+        path_icons = " ".join([action_to_icon[a] for a in sp])
+        path_text = " → ".join([action_to_text[a] for a in sp])
+        reasoning_trace += f"Shortest path {idx + 1}: {path_icons}\n"
+        reasoning_trace += f"  Actions: {path_text}\n\n"
+
+    if len(shortest_paths) > 5:
+        reasoning_trace += f"... and {len(shortest_paths) - 5} more shortest paths\n\n"
+
+    reasoning_trace += f"""
+MULTIPLE CHOICE OPTIONS:
+The question presents {args.n_options} different move sequences:
+
+"""
+
+    # Describe each option
+    shuffled_paths = non_goal_paths + [random.choice(shortest_paths)]
+    shuffled_indices = list(range(len(shuffled_paths)))
+    random.shuffle(shuffled_indices)
+    final_shuffled_paths = [shuffled_paths[i] for i in shuffled_indices]
+
+    for idx, path_option in enumerate(final_shuffled_paths):
+        letter = chr(65 + idx)
+        path_icons = " ".join([action_to_icon[a] for a in path_option])
+        path_text = " → ".join([action_to_text[a] for a in path_option])
+        reasoning_trace += f"Option {letter}: {path_icons}\n"
+        reasoning_trace += f"  Sequence: {path_text}\n"
+
+        # Simulate this path to see where it leads
+        test_pos = (0, 0)
+        valid_path = True
+        reached_goal = False
+
+        for action in path_option:
+            row, col = test_pos
+            if action == 0:  # LEFT
+                col = max(0, col - 1)
+            elif action == 1:  # DOWN
+                row = min(args.size - 1, row + 1)
+            elif action == 2:  # RIGHT
+                col = min(args.size - 1, col + 1)
+            elif action == 3:  # UP
+                row = max(0, row - 1)
+            test_pos = (row, col)
+
+            # Check if hit a hole
+            if grid[test_pos[0], test_pos[1]] == 1:
+                reasoning_trace += f"  Result: Falls into hole at position {test_pos}\n"
+                valid_path = False
+                break
+
+        if valid_path:
+            if test_pos == (args.size - 1, args.size - 1):
+                reasoning_trace += f"  Result: Successfully reaches the goal at position {test_pos}\n"
+                reached_goal = True
+            else:
+                reasoning_trace += f"  Result: Ends at position {test_pos}, does not reach the goal\n"
+
+        reasoning_trace += "\n"
+
+    reasoning_trace += f"""
+REASONING:
+To find the correct answer, we need to identify which sequence:
+1. Does not step on any holes (marked as 'H' in the grid)
+2. Successfully reaches the goal position ({args.size-1}, {args.size-1})
+
+By analyzing each option:
+"""
+
+    for idx, path_option in enumerate(final_shuffled_paths):
+        letter = chr(65 + idx)
+        test_pos = (0, 0)
+        valid = True
+
+        for action in path_option:
+            row, col = test_pos
+            if action == 0:
+                col = max(0, col - 1)
+            elif action == 1:
+                row = min(args.size - 1, row + 1)
+            elif action == 2:
+                col = min(args.size - 1, col + 1)
+            elif action == 3:
+                row = max(0, row - 1)
+            test_pos = (row, col)
+
+            if grid[test_pos[0], test_pos[1]] == 1:
+                reasoning_trace += f"- Option {letter}: INVALID - Falls into a hole\n"
+                valid = False
+                break
+
+        if valid:
+            if test_pos == (args.size - 1, args.size - 1):
+                reasoning_trace += f"- Option {letter}: VALID - Reaches the goal successfully\n"
+            else:
+                reasoning_trace += f"- Option {letter}: INVALID - Does not reach the goal\n"
+
+    reasoning_trace += f"""
+
+FINAL ANSWER: {correct_answer}
+
+This option represents a valid path that navigates around all holes and successfully
+reaches the goal position at the bottom-right corner of the maze.
+"""
+
+    print(f"\nReasoning trace generated (seed: {seed})")
+
     # Setup output paths
     script_path = __file__
     script_filename = os.path.basename(script_path)
@@ -496,7 +701,8 @@ if __name__ == "__main__":
         question_name += f"_fog_vis{args.visibility_range}"
     else:
         question_name += "_nofog"
-    
+    question_name += f"_seed{seed}"
+
     question_dir = Path('questions')
     question_dir.mkdir(exist_ok=True)
     output_video = f"questions/{question_name}.mp4"
@@ -532,3 +738,7 @@ if __name__ == "__main__":
     question_text_dir.mkdir(exist_ok=True)
     with open(f"question_text/{question_name}.txt", "w") as f:
         f.write(f"{question_text}")
+
+    # Save reasoning trace
+    with open(f"reasoning_traces/{question_name}.txt", "w") as f:
+        f.write(reasoning_trace)

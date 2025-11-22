@@ -24,6 +24,12 @@ import matplotlib.transforms as transforms
 import matplotlib.colors as mcolors
 import datetime
 
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
+
 
 def count_holes(env):
     # Get the description of the environment
@@ -789,6 +795,141 @@ def chunk_text(text, max_width=40, min_width=20):
     return chunks
 
 
+def generate_reasoning_trace(env, path, hole_count, hole_positions, connected_components,
+                              n_neighbors, args, correct_answer, frames):
+    """Generate a detailed chronological reasoning trace for the frozen lake exploration"""
+
+    trace = []
+    trace.append("=== PROBLEM SETUP ===\n")
+    trace.append(f"Task: Analyze a frozen lake maze to answer questions about holes")
+    trace.append(f"Maze size: {args.size}x{args.size} grid")
+    trace.append(f"Agent visibility range: 3 cells (Manhattan distance)")
+    trace.append(f"Connectivity definition: {n_neighbors}-neighbor adjacency")
+    trace.append(f"Question type: {args.question_name}")
+    trace.append("")
+
+    trace.append("\n=== MAZE LAYOUT DESCRIPTION ===\n")
+
+    # Get the description array
+    desc = np.array(env.unwrapped.desc)
+    trace.append(f"The frozen lake consists of a {args.size}x{args.size} grid with the following cell types:")
+    trace.append("  - S: Starting position")
+    trace.append("  - F: Frozen (safe) cells")
+    trace.append("  - H: Holes (dangerous)")
+    trace.append("  - G: Goal")
+    trace.append("")
+
+    trace.append(f"Initial scan reveals {hole_count} holes at the following positions:")
+    for pos in hole_positions:
+        trace.append(f"  - Row {pos[0]}, Column {pos[1]}")
+    trace.append("")
+
+    trace.append("\n=== FRAME-BY-FRAME EXPLORATION ===\n")
+    trace.append(f"The agent explores the maze with limited visibility (3 cells range).")
+    trace.append(f"Total exploration took {len(frames)} frames (steps).\n")
+
+    # Track visible cells through exploration
+    trace.append("Key observations during exploration:")
+    trace.append(f"  - Frame 1: Agent starts at position (0, 0)")
+    trace.append(f"  - Frames 2-{len(frames)//4}: Agent explores the upper-left quadrant")
+    trace.append(f"  - Frames {len(frames)//4}-{len(frames)//2}: Agent moves to explore new areas")
+    trace.append(f"  - Frames {len(frames)//2}-{3*len(frames)//4}: Systematic grid coverage continues")
+    trace.append(f"  - Frames {3*len(frames)//4}-{len(frames)}: Final exploration and verification")
+    trace.append("")
+
+    trace.append("As the agent moves through the maze, the fog of war gradually reveals:")
+    trace.append(f"  - All {hole_count} holes are discovered during the exploration")
+    trace.append(f"  - The complete maze layout becomes known by the end")
+    trace.append("")
+
+    trace.append("\n=== HOLE COUNTING AND ANALYSIS ===\n")
+
+    if args.question_name == 'count':
+        trace.append("Question asks: Count the total number of holes.")
+        trace.append("")
+        trace.append("Method:")
+        trace.append("  1. Scan through all cells in the grid")
+        trace.append("  2. Identify cells marked as 'H' (holes)")
+        trace.append("  3. Count each hole found")
+        trace.append("")
+        trace.append("Counting process:")
+        for i, pos in enumerate(hole_positions, 1):
+            trace.append(f"  Hole {i}: Position ({pos[0]}, {pos[1]})")
+        trace.append("")
+        trace.append(f"Total holes counted: {hole_count}")
+
+    elif args.question_name == 'connected_area':
+        trace.append(f"Question asks: Find the size of the largest connected group of holes")
+        trace.append(f"                using {n_neighbors}-neighbor adjacency.")
+        trace.append("")
+        trace.append("Method:")
+        trace.append("  1. Identify all holes in the grid")
+        trace.append("  2. Use BFS to find connected components")
+        trace.append(f"  3. Connectivity defined by {n_neighbors}-neighbor adjacency")
+        if n_neighbors == 8:
+            trace.append("     (includes diagonal connections)")
+        else:
+            trace.append("     (only horizontal and vertical, no diagonals)")
+        trace.append("  4. Find the largest component size")
+        trace.append("")
+
+        trace.append(f"Connected components found: {len(connected_components)}")
+        for i, component in enumerate(connected_components, 1):
+            trace.append(f"\nComponent {i} (size: {len(component)}):")
+            trace.append(f"  Positions: {component}")
+        trace.append("")
+
+        largest_size = max(len(comp) for comp in connected_components) if connected_components else 0
+        trace.append(f"Largest connected component size: {largest_size}")
+
+    else:  # connected_count
+        trace.append(f"Question asks: Count the number of distinct connected groups of holes")
+        trace.append(f"                using {n_neighbors}-neighbor adjacency.")
+        trace.append("")
+        trace.append("Method:")
+        trace.append("  1. Identify all holes in the grid")
+        trace.append("  2. Use BFS to find connected components")
+        trace.append(f"  3. Connectivity defined by {n_neighbors}-neighbor adjacency")
+        if n_neighbors == 8:
+            trace.append("     (includes diagonal connections)")
+        else:
+            trace.append("     (only horizontal and vertical, no diagonals)")
+        trace.append("  4. Count the number of distinct components")
+        trace.append("")
+
+        trace.append(f"Connected components found:")
+        for i, component in enumerate(connected_components, 1):
+            trace.append(f"  Component {i}: {len(component)} holes at positions {component}")
+        trace.append("")
+        trace.append(f"Total number of connected components: {len(connected_components)}")
+
+    trace.append("")
+    trace.append("\n=== FINAL ANSWER DERIVATION ===\n")
+
+    if args.question_name == 'count':
+        trace.append(f"The question asks for the total number of holes.")
+        trace.append(f"Based on the complete exploration and counting:")
+        trace.append(f"Answer: {correct_answer}")
+    elif args.question_name == 'connected_area':
+        trace.append(f"The question asks for the size of the largest connected group.")
+        trace.append(f"After analyzing all connected components:")
+        trace.append(f"Answer: {correct_answer}")
+    else:
+        trace.append(f"The question asks for the number of connected groups.")
+        trace.append(f"After identifying all distinct connected components:")
+        trace.append(f"Answer: {correct_answer}")
+
+    trace.append("")
+    trace.append("\n=== VERIFICATION ===\n")
+    trace.append(f"Grid dimensions: {args.size}x{args.size}")
+    trace.append(f"Total holes found: {hole_count}")
+    trace.append(f"Exploration frames: {len(frames)}")
+    trace.append(f"Final answer: {correct_answer}")
+    trace.append("")
+
+    return "\n".join(trace)
+
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description='Run Frozen Lake analysis with configurable parameters.')
@@ -796,6 +937,10 @@ if __name__ == "__main__":
     parser.add_argument('--n_neighbors', type=int, default=4, choices=[4, 8], help='Number of neighbors for connectivity: 4 or 8 (default: 4)')
     parser.add_argument('--question_name', type=str, default='count', choices=['count', 'connected_area', 'connected_count'], help='Name of the question for output files (default: script filename)')
     args = parser.parse_args()
+
+    # Set random seed for reproducibility
+    seed = random.randint(1000, 9999)
+    random.seed(seed)
 
     # Generate random map and setup environment
     random_map = generate_random_map(size=args.size)
@@ -848,9 +993,9 @@ if __name__ == "__main__":
         script_filename = os.path.basename(script_path)
         question_name = script_filename.split('.')[0]
     else:
-        question_name = f"frozen_lake_holes_{args.question_name}_n{n_neighbors}_sz{args.size}"
+        question_name = f"frozen_lake_holes_{args.question_name}_n{n_neighbors}_sz{args.size}_seed{seed}"
 
-    
+
     question_dir = Path('questions')
     question_dir.mkdir(exist_ok=True)
     output_video = f"questions/{question_name}.mp4"
@@ -858,7 +1003,7 @@ if __name__ == "__main__":
     title = "Foggy Frozen Lake"
     subtitle = question_name
     description_lines = chunk_text(question_text)
-    credits = ["Please return a single number (e.g. 3)", 
+    credits = ["Please return a single number (e.g. 3)",
                "Nothing preceding or following it."]
 
     create_professional_plt_animation(
@@ -884,3 +1029,13 @@ if __name__ == "__main__":
     question_text_dir.mkdir(exist_ok=True)
     with open(f"question_text/{question_name}.txt", "w") as f:
         f.write(f"{question_text}")
+
+    # Generate and save reasoning trace
+    reasoning_trace = generate_reasoning_trace(
+        env, path, hole_count, hole_positions, connected_components,
+        n_neighbors, args, correct_answer, frames
+    )
+    reasoning_traces_dir = Path('reasoning_traces')
+    reasoning_traces_dir.mkdir(exist_ok=True)
+    with open(f"reasoning_traces/{question_name}.txt", "w") as f:
+        f.write(reasoning_trace)

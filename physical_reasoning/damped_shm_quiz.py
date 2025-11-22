@@ -5,6 +5,14 @@ import random
 from scipy.integrate import solve_ivp
 import time
 import os
+import shutil
+from pathlib import Path
+
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
 
 DEFAULT_M_RANGE = (0.5, 2.0)
 DEFAULT_K_RANGE = (2.0, 10.0)
@@ -258,7 +266,7 @@ def adjust_oscillator_parameters(difficulty):
 
 class DampedOscillatorQuizRefactored(Scene):
     anim_time = 0.0
-    
+
     def construct(self):
         seed = int(os.environ.get('MANIM_SEED', time.time()))
         difficulty = int(os.environ.get('MANIM_DIFFICULTY', 5))
@@ -267,9 +275,15 @@ class DampedOscillatorQuizRefactored(Scene):
         if object_count not in [1, 2, 3]:
             print(f"Warning: object_count {object_count} is not valid. Using default value 1.")
             object_count = 1
-        
+
         random.seed(seed)
         np.random.seed(seed)
+
+        # Store for reasoning trace
+        self.seed = seed
+        self.difficulty = difficulty
+        self.object_count = object_count
+        self.oscillator_events = []
         
 
         adj_m_range, adj_k_range, adj_b_range, adj_v0_range = adjust_oscillator_parameters(difficulty)
@@ -284,13 +298,24 @@ class DampedOscillatorQuizRefactored(Scene):
             m = random.uniform(*adj_m_range)
             k = random.uniform(*adj_k_range)
             b = random.uniform(*adj_b_range)
-            
+
             x0 = random.uniform(*DEFAULT_X0_RANGE)
             v0 = random.uniform(*adj_v0_range)
-            
+
             oscillators_params.append([m, k, b])
             oscillators_initial_states.append([x0, v0])
-            
+
+            # Record oscillator event for reasoning trace
+            self.oscillator_events.append({
+                "oscillator_id": i + 1,
+                "mass": m,
+                "spring_constant": k,
+                "damping_coefficient": b,
+                "initial_position": x0,
+                "initial_velocity": v0,
+                "color": object_colors[i].name if hasattr(object_colors[i], "name") else str(object_colors[i])
+            })
+
             print(f"Oscillator {i+1}: m={m:.2f}, k={k:.2f}, b={b:.2f}, x0={x0:.2f}, v0={v0:.2f}")
         
         print(f"--- Damped Oscillator Setup (Seed: {seed}, Difficulty: {difficulty}, Objects: {object_count}) ---")
@@ -568,5 +593,195 @@ class DampedOscillatorQuizRefactored(Scene):
             print(f"FINAL_ANSWER: ERROR_INDEX")
             error_text_reveal = Text("Internal Error finding correct answer!", color=RED, font_size=24).to_edge(BOTTOM)
             self.play(Write(error_text_reveal))
-        
+
         self.wait(5)
+
+        # Store answer and additional info for reasoning trace
+        self.correct_label = correct_label
+        self.selected_descriptions = selected_descriptions
+        self.selected_indices = selected_indices
+        self.results_correct = results_correct
+
+        # Save solution
+        with open(f"solutions/damped_shm_quiz_d{self.difficulty}_n{self.object_count}_seed{self.seed}.txt", "w") as f:
+            f.write(correct_label)
+
+        # Save question text
+        question_text_content = "Which graph best represents the positions x(t)?\nReturn the answer as a single letter (A, B, C, D, or E)."
+        with open(f"question_text/damped_shm_quiz_d{self.difficulty}_n{self.object_count}_seed{self.seed}.txt", "w") as f:
+            f.write(question_text_content)
+
+        # Generate and save reasoning trace
+        reasoning_trace = self.generate_reasoning_trace()
+        with open(f"reasoning_traces/damped_shm_quiz_d{self.difficulty}_n{self.object_count}_seed{self.seed}.txt", "w") as f:
+            f.write(reasoning_trace)
+
+    def generate_reasoning_trace(self):
+        """Generate a detailed reasoning trace describing the damped oscillator scene chronologically"""
+
+        trace = []
+        trace.append("=== DAMPED HARMONIC OSCILLATOR PROBLEM ===\n")
+
+        trace.append(f"Difficulty Level: {self.difficulty}")
+        trace.append(f"Number of Oscillators: {self.object_count}\n")
+
+        trace.append("\n=== INITIAL SETUP ===\n")
+
+        # Describe each oscillator's parameters
+        for event in self.oscillator_events:
+            trace.append(f"Oscillator {event['oscillator_id']} ({event['color']} color):")
+            trace.append(f"  - Mass (m): {event['mass']:.2f} kg")
+            trace.append(f"  - Spring Constant (k): {event['spring_constant']:.2f} N/m")
+            trace.append(f"  - Damping Coefficient (b): {event['damping_coefficient']:.2f} N·s/m")
+            trace.append(f"  - Initial Position (x₀): {event['initial_position']:.2f} m")
+            trace.append(f"  - Initial Velocity (v₀): {event['initial_velocity']:.2f} m/s")
+            trace.append("")
+
+        trace.append("\n=== VIDEO CHRONOLOGY ===\n")
+
+        trace.append("Phase 1: Parameter Display (0.0s - 1.0s)")
+        trace.append("  - The video begins by showing the oscillator setup")
+        trace.append("  - Physical parameters are displayed for each oscillator")
+        trace.append(f"  - {self.object_count} mass{'es' if self.object_count > 1 else ''} attached to spring{'s' if self.object_count > 1 else ''} and wall{'s' if self.object_count > 1 else ''}")
+        trace.append("")
+
+        trace.append(f"Phase 2: Oscillation Animation (1.0s - {1.0 + PREVIEW_ANIM_DURATION:.1f}s)")
+        trace.append(f"  - The oscillator{'s' if self.object_count > 1 else ''} begin{'s' if self.object_count == 1 else ''} to move")
+        for i, event in enumerate(self.oscillator_events):
+            if event['initial_velocity'] > 0:
+                direction = "positive (right)"
+            elif event['initial_velocity'] < 0:
+                direction = "negative (left)"
+            else:
+                direction = "rest"
+            trace.append(f"  - Oscillator {event['oscillator_id']}: Starts at x={event['initial_position']:.2f}m with velocity in {direction} direction")
+
+        trace.append("  - The spring force pulls the mass back toward equilibrium (x=0)")
+        trace.append("  - The damping force opposes motion, gradually reducing amplitude")
+        trace.append("  - The mass oscillates with decreasing amplitude over time")
+        trace.append("")
+
+        trace.append(f"Phase 3: Question Display ({1.0 + PREVIEW_ANIM_DURATION:.1f}s - end)")
+        trace.append("  - The animation pauses and the question appears")
+        trace.append("  - Multiple choice graphs (A, B, C, D, E) are displayed")
+        trace.append("  - Each graph shows a different position vs. time trajectory")
+        trace.append("")
+
+        trace.append("\n=== PHYSICAL ANALYSIS ===\n")
+
+        trace.append("The motion of a damped harmonic oscillator follows the differential equation:")
+        trace.append("  m·(d²x/dt²) + b·(dx/dt) + k·x = 0\n")
+
+        trace.append("Key physical behaviors:")
+        trace.append("1. Spring Force: F_spring = -k·x (restoring force proportional to displacement)")
+        trace.append("2. Damping Force: F_damping = -b·v (opposes motion, proportional to velocity)")
+        trace.append("3. Net acceleration: a = (-k·x - b·v) / m\n")
+
+        for i, event in enumerate(self.oscillator_events):
+            m = event['mass']
+            k = event['spring_constant']
+            b = event['damping_coefficient']
+
+            # Calculate damping characteristics
+            critical_damping = 2 * np.sqrt(k * m)
+            damping_ratio = b / critical_damping
+            natural_frequency = np.sqrt(k / m)
+
+            trace.append(f"Oscillator {event['oscillator_id']} Analysis:")
+            trace.append(f"  - Natural frequency: ω₀ = √(k/m) = {natural_frequency:.2f} rad/s")
+            trace.append(f"  - Critical damping coefficient: b_crit = 2√(km) = {critical_damping:.2f} N·s/m")
+            trace.append(f"  - Damping ratio: ζ = b/b_crit = {damping_ratio:.2f}")
+
+            if damping_ratio < 1:
+                trace.append(f"  - System is UNDERDAMPED: oscillates with exponentially decaying amplitude")
+                damped_frequency = natural_frequency * np.sqrt(1 - damping_ratio**2)
+                trace.append(f"  - Damped frequency: ω_d = {damped_frequency:.2f} rad/s")
+            elif damping_ratio == 1:
+                trace.append(f"  - System is CRITICALLY DAMPED: returns to equilibrium without oscillating")
+            else:
+                trace.append(f"  - System is OVERDAMPED: slowly returns to equilibrium without oscillating")
+            trace.append("")
+
+        trace.append("\n=== EVALUATING THE CHOICES ===\n")
+
+        trace.append("The question asks which graph best represents x(t). Let me analyze each choice:\n")
+
+        choice_labels = ["A", "B", "C", "D", "E"]
+        for i, desc in enumerate(self.selected_descriptions):
+            trace.append(f"Choice {choice_labels[i]}: {desc}")
+
+            if desc == "Correct (All forces)":
+                trace.append("  - Includes both spring force (-kx) and damping force (-bv)")
+                trace.append("  - Shows oscillation with exponentially decaying amplitude")
+                trace.append("  - Amplitude decreases smoothly over time")
+                trace.append("  - Frequency remains constant (damped frequency)")
+                trace.append("  ✓ This matches the physics of a damped harmonic oscillator")
+            elif desc == "No Damping":
+                trace.append("  - Only includes spring force, ignores damping (b=0)")
+                trace.append("  - Shows perfect sinusoidal oscillation with constant amplitude")
+                trace.append("  - Amplitude never decreases")
+                trace.append("  ✗ Incorrect: Real system has damping that reduces amplitude")
+            elif desc == "Strong Damping":
+                trace.append("  - Uses damping coefficient 3× larger than actual value")
+                trace.append("  - Amplitude decays much faster than the actual system")
+                trace.append("  - May approach critical or overdamping")
+                trace.append("  ✗ Incorrect: Damping is too strong compared to actual parameters")
+            elif desc == "Different Spring Constants":
+                trace.append("  - Uses modified spring constants (incorrect k values)")
+                trace.append("  - Changes the natural frequency of oscillation")
+                trace.append("  - Period and frequency don't match the actual system")
+                trace.append("  ✗ Incorrect: Spring constant is different from given value")
+            elif desc == "Different Masses":
+                trace.append("  - Uses modified masses (incorrect m values)")
+                trace.append("  - Changes both frequency and damping behavior")
+                trace.append("  - System dynamics don't match actual parameters")
+                trace.append("  ✗ Incorrect: Mass is different from given value")
+            elif desc == "No Spring Force":
+                trace.append("  - Ignores spring force (k=0)")
+                trace.append("  - No restoring force, so no oscillation occurs")
+                trace.append("  - Position would decay to zero without oscillating")
+                trace.append("  ✗ Incorrect: Actual system has spring force causing oscillation")
+            trace.append("")
+
+        trace.append("\n=== REASONING PROCESS ===\n")
+
+        trace.append("Step 1: Identify the physical system")
+        trace.append(f"  - I observed {self.object_count} damped harmonic oscillator{'s' if self.object_count > 1 else ''}")
+        trace.append("  - Each has mass, spring, and damping components\n")
+
+        trace.append("Step 2: Determine expected behavior")
+        trace.append("  - With damping present (b > 0), amplitude must decrease over time")
+        trace.append("  - With spring force present (k > 0), system must oscillate")
+        trace.append("  - The combination produces oscillation with exponentially decaying envelope\n")
+
+        trace.append("Step 3: Match simulation to graph")
+        trace.append("  - The correct graph must show:")
+        trace.append("    • Oscillatory motion (peaks and troughs)")
+        trace.append("    • Decreasing amplitude over time")
+        trace.append("    • Frequency determined by √(k/m) and damping")
+        if self.object_count > 1:
+            trace.append(f"    • {self.object_count} distinct curves (one per oscillator)")
+        trace.append("")
+
+        trace.append("Step 4: Eliminate incorrect choices")
+        trace.append("  - No damping: Wrong because amplitude stays constant")
+        trace.append("  - Strong damping: Wrong because decay rate is too fast")
+        trace.append("  - Different k or m: Wrong because frequency/period is incorrect")
+        trace.append("  - No spring: Wrong because there's no oscillation")
+        trace.append("")
+
+        trace.append("\n=== FINAL ANSWER ===\n")
+
+        trace.append(f"Based on the physical analysis and matching the observed behavior to the graphs,")
+        trace.append(f"the correct answer is: {self.correct_label}\n")
+
+        trace.append(f"This graph correctly represents the position x(t) for a damped harmonic oscillator")
+        trace.append(f"with the given parameters (m={self.oscillator_events[0]['mass']:.2f} kg, ")
+        trace.append(f"k={self.oscillator_events[0]['spring_constant']:.2f} N/m, ")
+        trace.append(f"b={self.oscillator_events[0]['damping_coefficient']:.2f} N·s/m).")
+
+        if self.object_count > 1:
+            trace.append(f"\nAll {self.object_count} oscillators are correctly represented with their")
+            trace.append(f"respective parameters and initial conditions.")
+
+        return "\n".join(trace)

@@ -24,6 +24,12 @@ import matplotlib.transforms as transforms
 import matplotlib.colors as mcolors
 import datetime
 
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
+
 
 def count_holes(env):
     # Get the description of the environment
@@ -820,12 +826,12 @@ def create_professional_plt_animation(maze_frames, output_path, distance_list = 
 def chunk_text(text, max_width=40, min_width=20):
     """
     Split text into chunks with roughly similar width, breaking at whitespace.
-    
+
     Parameters:
     text (str): The input text to chunk
     max_width (int): Maximum preferred width for each line
     min_width (int): Minimum preferred width for each line (except last line)
-    
+
     Returns:
     list: A list of text chunks
     """
@@ -833,19 +839,19 @@ def chunk_text(text, max_width=40, min_width=20):
     chunks = []
     current_chunk = []
     current_width = 0
-    
+
     for word in words:
         # Calculate width if we add this word (plus a space)
         word_width = len(word)
         new_width = current_width + word_width + (1 if current_width > 0 else 0)
-        
+
         if new_width <= max_width:
             # Word fits in current chunk, add it
             current_chunk.append(word)
             current_width = new_width
         else:
             # Word doesn't fit, start a new chunk
-            
+
             # If current chunk is too short, and we can afford to go over max_width,
             # and this isn't the last word, put the word in the current chunk
             if current_width < min_width and len(current_chunk) > 0 and word != words[-1]:
@@ -857,12 +863,168 @@ def chunk_text(text, max_width=40, min_width=20):
                     chunks.append(' '.join(current_chunk))
                 current_chunk = [word]
                 current_width = word_width
-    
+
     # Add the last chunk if there's anything left
     if current_chunk:
         chunks.append(' '.join(current_chunk))
-    
+
     return chunks
+
+
+def generate_reasoning_trace(grid, shortest_paths, path, question_name, correct_answer, args):
+    """
+    Generate a detailed chronological reasoning trace for the frozen lake problem.
+
+    Parameters:
+    grid (np.array): The maze grid
+    shortest_paths (list): List of all shortest paths
+    path (list): The actual path taken by the agent
+    question_name (str): The type of question being asked
+    correct_answer: The correct answer to the question
+    args: Command line arguments
+
+    Returns:
+    str: The reasoning trace
+    """
+    trace = []
+    trace.append("=== PROBLEM SETUP ===\n")
+    trace.append(f"Maze Size: {args.size}x{args.size}")
+    trace.append(f"Question Type: {question_name}")
+    trace.append(f"Start Position: Top-left corner (0, 0)")
+    trace.append(f"Goal Position: Bottom-right corner ({args.size-1}, {args.size-1})")
+    trace.append(f"Allowed Movements: Up, Down, Left, Right")
+    trace.append(f"Constraint: Agent must avoid all holes (H cells)")
+    trace.append("")
+
+    trace.append("\n=== MAZE LAYOUT ===\n")
+    trace.append("The maze consists of the following cell types:")
+    trace.append("  - S: Start position (top-left)")
+    trace.append("  - G: Goal position (bottom-right)")
+    trace.append("  - F: Frozen/safe cells (walkable)")
+    trace.append("  - H: Holes (must be avoided)")
+    trace.append("")
+
+    # Count holes
+    num_holes = np.sum(grid == 1)
+    num_safe = np.sum(grid == 0)
+    trace.append(f"Total cells: {args.size * args.size}")
+    trace.append(f"Safe cells: {num_safe}")
+    trace.append(f"Holes: {num_holes}")
+    trace.append("")
+
+    trace.append("\n=== AGENT EXPLORATION ===\n")
+    trace.append("The agent explores the maze with limited visibility (fog of war).")
+    trace.append(f"Visibility range: 3 cells (Manhattan distance)")
+    trace.append(f"The agent can only see cells within 3 steps of its current position.")
+    trace.append("")
+
+    trace.append(f"Actual path taken by agent: {len(path)} steps")
+    trace.append("The agent's exploration path reveals the maze layout gradually.")
+    trace.append("")
+
+    trace.append("\n=== FRAME-BY-FRAME DESCRIPTION ===\n")
+    trace.append("Frame 0: Agent starts at position (0, 0) with limited visibility")
+    trace.append("         Only nearby cells are visible through the fog")
+    trace.append("")
+
+    # Describe key frames
+    action_names = ["Left", "Down", "Right", "Up"]
+    for i, action in enumerate(path[:min(10, len(path))], 1):
+        trace.append(f"Frame {i}: Agent moves {action_names[action]}")
+        trace.append(f"         Fog reveals new areas as agent explores")
+        trace.append("")
+
+    if len(path) > 10:
+        trace.append(f"... (continuing for {len(path) - 10} more steps)")
+        trace.append("")
+
+    trace.append(f"Final Frame: Agent reaches the goal or completes exploration")
+    trace.append("")
+
+    trace.append("\n=== SHORTEST PATH ANALYSIS ===\n")
+
+    if len(shortest_paths) > 0:
+        shortest_length = len(shortest_paths[0])
+        trace.append(f"Number of shortest paths found: {len(shortest_paths)}")
+        trace.append(f"Length of shortest path(s): {shortest_length} steps")
+        trace.append("")
+
+        trace.append("Finding shortest paths using BFS (Breadth-First Search):")
+        trace.append("  1. Start from position (0, 0)")
+        trace.append("  2. Explore all reachable neighbors (Up, Down, Left, Right)")
+        trace.append("  3. Skip cells that are holes or out of bounds")
+        trace.append("  4. Track all paths that reach the goal with minimum steps")
+        trace.append("")
+
+        if len(shortest_paths) <= 3:
+            trace.append("Example shortest path(s):")
+            for i, sp in enumerate(shortest_paths[:3], 1):
+                path_str = " -> ".join([action_names[a] for a in sp])
+                trace.append(f"  Path {i}: {path_str}")
+        else:
+            trace.append(f"First 3 of {len(shortest_paths)} shortest paths:")
+            for i, sp in enumerate(shortest_paths[:3], 1):
+                path_str = " -> ".join([action_names[a] for a in sp])
+                trace.append(f"  Path {i}: {path_str}")
+    else:
+        trace.append("No valid path found from start to goal!")
+        trace.append("The goal is unreachable due to hole placements.")
+
+    trace.append("")
+
+    trace.append("\n=== REASONING ABOUT THE ANSWER ===\n")
+
+    if args.question_name == 'agent_steps':
+        trace.append("Question: How many steps did the agent take?")
+        trace.append("")
+        trace.append("Reasoning:")
+        trace.append(f"  - The agent's exploration path consisted of {len(path)} actions")
+        trace.append(f"  - Each action is one step (Left, Down, Right, or Up)")
+        trace.append(f"  - Therefore, the agent took {len(path)} steps total")
+        trace.append("")
+        trace.append(f"Answer: {correct_answer}")
+    elif args.question_name == 'min_length':
+        trace.append("Question: What is the minimum number of steps to reach the goal?")
+        trace.append("")
+        trace.append("Reasoning:")
+        if len(shortest_paths) > 0:
+            trace.append(f"  - Using BFS, we found all shortest paths from start to goal")
+            trace.append(f"  - All shortest paths have the same length: {shortest_length} steps")
+            trace.append(f"  - This is the minimum possible number of steps")
+            trace.append(f"  - Any other path would take {shortest_length} or more steps")
+        else:
+            trace.append("  - No valid path exists from start to goal")
+            trace.append("  - The answer is 0 or undefined")
+        trace.append("")
+        trace.append(f"Answer: {correct_answer}")
+    else:  # count
+        trace.append("Question: How many distinct shortest paths exist?")
+        trace.append("")
+        trace.append("Reasoning:")
+        if len(shortest_paths) > 0:
+            trace.append(f"  - We found {len(shortest_paths)} distinct paths of length {shortest_length}")
+            trace.append(f"  - Each path is a unique sequence of moves reaching the goal")
+            trace.append(f"  - All paths have the same minimum length")
+            trace.append(f"  - Paths differ in the order and choice of moves")
+        else:
+            trace.append("  - No valid paths exist from start to goal")
+            trace.append("  - The count is 0")
+        trace.append("")
+        trace.append(f"Answer: {correct_answer}")
+
+    trace.append("")
+
+    trace.append("\n=== SUMMARY ===\n")
+    trace.append(f"In this {args.size}x{args.size} Frozen Lake maze with {num_holes} holes,")
+    if len(shortest_paths) > 0:
+        trace.append(f"the shortest path from start to goal requires {shortest_length} steps,")
+        trace.append(f"and there are {len(shortest_paths)} distinct shortest paths.")
+    else:
+        trace.append("there is no valid path from start to goal due to hole placements.")
+    trace.append(f"The agent's exploration path took {len(path)} steps.")
+    trace.append(f"Based on the question '{args.question_name}', the answer is: {correct_answer}")
+
+    return "\n".join(trace)
 
 
 if __name__ == "__main__":
@@ -871,6 +1033,10 @@ if __name__ == "__main__":
     parser.add_argument('--size', type=int, default=10, help='Size of the random map (default: 10)')
     parser.add_argument('--question_name', type=str, default='count', choices=['count', 'min_length', 'agent_steps'], help='Name of the question for output files (default: script filename)')
     args = parser.parse_args()
+
+    # Set random seed for reproducibility
+    seed = random.randint(1000, 9999)
+    random.seed(seed)
 
     # Generate random map and setup environment
     random_map = generate_random_map(size=args.size)
@@ -914,7 +1080,7 @@ if __name__ == "__main__":
         script_filename = os.path.basename(script_path)
         question_name = script_filename.split('.')[0]
     else:
-        question_name = f"frozen_lake_paths_{args.question_name}_sz{args.size}"
+        question_name = f"frozen_lake_paths_{args.question_name}_sz{args.size}_seed{seed}"
 
     question_dir = Path('questions')
     question_dir.mkdir(exist_ok=True)
@@ -923,7 +1089,7 @@ if __name__ == "__main__":
     title = "Foggy Frozen Lake"
     subtitle = question_name
     description_lines = chunk_text(question_text)
-    credits = ["Please return a single number (e.g. 3)", 
+    credits = ["Please return a single number (e.g. 3)",
                "Nothing preceding or following it."]
 
     create_professional_plt_animation(
@@ -950,4 +1116,11 @@ if __name__ == "__main__":
     question_text_dir.mkdir(exist_ok=True)
     with open(f"question_text/{question_name}.txt", "w") as f:
         f.write(f"{question_text}")
+
+    # Generate and save reasoning trace
+    reasoning_trace = generate_reasoning_trace(grid, shortest_paths, path, args.question_name, correct_answer, args)
+    reasoning_trace_dir = Path('reasoning_traces')
+    reasoning_trace_dir.mkdir(exist_ok=True)
+    with open(f"reasoning_traces/{question_name}.txt", "w") as f:
+        f.write(reasoning_trace)
         

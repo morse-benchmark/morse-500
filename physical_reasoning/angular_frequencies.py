@@ -4,12 +4,27 @@ import random
 from scipy.integrate import solve_ivp
 import time
 import os
+import shutil
+from pathlib import Path
 
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
+
+
+config.media_dir = "manim_output"
+config.verbosity = "WARNING"
+config.pixel_height = 1080
+config.pixel_width = 1920
+config.frame_rate = 30
+config.preview = False
 
 DEFAULT_M_RANGE = (0.5, 2.0)
 DEFAULT_K_RANGE = (2.0, 10.0)
 DEFAULT_V0_RANGE = (0.5, 3.0)
-DEFAULT_X0 = 0.0 
+DEFAULT_X0 = 0.0
 
 SIM_DURATION = 10
 SIM_POINTS_PER_SEC = 50
@@ -103,18 +118,31 @@ def create_single_spring_visual(start_point, end_point, bumps=SPRING_BUMPS, radi
 
 
 class IndependentOscillatorsQuiz(Scene):
-    
-    def construct(self):
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        # Set random seed for reproducibility
+        self.seed = random.randint(1000, 9999)
+        random.seed(self.seed)
+        np.random.seed(self.seed)
+
         # Get object count from environment variable
-        num_systems = int(os.environ.get('MANIM_OBJECT_COUNT', 2))
-        
+        self.num_systems = int(os.environ.get('MANIM_OBJECT_COUNT', 2))
+
         # Validate object count
-        if num_systems not in [2, 3, 4]:
-            print(f"Warning: object_count {num_systems} is not valid. Using default value 2.")
-            num_systems = 2
+        if self.num_systems not in [2, 3, 4]:
+            print(f"Warning: object_count {self.num_systems} is not valid. Using default value 2.")
+            self.num_systems = 2
+
+        # Store for reasoning trace
+        self.scene_events = []
+        self.systems_data = []
+
+    def construct(self):
+        num_systems = self.num_systems
 
         self.camera.background_color = PURPLE
-        seed = int(time.time()); random.seed(seed); np.random.seed(seed)
         
         # Determine system configuration based on object count
         if num_systems == 2:
@@ -134,20 +162,19 @@ class IndependentOscillatorsQuiz(Scene):
             current_spring_colors = SYSTEM_SPRING_COLORS[:4]
         
         # Generate parameters for multiple systems
-        systems_data = []
         for i in range(num_systems):
             m = random.uniform(*DEFAULT_M_RANGE)
             k = random.uniform(*DEFAULT_K_RANGE)
             v0 = random.uniform(*DEFAULT_V0_RANGE) * random.choice([-1, 1])
             x0 = DEFAULT_X0
             b = 0.0
-            
+
             # Ensure different initial velocities for different systems
             if i > 0:
-                while any(abs(abs(v0) - abs(sys_data['v0'])) < 0.5 and np.sign(v0) == np.sign(sys_data['v0']) for sys_data in systems_data):
+                while any(abs(abs(v0) - abs(sys_data['v0'])) < 0.5 and np.sign(v0) == np.sign(sys_data['v0']) for sys_data in self.systems_data):
                     v0 = random.uniform(*DEFAULT_V0_RANGE) * random.choice([-1, 1])
-            
-            systems_data.append({
+
+            self.systems_data.append({
                 'm': m, 'k': k, 'v0': v0, 'x0': x0, 'b': b,
                 'params': [m, k, b],
                 'initial_state': [x0, v0],
@@ -156,15 +183,15 @@ class IndependentOscillatorsQuiz(Scene):
                 'spring_color': current_spring_colors[i],
                 'vertical_offset': VERTICAL_SYSTEM_Y_POSITIONS[i]
             })
-            
-            print(f"--- {SYSTEM_LABELS[i]} (Seed: {seed}) ---")
+
+            print(f"--- {SYSTEM_LABELS[i]} (Seed: {self.seed}) ---")
             print(f"Params: m{i+1}={m:.2f}, k{i+1}={k:.2f}, x0{i+1}={x0:.2f}, v0{i+1}={v0:.2f}")
 
         scene_title = Text(f"{num_systems} Independent Oscillators", font_size=36).to_edge(UP)
         
         # Calculate x-axis bounds based on all systems
         max_amp_est = 0.5
-        for sys_data in systems_data:
+        for sys_data in self.systems_data:
             omega_sq_est = sys_data['k'] / sys_data['m'] if sys_data['m'] > 1e-6 else 0
             amp_est = abs(sys_data['v0'] / np.sqrt(omega_sq_est)) if omega_sq_est > 1e-6 else abs(sys_data['x0'])
             max_amp_est = max(max_amp_est, amp_est)
@@ -181,9 +208,16 @@ class IndependentOscillatorsQuiz(Scene):
             label_direction=DOWN, font_size=20, stroke_width=2
         ).move_to(UP * 2.5)  # Move ruler higher up to avoid overlapping with objects
 
+        # Record scene initialization event
+        self.scene_events.append({
+            'event': 'scene_start',
+            'time': 0.0,
+            'num_systems': num_systems
+        })
+
         # Create systems dynamically
         system_mobjects = []
-        for i, sys_data in enumerate(systems_data):
+        for i, sys_data in enumerate(self.systems_data):
             wall_x_coord = x_axis.n2p(-x_axis_bnd)[0]
             wall = Line([wall_x_coord, WALL_HEIGHT/2, 0], [wall_x_coord, -WALL_HEIGHT/2, 0], 
                        color=GRAY_C, stroke_width=3).next_to(x_axis.n2p(-x_axis_bnd), RIGHT, buff=0).shift(sys_data['vertical_offset'])
@@ -201,12 +235,32 @@ class IndependentOscillatorsQuiz(Scene):
                 'sys_data': sys_data
             })
 
+            # Record system appearance event
+            self.scene_events.append({
+                'event': 'system_appears',
+                'time': 0.0,
+                'system_index': i,
+                'system_label': sys_data['label'],
+                'mass': sys_data['m'],
+                'spring_constant': sys_data['k'],
+                'initial_position': sys_data['x0'],
+                'initial_velocity': sys_data['v0']
+            })
+
         eq_line_length_factor = 0.5 
         eq_line = DashedLine(
             x_axis.n2p(0) + UP * eq_line_length_factor,
             x_axis.n2p(0) + DOWN * eq_line_length_factor,
             color=YELLOW_A, stroke_width=1.5
         )
+
+        # Record scene setup event
+        cumulative_time = 0.0
+        self.scene_events.append({
+            'event': 'scene_setup',
+            'time': cumulative_time,
+            'description': 'Scene setup with title, axis, and oscillator systems'
+        })
 
         self.play(
             FadeIn(scene_title), Create(x_axis), Create(eq_line),
@@ -215,58 +269,78 @@ class IndependentOscillatorsQuiz(Scene):
             *[Create(m['spring_obj']) for m in system_mobjects],
             *[Write(m['label']) for m in system_mobjects]
         )
+        cumulative_time += 1.0  # Approximate duration of play animation
+
         self.wait(0.5)
+        cumulative_time += 0.5
 
         t_sim_data = {}
-        for i, sys_data in enumerate(systems_data):
+        for i, sys_data in enumerate(self.systems_data):
             t_sim, x_sim, v_sim = simulate_oscillator(SIM_DURATION, sys_data['initial_state'], sys_data['params'])
             t_sim_data[i] = {'t': t_sim, 'x': x_sim, 'v': v_sim}
 
         if any(len(t_sim_data[i]['t']) < 2 or not (np.any(np.isfinite(t_sim_data[i]['x'])) and np.any(np.isfinite(t_sim_data[i]['v']))) for i in range(num_systems)):
             self.play(FadeOut(VGroup(*self.mobjects_without_background)), FadeIn(Text("Simulation Error!",color=RED))); self.wait(3); print("FINAL_ANSWER: ERROR_SIM"); return
         
+        # Record oscillation start event
+        self.scene_events.append({
+            'event': 'oscillation_start',
+            'time': cumulative_time,
+            'description': 'All systems begin oscillating'
+        })
+
         self.anim_time_data = {}
-        for i, sys_data in enumerate(systems_data):
+        for i, sys_data in enumerate(self.systems_data):
             self.anim_time_data[i] = 0.0
-            
+
             def mass_updater_func(mobj, dt, system_index=i):
                 self.anim_time_data[system_index] += dt
                 current_x = np.interp(min(self.anim_time_data[system_index], t_sim_data[system_index]['t'][-1]), t_sim_data[system_index]['t'], t_sim_data[system_index]['x'])
-                mobj.move_to(x_axis.n2p(current_x) + systems_data[system_index]['vertical_offset'])
-            
+                mobj.move_to(x_axis.n2p(current_x) + self.systems_data[system_index]['vertical_offset'])
+
             system_mobjects[i]['mass_obj'].add_updater(lambda mobj, dt, idx=i: mass_updater_func(mobj, dt, idx))
 
             def spring_updater_func(mob, system_index=i):
                 current_x = np.interp(min(self.anim_time_data[system_index], t_sim_data[system_index]['t'][-1]), t_sim_data[system_index]['t'], t_sim_data[system_index]['x'])
-                mob.become(create_single_spring_visual(system_mobjects[system_index]['spring_anchor'], x_axis.n2p(current_x) + systems_data[system_index]['vertical_offset'], color=systems_data[system_index]['spring_color']))
-            
+                mob.become(create_single_spring_visual(system_mobjects[system_index]['spring_anchor'], x_axis.n2p(current_x) + self.systems_data[system_index]['vertical_offset'], color=self.systems_data[system_index]['spring_color']))
+
             system_mobjects[i]['spring_obj'].add_updater(lambda mob, idx=i: spring_updater_func(mob, idx))
         
         eff_anim_dur = min(ANIMATION_DURATION, max(t_sim_data[i]['t'][-1] if len(t_sim_data[i]['t'])>0 else 0 for i in range(num_systems)))
         if eff_anim_dur > 1e-4: self.wait(eff_anim_dur)
-        
-        for i, sys_data in enumerate(systems_data):
+        cumulative_time += eff_anim_dur
+
+        # Record oscillation end event
+        self.scene_events.append({
+            'event': 'oscillation_end',
+            'time': cumulative_time,
+            'duration': eff_anim_dur,
+            'description': 'Oscillation animation completes'
+        })
+
+        for i, sys_data in enumerate(self.systems_data):
             system_mobjects[i]['mass_obj'].clear_updaters()
             system_mobjects[i]['spring_obj'].clear_updaters()
-        
+
         final_x_data = {}
-        for i, sys_data in enumerate(systems_data):
+        for i, sys_data in enumerate(self.systems_data):
             final_x_data[i] = np.interp(min(self.anim_time_data[i], t_sim_data[i]['t'][-1]), t_sim_data[i]['t'], t_sim_data[i]['x']) if len(t_sim_data[i]['t']) > 0 else sys_data['x0']
 
-        for i, sys_data in enumerate(systems_data):
+        for i, sys_data in enumerate(self.systems_data):
             system_mobjects[i]['mass_obj'].move_to(x_axis.n2p(final_x_data[i]) + sys_data['vertical_offset'])
             system_mobjects[i]['spring_obj'].become(create_single_spring_visual(system_mobjects[i]['spring_anchor'], x_axis.n2p(final_x_data[i]) + sys_data['vertical_offset'], color=sys_data['spring_color']))
         self.wait(0.2)
+        cumulative_time += 0.2
 
-        if any(sys_data['m'] < 1e-6 or sys_data['k'] < 1e-3 for sys_data in systems_data):
+        if any(sys_data['m'] < 1e-6 or sys_data['k'] < 1e-3 for sys_data in self.systems_data):
             q_text_mobj = Text("Error: m or k values too small.", color=RED)
             final_ans_script = "ERROR_MK_TOO_SMALL"
         else:
             omega_data = {}
-            for i, sys_data in enumerate(systems_data):
+            for i, sys_data in enumerate(self.systems_data):
                 omega_sq_est = sys_data['k'] / sys_data['m'] if sys_data['m'] > 1e-6 else 0
                 omega_data[i] = np.sqrt(omega_sq_est)
-            
+
             if any(abs(omega_data[i]) < 1e-6 for i in range(num_systems)):
                  q_text_mobj = Text("Error: omega values too close to zero.", color=RED)
                  final_ans_script = "ERROR_OMEGA_ZERO"
@@ -275,18 +349,31 @@ class IndependentOscillatorsQuiz(Scene):
                 if num_systems == 2:
                     frequency_ratio = omega_data[0] / omega_data[1]
                     question_text = r"\text{What is the ratio of the angular frequencies } \frac{\omega_1}{\omega_2}\text{?} \text{ return answer in 2 decimal points}"
+                    ratio_description = "omega_1 / omega_2"
                 elif num_systems == 3:
                     frequency_ratio = omega_data[0] / omega_data[2]  # omega1/omega3
                     question_text = r"\text{What is the ratio of the angular frequencies } \frac{\omega_1}{\omega_3}\text{?} \text{ return answer in 2 decimal points}"
+                    ratio_description = "omega_1 / omega_3"
                 elif num_systems == 4:
                     frequency_ratio = omega_data[0] / omega_data[3]  # omega1/omega4
                     question_text = r"\text{What is the ratio of the angular frequencies } \frac{\omega_1}{\omega_4}\text{?} \text{ return answer in 2 decimal points}"
-                
+                    ratio_description = "omega_1 / omega_4"
+
                 final_ans_script = f"{frequency_ratio:.2f}"
                 question_line = MathTex(question_text, font_size=30, color=YELLOW_C)
 
                 q_text_mobj = VGroup(question_line)
                 q_text_mobj.move_to(ORIGIN)
+
+                # Record calculation event
+                self.scene_events.append({
+                    'event': 'calculation',
+                    'time': cumulative_time,
+                    'omega_data': omega_data.copy(),
+                    'frequency_ratio': frequency_ratio,
+                    'ratio_description': ratio_description,
+                    'answer': final_ans_script
+                })
 
 
         self.play(

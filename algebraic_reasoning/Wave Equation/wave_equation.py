@@ -5,10 +5,11 @@ from pathlib import Path
 import shutil
 import os
 
-
+# Setup directories
 Path("questions").mkdir(exist_ok=True)
 Path("solutions").mkdir(exist_ok=True)
 Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
 
 config.media_dir = "manim_output"
 config.verbosity = "WARNING"
@@ -35,20 +36,21 @@ class WaveEquationQuiz(Scene):
         self.amplitude = random.uniform(0.5, 2.0)
         self.width = random.uniform(0.5, 1.5)
 
-    def initial_condition(self, x):
+        self.max_wave_height = 0
 
+    def initial_condition(self, x):
         return self.amplitude * np.exp(
             -((x - self.pluck_pos) ** 2) / (2 * self.width**2)
         )
 
     def wave_solution(self, x, t):
-
-        term1 = self.initial_condition(x - np.sqrt(self.c_squared) * t)
-        term2 = self.initial_condition(x + np.sqrt(self.c_squared) * t)
+        # d'Alembert's solution: u(x,t) = 0.5 * (f(x-ct) + f(x+ct))
+        c = np.sqrt(self.c_squared)
+        term1 = self.initial_condition(x - c * t)
+        term2 = self.initial_condition(x + c * t)
         return (term1 + term2) / 2
 
     def add_manual_ticks(self, axes):
-
         x_ticks = VGroup()
         for x in range(0, 11):
             tick = Line(
@@ -68,11 +70,9 @@ class WaveEquationQuiz(Scene):
             )
             number = Text(f"{y:.1f}", font_size=24).next_to(tick, LEFT, buff=0.1)
             y_ticks.add(tick, number)
-
         return VGroup(x_ticks, y_ticks)
 
     def construct(self):
-
         axes = Axes(
             x_range=[0, 10],
             y_range=[0, 2],
@@ -125,14 +125,15 @@ class WaveEquationQuiz(Scene):
 
         graph.add_updater(update_graph)
         self.time_elapsed = 0
-        max_wave_height = 0
 
+        # Calculate max wave height at fly position
+        self.max_wave_height = 0
         for t in self.time_points:
             wave_height = abs(self.wave_solution(self.fly_pos, t))
-            if wave_height > max_wave_height:
-                max_wave_height = wave_height
+            if wave_height > self.max_wave_height:
+                self.max_wave_height = wave_height
 
-        required_jump = max_wave_height + 0.1
+        required_jump = self.max_wave_height + 0.1
         self.correct_answer = round(required_jump, 2)
 
         self.play(Write(title))
@@ -170,8 +171,14 @@ class WaveEquationQuiz(Scene):
                 random.uniform(0.1, 2.0),
             }
         )
-        random.shuffle(options)
+        # Ensure options are unique and rounded for display
+        options = sorted(list(set([round(o, 2) for o in options])))
+        while len(options) < 4:
+            options.append(round(random.uniform(0.1, 2.0), 2))
+            options = sorted(list(set(options)))
+
         self.correct_index = options.index(self.correct_answer)
+        correct_letter = chr(65 + self.correct_index)
 
         option_text = VGroup()
         for i, opt in enumerate(options):
@@ -188,8 +195,9 @@ class WaveEquationQuiz(Scene):
         self.play(LaggedStart(*[Write(opt) for opt in option_text], lag_ratio=0.2))
         self.wait(3)
 
+        # --- SAVE OUTPUTS ---
         with open(f"solutions/wave_equation_{self.file_index}.txt", "w") as f:
-            f.write(chr(65 + self.correct_index))
+            f.write(correct_letter)
         with open(f"question_text/wave_equation_{self.file_index}.txt", "w") as f:
             f.write(
                 f"A fly is sitting on the string at x = {self.fly_pos:.1f} m. "
@@ -198,17 +206,59 @@ class WaveEquationQuiz(Scene):
                 "Output just the correct letter:"
             )
 
+        trace = self.generate_reasoning_trace(correct_letter, options)
+        with open(f"reasoning_traces/wave_equation_{self.file_index}.txt", "w") as f:
+            f.write(trace)
+
+    def generate_reasoning_trace(self, correct_letter, options):
+        trace = []
+        trace.append("=== Problem Setup ===")
+        trace.append(f"Wave Equation: u_tt = c^2 * u_xx")
+        trace.append(
+            f"Parameter: c^2 = {self.c_squared} m²/s² => Wave speed c = {np.sqrt(self.c_squared):.2f} m/s"
+        )
+        trace.append(f"Initial Pluck Position: x = {self.pluck_pos:.1f} m")
+        trace.append(f"Fly Position: x = {self.fly_pos:.1f} m")
+        trace.append(f"Initial Amplitude: {self.amplitude:.2f}")
+        trace.append("")
+
+        trace.append("=== Wave Dynamics ===")
+        trace.append(
+            "The initial pluck creates two pulses moving in opposite directions."
+        )
+        trace.append("Amplitude of traveling pulses = Initial Amplitude / 2")
+        trace.append(f"Traveling Pulse Amplitude = {self.amplitude/2:.2f}")
+        trace.append("")
+
+        trace.append("=== Calculation ===")
+        trace.append(f"We track the wave height u({self.fly_pos:.1f}, t) over time.")
+        trace.append(
+            f"Maximum wave height observed at fly position: {self.max_wave_height:.3f} m"
+        )
+        trace.append("Requirement: Jump height = Max Wave Height + 0.1m margin")
+        trace.append(
+            f"Required Jump = {self.max_wave_height:.3f} + 0.1 = {self.correct_answer:.2f} m"
+        )
+        trace.append("")
+
+        trace.append("=== Conclusion ===")
+        trace.append(
+            f"Comparing the calculated required jump {self.correct_answer:.2f} m with the options:"
+        )
+        for i, opt in enumerate(options):
+            trace.append(f"  {chr(65+i)}. {opt:.2f} m")
+        trace.append(f"The correct answer is {correct_letter}.")
+
+        return "\n".join(trace)
+
 
 for i in range(3):
     if os.path.exists("manim_output"):
         shutil.rmtree("manim_output")
-
     scene = WaveEquationQuiz(file_index=i)
     scene.render()
-
     output = Path("manim_output/videos/1080p60/WaveEquationQuiz.mp4")
     if output.exists():
         shutil.move(str(output), f"questions/wave_equation_{i}.mp4")
-
-if os.path.exists("manim_output"):
-    shutil.rmtree("manim_output")
+    if os.path.exists("manim_output"):
+        shutil.rmtree("manim_output")

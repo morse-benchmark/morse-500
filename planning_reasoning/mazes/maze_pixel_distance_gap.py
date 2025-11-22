@@ -19,6 +19,12 @@ import matplotlib.transforms as transforms
 import matplotlib.colors as mcolors
 import datetime
 
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
+
 
 
 def select_random_points(maze, N=0):
@@ -460,12 +466,12 @@ def create_professional_plt_animation(maze_frames, output_path, distance_list = 
 def chunk_text(text, max_width=40, min_width=20):
     """
     Split text into chunks with roughly similar width, breaking at whitespace.
-    
+
     Parameters:
     text (str): The input text to chunk
     max_width (int): Maximum preferred width for each line
     min_width (int): Minimum preferred width for each line (except last line)
-    
+
     Returns:
     list: A list of text chunks
     """
@@ -473,19 +479,19 @@ def chunk_text(text, max_width=40, min_width=20):
     chunks = []
     current_chunk = []
     current_width = 0
-    
+
     for word in words:
         # Calculate width if we add this word (plus a space)
         word_width = len(word)
         new_width = current_width + word_width + (1 if current_width > 0 else 0)
-        
+
         if new_width <= max_width:
             # Word fits in current chunk, add it
             current_chunk.append(word)
             current_width = new_width
         else:
             # Word doesn't fit, start a new chunk
-            
+
             # If current chunk is too short, and we can afford to go over max_width,
             # and this isn't the last word, put the word in the current chunk
             if current_width < min_width and len(current_chunk) > 0 and word != words[-1]:
@@ -497,12 +503,89 @@ def chunk_text(text, max_width=40, min_width=20):
                     chunks.append(' '.join(current_chunk))
                 current_chunk = [word]
                 current_width = word_width
-    
+
     # Add the last chunk if there's anything left
     if current_chunk:
         chunks.append(' '.join(current_chunk))
-    
+
     return chunks
+
+
+def generate_reasoning_trace(n_row, n_col, initial_start, initial_end, s_path_m1d2, e_path_m1d2, distance_list, correct_answer):
+    """
+    Generate a detailed chronological reasoning trace for the maze distance gap problem.
+
+    Parameters:
+    n_row (int): Number of rows in the maze
+    n_col (int): Number of columns in the maze
+    initial_start (tuple): Initial start position
+    initial_end (tuple): Initial end position
+    s_path_m1d2 (list): List of start point positions through frames
+    e_path_m1d2 (list): List of end point positions through frames
+    distance_list (list): List of shortest path distances for each frame
+    correct_answer (int): The gap between max and min distances
+
+    Returns:
+    str: A formatted reasoning trace
+    """
+    trace = []
+    trace.append("=== PROBLEM SETUP ===\n")
+    trace.append(f"I am analyzing an animation showing a maze with two moving points.")
+    trace.append(f"The maze has dimensions: {n_row} rows × {n_col} columns")
+    trace.append(f"Initial start point: {initial_start}")
+    trace.append(f"Initial end point: {initial_end}")
+    trace.append(f"Total number of frames in animation: {len(s_path_m1d2)}")
+    trace.append("")
+
+    trace.append("\n=== MAZE GENERATION ===\n")
+    trace.append("The maze was generated using a Depth-First Search (DFS) algorithm.")
+    trace.append("This creates a perfect maze with exactly one path between any two points.")
+    trace.append("The maze consists of walls and open passages that connect cells.")
+    trace.append("")
+
+    trace.append("\n=== POINTS SELECTION AND MOVEMENT ===\n")
+    trace.append("Two points (start and end) perform random walks through the maze.")
+    trace.append("At each step, both points move to valid adjacent cells (no walls).")
+    trace.append("The animation shows these points moving through multiple frames.")
+    trace.append("")
+
+    trace.append("\n=== FRAME-BY-FRAME ANALYSIS ===\n")
+    trace.append("For each frame, I observe the positions of both points and calculate")
+    trace.append("the shortest path distance between them using pathfinding.\n")
+
+    for idx, (start_pos, end_pos) in enumerate(zip(s_path_m1d2, e_path_m1d2), 1):
+        distance = distance_list[idx - 1]
+        trace.append(f"Frame {idx}:")
+        trace.append(f"  - Start point position: {start_pos}")
+        trace.append(f"  - End point position: {end_pos}")
+        trace.append(f"  - Shortest path distance: {distance} steps")
+        trace.append("")
+
+    trace.append("\n=== DISTANCE MEASUREMENTS ===\n")
+    trace.append("Recording all shortest-path distances observed:")
+    trace.append(f"Distance list: {distance_list}")
+    trace.append("")
+
+    trace.append("\n=== CALCULATING THE GAP ===\n")
+    max_distance = max(distance_list)
+    min_distance = min(distance_list)
+    trace.append(f"Maximum shortest-path distance: {max_distance} steps")
+    trace.append(f"Minimum shortest-path distance: {min_distance} steps")
+    trace.append(f"Gap calculation: {max_distance} - {min_distance} = {correct_answer} steps")
+    trace.append("")
+
+    trace.append("\n=== FINAL ANSWER ===\n")
+    trace.append(f"The maximum shortest-path distance exceeds the minimum by: {correct_answer} steps")
+    trace.append("")
+
+    trace.append("\n=== REASONING SUMMARY ===\n")
+    trace.append(f"I observed {len(s_path_m1d2)} frames showing two points moving through a {n_row}×{n_col} maze.")
+    trace.append(f"In each frame, I calculated the shortest path distance between the points.")
+    trace.append(f"The distances ranged from {min_distance} to {max_distance} steps.")
+    trace.append(f"By finding the difference between the maximum and minimum distances,")
+    trace.append(f"I determined the gap to be {correct_answer} steps.")
+
+    return "\n".join(trace)
 
 
 if __name__ == "__main__":
@@ -512,7 +595,12 @@ if __name__ == "__main__":
     parser.add_argument('--size', type=int, default=10, help='Size of the random map (default: 10)')
     parser.add_argument('--question_name', type=str, default='count', choices=['count', 'min_length', 'agent_steps'], help='Name of the question for output files (default: script filename)')
     args = parser.parse_args()
-    
+
+    # Set random seed for reproducibility
+    seed = random.randint(1000, 9999)
+    random.seed(seed)
+    np.random.seed(seed)
+
     n_row = n_col = args.size
     print(f"Maze size {n_row}x{n_col}")
     sample_lattice_maze = LatticeMazeGenerators.gen_dfs(
@@ -578,7 +666,7 @@ if __name__ == "__main__":
     script_path = __file__
     script_filename = os.path.basename(script_path)
     print(f"script_filename: {script_filename}")
-    question_name = script_filename.split('.')[0]+f'_sz{args.size}'
+    question_name = script_filename.split('.')[0]+f'_sz{args.size}_seed{seed}'
     question_dir = Path('questions')
     question_dir.mkdir(exist_ok=True)
     output_video = f"questions/{question_name}.mp4"
@@ -618,6 +706,17 @@ if __name__ == "__main__":
     #     credits=credits,
     #     dpi=200
     # )
+
+    # Generate and save reasoning trace
+    reasoning_trace = generate_reasoning_trace(
+        n_row, n_col, start, end,
+        s_path_m1d2, e_path_m1d2,
+        distance_list, correct_answer
+    )
+    reasoning_trace_dir = Path('reasoning_traces')
+    reasoning_trace_dir.mkdir(exist_ok=True)
+    with open(reasoning_trace_dir/f"{question_name}.txt", "w") as f:
+        f.write(reasoning_trace)
 
     solution_dir = Path('solutions')
     solution_dir.mkdir(exist_ok=True)

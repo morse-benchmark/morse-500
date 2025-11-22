@@ -4,10 +4,18 @@ import random
 from scipy.integrate import solve_ivp
 import time
 import os
+import shutil
+from pathlib import Path
+
+# Setup directories
+Path("questions").mkdir(exist_ok=True)
+Path("solutions").mkdir(exist_ok=True)
+Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
 
 DEFAULT_M_RANGE = (0.5, 2.0)
 DEFAULT_K_RANGE = (2.0, 10.0)
-DEFAULT_V0_RANGE = (0.5, 3.0) 
+DEFAULT_V0_RANGE = (0.5, 3.0)
 DEFAULT_X0 = 0.0 
 
 SIM_DURATION = 10
@@ -98,16 +106,31 @@ def create_single_spring_visual(start_point, end_point, bumps=SPRING_BUMPS, radi
     return VMobject(color=color, stroke_width=stroke_width).set_points_as_corners(points)
 
 
-class IndependentOscillatorsAmplitudeQuiz(Scene): 
-    
+class IndependentOscillatorsAmplitudeQuiz(Scene):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+        # Set random seed for reproducibility
+        self.seed = int(time.time())
+        random.seed(self.seed)
+        np.random.seed(self.seed)
+
+        # Parameters
+        self.num_systems = int(os.environ.get('MANIM_OBJECT_COUNT', 2))
+        if self.num_systems not in [2, 3, 4]:
+            print(f"Warning: object_count {self.num_systems} is not valid. Using default value 2.")
+            self.num_systems = 2
+
+        # Store for reasoning trace
+        self.oscillation_events = []
+        self.systems_data = []
+        self.amplitude_data = []
+
     def construct(self):
-        num_systems = int(os.environ.get('MANIM_OBJECT_COUNT', 2))
-        if num_systems not in [2, 3, 4]:
-            print(f"Warning: object_count {num_systems} is not valid. Using default value 2.")
-            num_systems = 2
-        
+        num_systems = self.num_systems
+        seed = self.seed
+
         self.camera.background_color = DARK_GRAY
-        seed = int(time.time()); random.seed(seed); np.random.seed(seed)
 
         if num_systems == 2:
             SYSTEM_LABELS = SYSTEM_LABELS_2
@@ -125,7 +148,7 @@ class IndependentOscillatorsAmplitudeQuiz(Scene):
             current_mass_colors = SYSTEM_MASS_COLORS[:4]
             current_spring_colors = SYSTEM_SPRING_COLORS[:4]
 
-        systems_data = []
+        self.systems_data = []
         for i in range(num_systems):
             m = random.uniform(*DEFAULT_M_RANGE)
             k = random.uniform(*DEFAULT_K_RANGE)
@@ -134,10 +157,10 @@ class IndependentOscillatorsAmplitudeQuiz(Scene):
             b = 0.0
 
             if i > 0:
-                while any(abs(abs(v0) - abs(sys_data['v0'])) < 0.5 and np.sign(v0) == np.sign(sys_data['v0']) for sys_data in systems_data):
+                while any(abs(abs(v0) - abs(sys_data['v0'])) < 0.5 and np.sign(v0) == np.sign(sys_data['v0']) for sys_data in self.systems_data):
                     v0 = random.uniform(*DEFAULT_V0_RANGE) * random.choice([-1, 1])
-            
-            systems_data.append({
+
+            self.systems_data.append({
                 'm': m, 'k': k, 'v0': v0, 'x0': x0, 'b': b,
                 'params': [m, k, b],
                 'initial_state': [x0, v0],
@@ -146,9 +169,11 @@ class IndependentOscillatorsAmplitudeQuiz(Scene):
                 'spring_color': current_spring_colors[i],
                 'vertical_offset': VERTICAL_SYSTEM_Y_POSITIONS[i]
             })
-            
+
             print(f"--- {SYSTEM_LABELS[i]} (Seed: {seed}) ---")
             print(f"Params: m{i+1}={m:.2f}, k{i+1}={k:.2f}, x0{i+1}={x0:.2f}, v0{i+1}={v0:.2f}")
+
+        systems_data = self.systems_data
 
         scene_title = Text(f"{num_systems} Independent Oscillators", font_size=36).to_edge(UP)
 
@@ -212,6 +237,18 @@ class IndependentOscillatorsAmplitudeQuiz(Scene):
             t_sim, x_sim, v_sim = simulate_oscillator(SIM_DURATION, sys_data['initial_state'], sys_data['params'])
             t_sim_data[i] = {'t': t_sim, 'x': x_sim, 'v': v_sim}
 
+            # Record oscillation event for reasoning trace
+            self.oscillation_events.append({
+                'system': sys_data['label'],
+                'mass': sys_data['m'],
+                'spring_constant': sys_data['k'],
+                'initial_position': sys_data['x0'],
+                'initial_velocity': sys_data['v0'],
+                'simulation_time': t_sim,
+                'positions': x_sim,
+                'velocities': v_sim
+            })
+
         if any(len(t_sim_data[i]['t']) < 2 or not (np.any(np.isfinite(t_sim_data[i]['x'])) and np.any(np.isfinite(t_sim_data[i]['v']))) for i in range(num_systems)):
             self.play(FadeOut(VGroup(*self.mobjects_without_background)), FadeIn(Text("Simulation Error!",color=RED))); self.wait(3); print("FINAL_ANSWER: ERROR_SIM"); return
         
@@ -253,33 +290,37 @@ class IndependentOscillatorsAmplitudeQuiz(Scene):
             q_text_mobj = Text("Error: m or k values too small.", color=RED)
             final_ans_script = "ERROR_MK_TOO_SMALL"
         else:
-            amplitude_data = []
+            self.amplitude_data = []
             for i, sys_data in enumerate(systems_data):
                 omega_val = np.sqrt(sys_data['k'] / sys_data['m'])
                 if abs(omega_val) < 1e-6:
                     amp_val = float('inf') if abs(sys_data['v0']) > 1e-6 else 0.0
                 else:
                     amp_val = abs(sys_data['v0'] / omega_val)
-                amplitude_data.append(amp_val)
-            
-            if any(amp == float('inf') for amp in amplitude_data) or any(abs(amp) < 1e-6 for amp in amplitude_data):
+                self.amplitude_data.append(amp_val)
+
+            if any(amp == float('inf') for amp in self.amplitude_data) or any(abs(amp) < 1e-6 for amp in self.amplitude_data):
                 q_text_mobj = Text("Error: Amplitude calculation issue (A is zero or infinite).", color=RED, font_size=18)
                 final_ans_script = "ERROR_AMP_CALC"
             else:
                 if num_systems == 2:
-                    amplitude_ratio = amplitude_data[0] / amplitude_data[1]
+                    amplitude_ratio = self.amplitude_data[0] / self.amplitude_data[1]
                     question_text = r"\text{What is the ratio of the amplitudes } \frac{A_1}{A_2}\text{?} \text{ return answer in 2 decimal points}"
+                    self.ratio_indices = (0, 1)
                 elif num_systems == 3:
-                    amplitude_ratio = amplitude_data[0] / amplitude_data[2]  # A1/A3
+                    amplitude_ratio = self.amplitude_data[0] / self.amplitude_data[2]  # A1/A3
                     question_text = r"\text{What is the ratio of the amplitudes } \frac{A_1}{A_3}\text{?} \text{ return answer in 2 decimal points}"
+                    self.ratio_indices = (0, 2)
                 elif num_systems == 4:
-                    amplitude_ratio = amplitude_data[0] / amplitude_data[3]  # A1/A4
+                    amplitude_ratio = self.amplitude_data[0] / self.amplitude_data[3]  # A1/A4
                     question_text = r"\text{What is the ratio of the amplitudes } \frac{A_1}{A_4}\text{?} \text{ return answer in 2 decimal points}"
-                
+                    self.ratio_indices = (0, 3)
+
+                self.amplitude_ratio = amplitude_ratio
                 final_ans_script = f"{amplitude_ratio:.2f}"
 
                 quiz_title = Tex("Quiz", font_size=32).to_edge(UP)
-                
+
                 param_info_lines = []
                 for i, sys_data in enumerate(systems_data):
                     param_info_lines.append(Tex(f"System {i+1}: $m_{i+1}={sys_data['m']:.2f}, k_{i+1}={sys_data['k']:.2f}, v_{{0,{i+1}}}={sys_data['v0']:.2f}$ (initial $x_0=0$)", font_size=20))
@@ -287,7 +328,7 @@ class IndependentOscillatorsAmplitudeQuiz(Scene):
 
                 question_line = MathTex(question_text, font_size=30, color=YELLOW_C)
                 question_line.next_to(param_info_group, DOWN, buff=0.4)
-                
+
                 q_text_mobj = VGroup(question_line)
                 q_text_mobj.move_to(ORIGIN)
 
@@ -301,3 +342,125 @@ class IndependentOscillatorsAmplitudeQuiz(Scene):
         )
         print(f"FINAL_ANSWER: {final_ans_script}")
         self.wait(15)
+
+        # Save solution
+        with open(
+            f"solutions/independent_amplitude_n{num_systems}_seed{seed}.txt", "w"
+        ) as f:
+            f.write(final_ans_script)
+
+        # Save question text
+        if num_systems == 2:
+            question_text_content = "What is the ratio of the amplitudes A1/A2? Return answer in 2 decimal points."
+        elif num_systems == 3:
+            question_text_content = "What is the ratio of the amplitudes A1/A3? Return answer in 2 decimal points."
+        elif num_systems == 4:
+            question_text_content = "What is the ratio of the amplitudes A1/A4? Return answer in 2 decimal points."
+
+        question_text_content += "\n\nParameters:\n"
+        for i, sys_data in enumerate(systems_data):
+            question_text_content += f"System {i+1}: m{i+1}={sys_data['m']:.2f}, k{i+1}={sys_data['k']:.2f}, v0{i+1}={sys_data['v0']:.2f} (initial x0=0)\n"
+
+        with open(
+            f"question_text/independent_amplitude_n{num_systems}_seed{seed}.txt", "w"
+        ) as f:
+            f.write(question_text_content)
+
+        # Generate and save reasoning trace
+        if final_ans_script not in ["ERROR_MK_TOO_SMALL", "ERROR_AMP_CALC", "ERROR_SIM"]:
+            reasoning_trace = self.generate_reasoning_trace()
+            with open(
+                f"reasoning_traces/independent_amplitude_n{num_systems}_seed{seed}.txt", "w"
+            ) as f:
+                f.write(reasoning_trace)
+
+    def generate_reasoning_trace(self):
+        """Generate a detailed reasoning trace describing the oscillation scene chronologically"""
+
+        trace = []
+        trace.append("=== SCENE SETUP ===\n")
+
+        trace.append(f"The video shows {len(self.systems_data)} independent mass-spring oscillator systems.")
+        trace.append("Each system consists of a mass attached to a spring fixed to a wall.")
+        trace.append("The systems are vertically separated and do not interact with each other.")
+        trace.append("All systems start at equilibrium position (x0 = 0) with different initial velocities.\n")
+
+        trace.append("\n=== SYSTEM PARAMETERS ===\n")
+
+        for i, sys_data in enumerate(self.systems_data):
+            trace.append(f"{sys_data['label']}:")
+            trace.append(f"  - Mass (m{i+1}): {sys_data['m']:.2f} kg")
+            trace.append(f"  - Spring constant (k{i+1}): {sys_data['k']:.2f} N/m")
+            trace.append(f"  - Initial position (x0{i+1}): {sys_data['x0']:.2f} m")
+            trace.append(f"  - Initial velocity (v0{i+1}): {sys_data['v0']:.2f} m/s")
+            trace.append("")
+
+        trace.append("\n=== CHRONOLOGICAL OBSERVATION ===\n")
+
+        trace.append("At t = 0s:")
+        trace.append("  - All masses are released from equilibrium position with their initial velocities")
+        trace.append("  - The masses begin to oscillate independently\n")
+
+        trace.append("During oscillation (t = 0s to 10s):")
+        for i, event in enumerate(self.oscillation_events):
+            direction = "right" if event['initial_velocity'] > 0 else "left"
+            trace.append(f"  - {event['system']} oscillates with initial motion to the {direction}")
+            if len(event['positions']) > 0:
+                max_pos = np.max(np.abs(event['positions']))
+                trace.append(f"    Maximum displacement observed: approximately {max_pos:.2f} m")
+        trace.append("")
+
+        trace.append("\n=== AMPLITUDE CALCULATION ===\n")
+
+        trace.append("For a simple harmonic oscillator starting from equilibrium (x0 = 0) with initial velocity v0,")
+        trace.append("the amplitude A is given by: A = |v0| / ω")
+        trace.append("where ω = sqrt(k/m) is the angular frequency.\n")
+
+        trace.append("Calculating amplitude for each system:")
+        for i, sys_data in enumerate(self.systems_data):
+            omega = np.sqrt(sys_data['k'] / sys_data['m'])
+            amplitude = self.amplitude_data[i]
+            trace.append(f"\n{sys_data['label']}:")
+            trace.append(f"  - ω{i+1} = sqrt(k{i+1}/m{i+1}) = sqrt({sys_data['k']:.2f}/{sys_data['m']:.2f}) = {omega:.4f} rad/s")
+            trace.append(f"  - A{i+1} = |v0{i+1}| / ω{i+1} = |{sys_data['v0']:.2f}| / {omega:.4f} = {amplitude:.4f} m")
+
+        trace.append("\n\n=== AMPLITUDE RATIO CALCULATION ===\n")
+
+        idx1, idx2 = self.ratio_indices
+        sys1 = self.systems_data[idx1]
+        sys2 = self.systems_data[idx2]
+        amp1 = self.amplitude_data[idx1]
+        amp2 = self.amplitude_data[idx2]
+
+        trace.append(f"The question asks for the ratio A{idx1+1}/A{idx2+1}:")
+        trace.append(f"  - A{idx1+1} = {amp1:.4f} m")
+        trace.append(f"  - A{idx2+1} = {amp2:.4f} m")
+        trace.append(f"  - A{idx1+1}/A{idx2+1} = {amp1:.4f} / {amp2:.4f} = {self.amplitude_ratio:.4f}")
+        trace.append("")
+
+        trace.append("\n=== PHYSICAL INTERPRETATION ===\n")
+
+        if self.amplitude_ratio > 1:
+            trace.append(f"{sys1['label']} has a larger amplitude than {sys2['label']}.")
+        elif self.amplitude_ratio < 1:
+            trace.append(f"{sys2['label']} has a larger amplitude than {sys1['label']}.")
+        else:
+            trace.append(f"Both systems have equal amplitudes.")
+
+        trace.append(f"\nThe amplitude ratio depends on the initial velocities and the angular frequencies.")
+        trace.append(f"A system with higher |v0| or lower ω (due to smaller k/m ratio) will have larger amplitude.")
+        trace.append("")
+
+        trace.append("\n=== FINAL ANSWER ===\n")
+
+        trace.append(f"The ratio A{idx1+1}/A{idx2+1} = {self.amplitude_ratio:.2f}")
+        trace.append("")
+
+        trace.append("\n=== REASONING SUMMARY ===\n")
+
+        trace.append(f"I observed {len(self.systems_data)} independent mass-spring oscillators in the video. ")
+        trace.append(f"Each system was characterized by its mass, spring constant, and initial velocity. ")
+        trace.append(f"Using the physical relationship A = |v0| / ω where ω = sqrt(k/m), I calculated ")
+        trace.append(f"the amplitude of each system. The ratio A{idx1+1}/A{idx2+1} was then computed as {self.amplitude_ratio:.2f}.")
+
+        return "\n".join(trace)

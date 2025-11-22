@@ -1,4 +1,4 @@
 #!/bin/bash
-python newtons_method_degree_3.py
-python newtons_method_degree_4.py
-python newtons_method_degree_5.py
+export MANIM_DEGREE=3 python newtons_method_degree.py
+export MANIM_DEGREE=4 python newtons_method_degree.py
+export MANIM_DEGREE=5 python newtons_method_degree.py

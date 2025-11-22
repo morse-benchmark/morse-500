@@ -6,10 +6,11 @@ import shutil
 import os
 from scipy.integrate import quad
 
-
+# Setup directories
 Path("questions").mkdir(exist_ok=True)
 Path("solutions").mkdir(exist_ok=True)
 Path("question_text").mkdir(exist_ok=True)
+Path("reasoning_traces").mkdir(exist_ok=True)
 
 config.media_dir = "manim_output"
 config.pixel_height = 1080
@@ -39,7 +40,9 @@ class HardIntegral(Scene):
         graph = axes.plot(self.f, color=BLUE)
         area = axes.get_area(graph, x_range=[self.a, self.b], color=BLUE, opacity=0.5)
 
-        function_label = Text(self.f_tex, font_size=50).to_edge(UP)
+        # Clean up tex string for label
+        tex_label = self.f_tex.replace("*", "")  # basic cleanup
+        function_label = Text(tex_label, font_size=40).to_edge(UP)
 
         self.play(Create(axes), Write(function_label))
         self.play(Create(graph), run_time=2)
@@ -62,14 +65,50 @@ class HardIntegral(Scene):
         self.wait(2)
         self.play(FadeOut(question), FadeOut(second_part))
 
+        # --- SAVE OUTPUTS ---
+        ans_str = f"{round(self.integral_val, 2)}"
+
         with open(f"solutions/definite_integral_{self.file_index}.txt", "w") as f_out:
-            f_out.write(f"{round(self.integral_val, 2)}")
+            f_out.write(ans_str)
+
         with open(
             f"question_text/definite_integral_{self.file_index}.txt", "w"
         ) as f_out:
             f_out.write(
-                f"What is the definite integral of the shown function between the two endpoints? Output the answer rounded to 2 decimal places."
+                f"What is the definite integral of the function {self.f_tex} from x={self.a} to x={self.b}? Output the answer rounded to 2 decimal places."
             )
+
+        trace = self.generate_reasoning_trace(ans_str)
+        with open(
+            f"reasoning_traces/definite_integral_{self.file_index}.txt", "w"
+        ) as f_out:
+            f_out.write(trace)
+
+    def generate_reasoning_trace(self, ans_str):
+        trace = []
+        trace.append("=== Problem Statement ===")
+        trace.append(f"Function: {self.f_tex}")
+        trace.append(f"Lower Bound (a): {self.a}")
+        trace.append(f"Upper Bound (b): {self.b}")
+        trace.append("")
+
+        trace.append("=== Calculation ===")
+        trace.append(
+            f"We are calculating the definite integral: ∫ from {self.a} to {self.b} of ({self.f_tex}) dx."
+        )
+        trace.append(
+            "This represents the shaded area under the curve shown in the video."
+        )
+        trace.append(
+            f"Using numerical integration (quadrature), the exact value is approximately {self.integral_val:.6f}."
+        )
+        trace.append("")
+
+        trace.append("=== Final Answer ===")
+        trace.append(f"Rounding the result to 2 decimal places:")
+        trace.append(f"Answer: {ans_str}")
+
+        return "\n".join(trace)
 
 
 for i in range(3):
@@ -78,13 +117,14 @@ for i in range(3):
         (lambda x: np.tanh(1.2 * x) * np.cos(x), "f(x) = tanh(1.2 * x) * cos(x)"),
         (lambda x: np.log(x + 1) * x, "f(x) = log(x+1) * x"),
     ]
-    f, f_tex = funcs[i]
+
+    # Randomize function selection or cycle through
+    f, f_tex = funcs[i % 3]
 
     a = random.randint(1, 5)
     b = random.randint(a + 1, 8)
 
     val, _ = quad(f, a, b)
-    val = round(val, 2)
 
     if os.path.exists("manim_output"):
         shutil.rmtree("manim_output")
@@ -102,6 +142,11 @@ for i in range(3):
     output = Path("manim_output/videos/1080p60/HardIntegral.mp4")
     if output.exists():
         shutil.move(str(output), f"questions/definite_integral_{i}.mp4")
+    else:
+        # Fallback search for manim output file
+        found = list(Path("manim_output/videos").rglob("*.mp4"))
+        if found:
+            shutil.move(str(found[0]), f"questions/definite_integral_{i}.mp4")
 
     if os.path.exists("manim_output"):
         shutil.rmtree("manim_output")
