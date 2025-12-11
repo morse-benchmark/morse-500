@@ -22,6 +22,7 @@ python frozen_lake_correct_sequence.py --size 10
 
 
 # increasing difficulty
+# size from 5 to 15, n_options from 4 to 6, with and without fog, varying visibility range from 4 to 2
 python frozen_lake_correct_sequence.py --size 5 --n_options 4
 python frozen_lake_correct_sequence.py --size 10 --n_options 6
 python frozen_lake_correct_sequence.py --size 10 --n_options 6 --use_fog --visibility_range 4

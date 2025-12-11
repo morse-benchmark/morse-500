@@ -5,55 +5,60 @@ NUM_SHAPES=3 python duration_3d.py # you can change the NUM_SHAPES. Range from 3
 DIFFICULTY=1 python color_sequence.py # DIFFICULTY can be 1, 2, 3
 DIFFICULTY=1 python color_objects.py # DIFFICULTY can be 1, 2, 3
 DIFFICULTY=1 python pause_seq.py # DIFFICULTY can be 1 - 5
-NUM_BOUNCES=1 python3 bounceball.py # NUM_BOUNCES [1-5] range
-NUM_SHAPES=2 python duration2D.py # NUM_SHAPES [2 - 8] range 
-NUM_TRANSFORMS=2 python3 color_change.py # NUM_TRANSFORMS [3 - 8] range
-NUM_SHAPES=5 python3 numShape.py # NUM_SHAPES [3-8] range
+NUM_BOUNCES=1 python3 bounce_ball.py # NUM_BOUNCES [1-5] range
+NUM_SHAPES=2 python duration_2d.py # NUM_SHAPES [2 - 8] range 
+NUM_TRANSFORMS=4 python3 color_change.py # NUM_TRANSFORMS [4 - 8] range
+NUM_SHAPES=3 python3 num_shape.py # NUM_SHAPES [3-8] range
 
-# Configuration
-REPEAT_TIMES=1
+NUM_SHUFFLES=3 python anagram_all_distance.py # number of shuffles. 3, 5, 7, 9
+NUM_SHUFFLES=3 python anagram_partial_distance.py # number of shuffles. 3, 5, 7, 9
+NUM_SHUFFLES=3 python anagram_position.py # number of shuffles. 3, 5, 7, 9
+NUM_SHUFFLES=3 python anagram_num_shuffles.py # number of shuffles. 3, 5, 7, 9
 
-# Domino count experiments (Range: 5, 10, 30, 60, 90)
-echo "Running domino count experiments..."
-for dominoes in 5 10 30 60 90; do
-    echo "Testing with $dominoes dominoes ($REPEAT_TIMES times)"
-    for i in $(seq 1 $REPEAT_TIMES); do
-        NUM_DOMINOES=$dominoes python domino_count.py
-    done
-done
+# # Configuration
+# REPEAT_TIMES=1
 
-# Duration 3D experiments (Range: 3, 5, 7, 10)
-echo "Running duration 3D experiments..."
-for shapes in 3 5 7 10; do
-    echo "Testing with $shapes shapes ($REPEAT_TIMES times)"
-    for i in $(seq 1 $REPEAT_TIMES); do
-        NUM_SHAPES=$shapes python duration_3d.py
-    done
-done
+# # Domino count experiments (Range: 5, 10, 30, 60, 90)
+# echo "Running domino count experiments..."
+# for dominoes in 5 10 30 60 90; do
+#     echo "Testing with $dominoes dominoes ($REPEAT_TIMES times)"
+#     for i in $(seq 1 $REPEAT_TIMES); do
+#         NUM_DOMINOES=$dominoes python domino_count.py
+#     done
+# done
 
-# Color sequence experiments (Difficulty: 1, 2, 3)
-echo "Running color sequence experiments..."
-for difficulty in 1 2 3; do
-    echo "Testing difficulty $difficulty ($REPEAT_TIMES times)"
-    for i in $(seq 1 $REPEAT_TIMES); do
-        DIFFICULTY=$difficulty python color_sequence.py
-    done
-done
+# # Duration 3D experiments (Range: 3, 5, 7, 10)
+# echo "Running duration 3D experiments..."
+# for shapes in 3 5 7 10; do
+#     echo "Testing with $shapes shapes ($REPEAT_TIMES times)"
+#     for i in $(seq 1 $REPEAT_TIMES); do
+#         NUM_SHAPES=$shapes python duration_3d.py
+#     done
+# done
 
-# Color objects experiments (Difficulty: 1, 2, 3)
-echo "Running color objects experiments..."
-for difficulty in 1 2 3; do
-    echo "Testing difficulty $difficulty ($REPEAT_TIMES times)"
-    for i in $(seq 1 $REPEAT_TIMES); do
-        DIFFICULTY=$difficulty python color_objects.py
-    done
-done
+# # Color sequence experiments (Difficulty: 1, 2, 3)
+# echo "Running color sequence experiments..."
+# for difficulty in 1 2 3; do
+#     echo "Testing difficulty $difficulty ($REPEAT_TIMES times)"
+#     for i in $(seq 1 $REPEAT_TIMES); do
+#         DIFFICULTY=$difficulty python color_sequence.py
+#     done
+# done
 
-# Pause sequence experiments (Difficulty: 1-5)
-echo "Running pause sequence experiments..."
-for difficulty in 1 2 3 4 5; do
-    echo "Testing difficulty $difficulty ($REPEAT_TIMES times)"
-    for i in $(seq 1 $REPEAT_TIMES); do
-        DIFFICULTY=$difficulty python pause_seq.py
-    done
-done
+# # Color objects experiments (Difficulty: 1, 2, 3)
+# echo "Running color objects experiments..."
+# for difficulty in 1 2 3; do
+#     echo "Testing difficulty $difficulty ($REPEAT_TIMES times)"
+#     for i in $(seq 1 $REPEAT_TIMES); do
+#         DIFFICULTY=$difficulty python color_objects.py
+#     done
+# done
+
+# # Pause sequence experiments (Difficulty: 1-5)
+# echo "Running pause sequence experiments..."
+# for difficulty in 1 2 3 4 5; do
+#     echo "Testing difficulty $difficulty ($REPEAT_TIMES times)"
+#     for i in $(seq 1 $REPEAT_TIMES); do
+#         DIFFICULTY=$difficulty python pause_seq.py
+#     done
+# done
