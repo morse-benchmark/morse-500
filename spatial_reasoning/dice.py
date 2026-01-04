@@ -233,6 +233,40 @@ class Dice(ThreeDScene):
             if np.array_equal(v, axis):
                 return i
         raise ValueError(f"Axis {v} not found in standard axes")
+
+    # === BEGIN FIX: track cube orientation during rolls ===
+    def update_dir_map(self, dir_map, curr_face, new_face):
+        """
+        Update a face->world-axis mapping after a roll from curr_face to new_face.
+
+        Args:
+            dir_map: Dict mapping face names to world-space direction vectors
+            curr_face: Current top-facing direction vector
+            new_face: Desired top-facing direction vector
+
+        Returns:
+            Updated mapping with all face directions rotated
+        """
+        axis = np.cross(curr_face, new_face)
+        if np.all(axis == 0):
+            axis = RIGHT if not np.array_equal(curr_face, RIGHT) else OUT
+            angle = -PI if not np.array_equal(curr_face, new_face) else 0
+        else:
+            axis = axis / np.linalg.norm(axis)
+            angle = -PI / 2
+        rot = utils.space_ops.rotation_matrix(angle=angle, axis=axis)
+        return {k: np.round(rot @ v) for k, v in dir_map.items()}
+
+    def get_face_color_from_dir_map(self, cube, dir_map, world_axis):
+        """
+        Resolve the color of the face currently pointing in world_axis.
+        """
+        for name, vec in dir_map.items():
+            if np.allclose(vec, world_axis, atol=1e-6):
+                idx = self.axis_to_idx_exact(NAME_TO_VEC[name])
+                return cube[idx].get_fill_color()
+        raise ValueError(f"World axis {world_axis} not found in dir map")
+    # === END FIX: track cube orientation during rolls ===
         
     def roll_to_face(self, cube, curr_face, new_face):
         """
@@ -273,11 +307,11 @@ class Dice(ThreeDScene):
             # Opposite face case (e.g., DOWN → UP requires 180° rotation)
             # Choose any perpendicular axis
             axis = RIGHT if not np.array_equal(curr_face, RIGHT) else OUT
-            angle = PI
+            angle = -PI
         else:
             # Normal case: 90° rotation around perpendicular axis
             axis = axis / np.linalg.norm(axis)
-            angle = PI/2
+            angle = -PI/2
 
         animations.append(
             Rotate(
@@ -586,7 +620,10 @@ class Dice(ThreeDScene):
             # ================================================================
             # Roll: Track colors after each roll
             # ================================================================
+            # === BEGIN FIX: track cube orientation during rolls ===
             curr_faces = [OUT for _ in range(self.num_dice)]  # Initially all cubes show OUT face on top
+            curr_dirs = [NAME_TO_VEC.copy() for _ in range(self.num_dice)]
+            # === END FIX: track cube orientation during rolls ===
             rolls = {c: 0 for c in list(self.VALID_COLORS.keys())}  # Count each color
             
             self.roll_details = []  # Store details of each roll
@@ -594,7 +631,7 @@ class Dice(ThreeDScene):
             for i in range(self.n_roll):
                 # Choose random target face for each cube
                 final_faces = [random.choice([IN, OUT, LEFT, RIGHT, UP, DOWN]) for _ in range(self.num_dice)]
-                
+                print("Final faces: ", final_faces, "for roll", i)
                 # Generate roll animations for all cubes
                 animations = []
                 for j in range(self.num_dice):
@@ -606,15 +643,20 @@ class Dice(ThreeDScene):
                 self.wait(1)
                 
                 # Update current faces
+                # === BEGIN FIX: track cube orientation during rolls ===
+                for j in range(self.num_dice):
+                    curr_dirs[j] = self.update_dir_map(curr_dirs[j], curr_faces[j], final_faces[j])
+                # === END FIX: track cube orientation during rolls ===
                 curr_faces = final_faces.copy()
 
                 # Record results of this roll
                 roll_results = []
-                for j, face in enumerate(final_faces):
-                    idx = self.axis_to_idx_exact(face)
-                    face_color = cubes[j][idx].get_fill_color()
+                # === BEGIN FIX: track cube orientation during rolls ===
+                for j in range(self.num_dice):
+                    face_color = self.get_face_color_from_dir_map(cubes[j], curr_dirs[j], OUT)
                     rolls[face_color] += 1
                     roll_results.append(self.VALID_COLORS[face_color])
+                # === END FIX: track cube orientation during rolls ===
                 
                 self.roll_details.append({
                     'roll_num': i + 1,
@@ -640,7 +682,7 @@ class Dice(ThreeDScene):
             cubes.rotate(20*DEGREES, axis=RIGHT, about_point=ORIGIN)
             
             # Use first cube as reference
-            face_colors = cube_colors[0]
+            face_colors = random.choice(cube_colors)
             
             # Generate all legal rotations of this cube
             legal_layouts = {tuple(self.apply_perm(face_colors, p)) for p in ROTATIONS}
@@ -967,34 +1009,37 @@ class Dice(ThreeDScene):
         self.reasoning_trace.append("")
         self.reasoning_trace.append(f"\\boxed{{{self.answer}}}")
 
+# === BEGIN FIX: guard main execution for tests ===
 # ============================================================================
 # Main execution
 # ============================================================================
-# Generate the dice video
-scene = Dice()
-scene.render()
+if __name__ == "__main__":
+    # Generate the dice video
+    scene = Dice()
+    scene.render()
 
-# ============================================================================
-# Move output file to questions directory with descriptive name
-# ============================================================================
-output = Path("manim_output/videos/1080p30/Dice.mp4")
-if output.exists():
-    filename = f"dice_{scene.p_type}_dice{scene.num_dice}_seed{scene.seed}.mp4"
-    shutil.move(str(output), f"questions/{filename}")
-    print(f"✓ Video saved: questions/{filename}")
-else:
-    # Debug: Print what files actually exist
-    videos_dir = Path("manim_output/videos")
-    if videos_dir.exists():
-        print(f"Available folders in videos/: {list(videos_dir.iterdir())}")
-        for folder in videos_dir.iterdir():
-            if folder.is_dir():
-                subfolder = folder / "1080p30"
-                if subfolder.exists():
-                    print(f"Files in {subfolder}: {list(subfolder.iterdir())}")
+    # ============================================================================
+    # Move output file to questions directory with descriptive name
+    # ============================================================================
+    output = Path("manim_output/videos/1080p30/Dice.mp4")
+    if output.exists():
+        filename = f"dice_{scene.p_type}_dice{scene.num_dice}_seed{scene.seed}.mp4"
+        shutil.move(str(output), f"questions/{filename}")
+        print(f"✓ Video saved: questions/{filename}")
     else:
-        print("manim_output/videos directory doesn't exist")
+        # Debug: Print what files actually exist
+        videos_dir = Path("manim_output/videos")
+        if videos_dir.exists():
+            print(f"Available folders in videos/: {list(videos_dir.iterdir())}")
+            for folder in videos_dir.iterdir():
+                if folder.is_dir():
+                    subfolder = folder / "1080p30"
+                    if subfolder.exists():
+                        print(f"Files in {subfolder}: {list(subfolder.iterdir())}")
+        else:
+            print("manim_output/videos directory doesn't exist")
 
-# Final cleanup
-if os.path.exists("manim_output"):
-    shutil.rmtree("manim_output")
+    # Final cleanup
+    if os.path.exists("manim_output"):
+        shutil.rmtree("manim_output")
+# === END FIX: guard main execution for tests ===
