@@ -37,14 +37,17 @@ echo -e "${BOLD}${CYAN}Step 0: Choose Difficulty Metric${NC}"
 echo ""
 echo "Select which metric to use for difficulty control:"
 echo ""
-echo "  1) SIZE     - Controls object size/count (fewer/smaller → more/larger)"
-echo "                Examples: cube grid size, number of dominoes"
+echo "  1) SIZE      - Controls object size/count (fewer/smaller → more/larger)"
+echo "                 Examples: cube grid size, number of dominoes"
 echo ""
-echo "  2) DENSITY  - Controls clutter/density (sparse → dense)"
-echo "                Examples: cube grid density, rope intersection density"
+echo "  2) DENSITY   - Controls clutter/density (sparse → dense)"
+echo "                 Examples: cube grid density, rope intersection density"
+echo ""
+echo "  3) FREQUENCY - Controls visual complexity/pattern detail (coarse → fine)"
+echo "                 Examples: pattern granularity, wave frequency, spacing patterns"
 echo ""
 
-read -p "Select metric (1-2) [default: 1]: " metric_choice
+read -p "Select metric (1-3) [default: 1]: " metric_choice
 metric_choice=${metric_choice:-1}
 
 case $metric_choice in
@@ -55,6 +58,10 @@ case $metric_choice in
     2)
         METRIC="DENSITY"
         METRIC_DESC="DENSITY controls visual clutter and object density"
+        ;;
+    3)
+        METRIC="FREQUENCY"
+        METRIC_DESC="FREQUENCY controls visual complexity and pattern detail"
         ;;
     *)
         echo -e "${YELLOW}Invalid choice. Using SIZE.${NC}"
@@ -78,12 +85,18 @@ if [ "$METRIC" = "SIZE" ]; then
     echo "  0.3 - 0.5  → Medium (models start to differentiate)"
     echo "  0.6 - 0.8  → Hard (only strong models succeed)"
     echo "  0.9 - 1.0  → Very Hard (stress test, expect <50%)"
-else
+elif [ "$METRIC" = "DENSITY" ]; then
     echo "$METRIC controls visual clutter:"
     echo "  0.0 - 0.2  → Very Sparse (minimal objects, easy to track)"
     echo "  0.3 - 0.5  → Medium Density (moderate clutter)"
     echo "  0.6 - 0.8  → High Density (crowded, requires focus)"
     echo "  0.9 - 1.0  → Very Dense (maximum clutter, very challenging)"
+else
+    echo "$METRIC controls visual complexity:"
+    echo "  0.0 - 0.2  → Coarse (simple patterns, easy to perceive)"
+    echo "  0.3 - 0.5  → Medium (standard pattern granularity)"
+    echo "  0.6 - 0.8  → Fine (complex patterns, requires attention)"
+    echo "  0.9 - 1.0  → Very Fine (intricate detail, very challenging)"
 fi
 echo ""
 
@@ -113,9 +126,12 @@ done
 if [ "$METRIC" = "SIZE" ]; then
     export SIZE=$PARAM_VALUE
     echo -e "${GREEN}✓ SIZE set to: $SIZE${NC}"
-else
+elif [ "$METRIC" = "DENSITY" ]; then
     export DENSITY=$PARAM_VALUE
     echo -e "${GREEN}✓ DENSITY set to: $DENSITY${NC}"
+else
+    export FREQUENCY=$PARAM_VALUE
+    echo -e "${GREEN}✓ FREQUENCY set to: $FREQUENCY${NC}"
 fi
 echo ""
 
@@ -147,7 +163,7 @@ if [ "$METRIC" = "SIZE" ]; then
             PROGRAMS=("cubes_sized.py" "ropes_sized.py" "domino_count_sized.py")
             ;;
     esac
-else
+elif [ "$METRIC" = "DENSITY" ]; then
     echo "Available programs for DENSITY metric:"
     echo "  1) cubes_density.py        - 3D grid with varying cube density"
     echo "  2) ropes_density.py        - Line intersections with varying density"
@@ -166,6 +182,27 @@ else
         *)
             echo -e "${RED}Invalid choice. Using all programs.${NC}"
             PROGRAMS=("cubes_density.py" "ropes_density.py" "domino_count_density.py")
+            ;;
+    esac
+else
+    echo "Available programs for FREQUENCY metric:"
+    echo "  1) cubes_frequency.py        - 3D grid with pattern granularity control"
+    echo "  2) ropes_frequency.py        - Line intersections with wave frequency"
+    echo "  3) domino_count_frequency.py - Domino counting with spacing patterns"
+    echo "  4) All FREQUENCY programs    - Generate from all 3 programs"
+    echo ""
+
+    read -p "Select option (1-4) [default: 4]: " prog_choice
+    prog_choice=${prog_choice:-4}
+
+    case $prog_choice in
+        1) PROGRAMS=("cubes_frequency.py");;
+        2) PROGRAMS=("ropes_frequency.py");;
+        3) PROGRAMS=("domino_count_frequency.py");;
+        4) PROGRAMS=("cubes_frequency.py" "ropes_frequency.py" "domino_count_frequency.py");;
+        *)
+            echo -e "${RED}Invalid choice. Using all programs.${NC}"
+            PROGRAMS=("cubes_frequency.py" "ropes_frequency.py" "domino_count_frequency.py")
             ;;
     esac
 fi
@@ -240,13 +277,13 @@ echo ""
 # Define problem types for each program using a function
 get_problem_types() {
     case "$1" in
-        "cubes_sized.py"|"cubes_density.py")
+        "cubes_sized.py"|"cubes_density.py"|"cubes_frequency.py")
             echo "count missing surface_area exposed colors max_color project"
             ;;
-        "ropes_sized.py"|"ropes_density.py")
+        "ropes_sized.py"|"ropes_density.py"|"ropes_frequency.py")
             echo "count cut closed order"
             ;;
-        "domino_count_sized.py"|"domino_count_density.py")
+        "domino_count_sized.py"|"domino_count_density.py"|"domino_count_frequency.py")
             echo "default"
             ;;
     esac
@@ -268,8 +305,10 @@ echo ""
 echo "  Metric:            $METRIC"
 if [ "$METRIC" = "SIZE" ]; then
     echo "  SIZE:              $SIZE"
-else
+elif [ "$METRIC" = "DENSITY" ]; then
     echo "  DENSITY:           $DENSITY"
+else
+    echo "  FREQUENCY:         $FREQUENCY"
 fi
 echo "  Programs:          ${#PROGRAMS[@]} (${PROGRAMS[*]})"
 echo "  Instances/type:    $NUM_INSTANCES"
@@ -309,8 +348,10 @@ echo ""
 # Export the appropriate parameter
 if [ "$METRIC" = "SIZE" ]; then
     export SIZE
-else
+elif [ "$METRIC" = "DENSITY" ]; then
     export DENSITY
+else
+    export FREQUENCY
 fi
 
 total_generated=0
@@ -377,9 +418,12 @@ echo ""
 if [ "$METRIC" = "SIZE" ]; then
     echo -e "${BOLD}Recent videos (SIZE=$SIZE):${NC}"
     ls -lt questions/*size${SIZE}*.mp4 2>/dev/null | head -n 10 | awk '{print "  "$9}' || echo "  (none found)"
-else
+elif [ "$METRIC" = "DENSITY" ]; then
     echo -e "${BOLD}Recent videos (DENSITY=$DENSITY):${NC}"
     ls -lt questions/*density${DENSITY}*.mp4 2>/dev/null | head -n 10 | awk '{print "  "$9}' || echo "  (none found)"
+else
+    echo -e "${BOLD}Recent videos (FREQUENCY=$FREQUENCY):${NC}"
+    ls -lt questions/*frequency${FREQUENCY}*.mp4 2>/dev/null | head -n 10 | awk '{print "  "$9}' || echo "  (none found)"
 fi
 echo ""
 
@@ -391,9 +435,12 @@ if [ $total_failed -eq 0 ]; then
     if [ "$METRIC" = "SIZE" ]; then
         echo "  • Check answers: cat solutions/*size${SIZE}*.txt"
         echo "  • Read reasoning: cat reasoning_traces/*size${SIZE}*.txt"
-    else
+    elif [ "$METRIC" = "DENSITY" ]; then
         echo "  • Check answers: cat solutions/*density${DENSITY}*.txt"
         echo "  • Read reasoning: cat reasoning_traces/*density${DENSITY}*.txt"
+    else
+        echo "  • Check answers: cat solutions/*frequency${FREQUENCY}*.txt"
+        echo "  • Read reasoning: cat reasoning_traces/*frequency${FREQUENCY}*.txt"
     fi
     echo ""
 else
