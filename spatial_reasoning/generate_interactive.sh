@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # generate_interactive.sh
-# Interactive script to generate SIZE-parameterized videos
+# Interactive script to generate parameterized videos
 # Prompts user for all inputs with helpful guidance
 
 set -e
@@ -21,42 +21,85 @@ NC='\033[0m'
 clear
 echo -e "${BOLD}${BLUE}╔════════════════════════════════════════════════════════════════════╗${NC}"
 echo -e "${BOLD}${BLUE}║                                                                    ║${NC}"
-echo -e "${BOLD}${BLUE}║        SIZE-Parameterized Video Generator (Interactive)            ║${NC}"
+echo -e "${BOLD}${BLUE}║        Parameterized Video Generator (Interactive)                 ║${NC}"
 echo -e "${BOLD}${BLUE}║                                                                    ║${NC}"
 echo -e "${BOLD}${BLUE}╚════════════════════════════════════════════════════════════════════╝${NC}"
 echo ""
-echo "This script will generate spatial reasoning videos at your chosen"
-echo "difficulty level using the SIZE parameter (0.0 = easy, 1.0 = hard)."
-echo ""
-echo "Each program will generate videos for ALL its supported problem types."
+echo "This script will generate spatial reasoning videos with parameterized"
+echo "difficulty control. Choose between SIZE or DENSITY metrics."
 echo ""
 
 # ============================================================================
-# Step 1: Get SIZE parameter
+# Step 0: Choose Metric Type
 # ============================================================================
 
-echo -e "${BOLD}${CYAN}Step 1: Choose Difficulty Level (SIZE)${NC}"
+echo -e "${BOLD}${CYAN}Step 0: Choose Difficulty Metric${NC}"
 echo ""
-echo "SIZE controls problem difficulty:"
-echo "  0.0 - 0.2  → Very Easy (baseline, models should get ~90%+)"
-echo "  0.3 - 0.5  → Medium (models start to differentiate)"
-echo "  0.6 - 0.8  → Hard (only strong models succeed)"
-echo "  0.9 - 1.0  → Very Hard (stress test, expect <50%)"
+echo "Select which metric to use for difficulty control:"
+echo ""
+echo "  1) SIZE     - Controls object size/count (fewer/smaller → more/larger)"
+echo "                Examples: cube grid size, number of dominoes"
+echo ""
+echo "  2) DENSITY  - Controls clutter/density (sparse → dense)"
+echo "                Examples: cube grid density, rope intersection density"
+echo ""
+
+read -p "Select metric (1-2) [default: 1]: " metric_choice
+metric_choice=${metric_choice:-1}
+
+case $metric_choice in
+    1)
+        METRIC="SIZE"
+        METRIC_DESC="SIZE controls object size and count"
+        ;;
+    2)
+        METRIC="DENSITY"
+        METRIC_DESC="DENSITY controls visual clutter and object density"
+        ;;
+    *)
+        echo -e "${YELLOW}Invalid choice. Using SIZE.${NC}"
+        METRIC="SIZE"
+        METRIC_DESC="SIZE controls object size and count"
+        ;;
+esac
+
+echo -e "${GREEN}✓ Selected metric: $METRIC${NC}"
+echo ""
+
+# ============================================================================
+# Step 1: Get parameter value
+# ============================================================================
+
+echo -e "${BOLD}${CYAN}Step 1: Choose Difficulty Level ($METRIC)${NC}"
+echo ""
+if [ "$METRIC" = "SIZE" ]; then
+    echo "$METRIC controls problem difficulty:"
+    echo "  0.0 - 0.2  → Very Easy (baseline, models should get ~90%+)"
+    echo "  0.3 - 0.5  → Medium (models start to differentiate)"
+    echo "  0.6 - 0.8  → Hard (only strong models succeed)"
+    echo "  0.9 - 1.0  → Very Hard (stress test, expect <50%)"
+else
+    echo "$METRIC controls visual clutter:"
+    echo "  0.0 - 0.2  → Very Sparse (minimal objects, easy to track)"
+    echo "  0.3 - 0.5  → Medium Density (moderate clutter)"
+    echo "  0.6 - 0.8  → High Density (crowded, requires focus)"
+    echo "  0.9 - 1.0  → Very Dense (maximum clutter, very challenging)"
+fi
 echo ""
 
 while true; do
-    read -p "Enter SIZE value (0.0 to 1.0) [default: 0.5]: " SIZE
-    SIZE=${SIZE:-0.5}
+    read -p "Enter $METRIC value (0.0 to 1.0) [default: 0.5]: " PARAM_VALUE
+    PARAM_VALUE=${PARAM_VALUE:-0.5}
 
     # Validate it's a number
-    if [[ ! "$SIZE" =~ ^[0-9]*\.?[0-9]+$ ]]; then
+    if [[ ! "$PARAM_VALUE" =~ ^[0-9]*\.?[0-9]+$ ]]; then
         echo -e "${RED}Error: Please enter a valid number${NC}"
         continue
     fi
 
     # Check range
-    if ! awk -v s="$SIZE" 'BEGIN { exit !(s >= 0.0 && s <= 1.0) }'; then
-        echo -e "${YELLOW}Warning: SIZE outside 0.0-1.0 range. It will be clamped.${NC}"
+    if ! awk -v s="$PARAM_VALUE" 'BEGIN { exit !(s >= 0.0 && s <= 1.0) }'; then
+        echo -e "${YELLOW}Warning: $METRIC outside 0.0-1.0 range. It will be clamped.${NC}"
         read -p "Continue anyway? (y/n): " confirm
         if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
             continue
@@ -66,7 +109,14 @@ while true; do
     break
 done
 
-echo -e "${GREEN}✓ SIZE set to: $SIZE${NC}"
+# Set the appropriate environment variable based on metric choice
+if [ "$METRIC" = "SIZE" ]; then
+    export SIZE=$PARAM_VALUE
+    echo -e "${GREEN}✓ SIZE set to: $SIZE${NC}"
+else
+    export DENSITY=$PARAM_VALUE
+    echo -e "${GREEN}✓ DENSITY set to: $DENSITY${NC}"
+fi
 echo ""
 
 # ============================================================================
@@ -75,28 +125,85 @@ echo ""
 
 echo -e "${BOLD}${CYAN}Step 2: Choose Programs to Run${NC}"
 echo ""
-echo "Available programs (size is a major factor for these):"
-echo "  1) cubes_sized.py        - 3D grid counting and analysis"
-echo "  2) ropes_sized.py        - Line intersection and geometry"
-echo "  3) domino_count_sized.py - Count dominoes of a specific color"
-echo "  4) All programs          - Generate from all 3 programs"
-echo ""
 
-read -p "Select option (1-4) [default: 4]: " prog_choice
-prog_choice=${prog_choice:-4}
+if [ "$METRIC" = "SIZE" ]; then
+    echo "Available programs for SIZE metric:"
+    echo "  1) cubes_sized.py        - 3D grid counting and analysis"
+    echo "  2) ropes_sized.py        - Line intersection and geometry"
+    echo "  3) domino_count_sized.py - Count dominoes of a specific color"
+    echo "  4) All SIZE programs     - Generate from all 3 programs"
+    echo ""
 
-case $prog_choice in
-    1) PROGRAMS=("cubes_sized.py");;
-    2) PROGRAMS=("ropes_sized.py");;
-    3) PROGRAMS=("domino_count_sized.py");;
-    4) PROGRAMS=("cubes_sized.py" "ropes_sized.py" "domino_count_sized.py");;
-    *)
-        echo -e "${RED}Invalid choice. Using all programs.${NC}"
-        PROGRAMS=("cubes_sized.py" "ropes_sized.py" "domino_count_sized.py")
-        ;;
-esac
+    read -p "Select option (1-4) [default: 4]: " prog_choice
+    prog_choice=${prog_choice:-4}
+
+    case $prog_choice in
+        1) PROGRAMS=("cubes_sized.py");;
+        2) PROGRAMS=("ropes_sized.py");;
+        3) PROGRAMS=("domino_count_sized.py");;
+        4) PROGRAMS=("cubes_sized.py" "ropes_sized.py" "domino_count_sized.py");;
+        *)
+            echo -e "${RED}Invalid choice. Using all programs.${NC}"
+            PROGRAMS=("cubes_sized.py" "ropes_sized.py" "domino_count_sized.py")
+            ;;
+    esac
+else
+    echo "Available programs for DENSITY metric:"
+    echo "  1) cubes_density.py        - 3D grid with varying cube density"
+    echo "  2) ropes_density.py        - Line intersections with varying density"
+    echo "  3) domino_count_density.py - Domino counting with clutter control"
+    echo "  4) All DENSITY programs    - Generate from all 3 programs"
+    echo ""
+
+    read -p "Select option (1-4) [default: 4]: " prog_choice
+    prog_choice=${prog_choice:-4}
+
+    case $prog_choice in
+        1) PROGRAMS=("cubes_density.py");;
+        2) PROGRAMS=("ropes_density.py");;
+        3) PROGRAMS=("domino_count_density.py");;
+        4) PROGRAMS=("cubes_density.py" "ropes_density.py" "domino_count_density.py");;
+        *)
+            echo -e "${RED}Invalid choice. Using all programs.${NC}"
+            PROGRAMS=("cubes_density.py" "ropes_density.py" "domino_count_density.py")
+            ;;
+    esac
+fi
 
 echo -e "${GREEN}✓ Selected ${#PROGRAMS[@]} program(s)${NC}"
+echo ""
+
+# Check if all selected programs exist
+echo "Checking if programs exist..."
+missing_programs=()
+for program in "${PROGRAMS[@]}"; do
+    if [ ! -f "$program" ]; then
+        missing_programs+=("$program")
+    fi
+done
+
+if [ ${#missing_programs[@]} -gt 0 ]; then
+    echo ""
+    echo -e "${RED}ERROR: The following programs do not exist:${NC}"
+    for prog in "${missing_programs[@]}"; do
+        echo -e "  ${RED}✗ $prog${NC}"
+    done
+    echo ""
+    if [ "$METRIC" = "DENSITY" ]; then
+        echo -e "${YELLOW}Note: DENSITY programs haven't been created yet.${NC}"
+        echo -e "${YELLOW}Please choose option 1 (SIZE) instead, or create the DENSITY programs first.${NC}"
+        echo ""
+        echo "To create DENSITY programs:"
+        echo "  1. cp cubes_sized.py cubes_density.py"
+        echo "  2. cp ropes_sized.py ropes_density.py"
+        echo "  3. cp domino_count_sized.py domino_count_density.py"
+        echo "  4. Edit each file to use DENSITY parameter (see DENSITY_METRIC_GUIDE.md)"
+    fi
+    echo ""
+    exit 1
+fi
+
+echo -e "${GREEN}✓ All programs exist${NC}"
 echo ""
 
 # ============================================================================
@@ -133,13 +240,13 @@ echo ""
 # Define problem types for each program using a function
 get_problem_types() {
     case "$1" in
-        "cubes_sized.py")
+        "cubes_sized.py"|"cubes_density.py")
             echo "count missing surface_area exposed colors max_color project"
             ;;
-        "ropes_sized.py")
+        "ropes_sized.py"|"ropes_density.py")
             echo "count cut closed order"
             ;;
-        "domino_count_sized.py")
+        "domino_count_sized.py"|"domino_count_density.py")
             echo "default"
             ;;
     esac
@@ -158,7 +265,12 @@ echo -e "${BOLD}${BLUE}═══════════════════
 echo -e "${BOLD}${BLUE}Summary${NC}"
 echo -e "${BOLD}${BLUE}════════════════════════════════════════════════════════════${NC}"
 echo ""
-echo "  SIZE:              $SIZE"
+echo "  Metric:            $METRIC"
+if [ "$METRIC" = "SIZE" ]; then
+    echo "  SIZE:              $SIZE"
+else
+    echo "  DENSITY:           $DENSITY"
+fi
 echo "  Programs:          ${#PROGRAMS[@]} (${PROGRAMS[*]})"
 echo "  Instances/type:    $NUM_INSTANCES"
 echo "  Total videos:      $total_videos"
@@ -194,7 +306,12 @@ echo ""
 echo -e "${BOLD}${GREEN}Starting generation...${NC}"
 echo ""
 
-export SIZE
+# Export the appropriate parameter
+if [ "$METRIC" = "SIZE" ]; then
+    export SIZE
+else
+    export DENSITY
+fi
 
 total_generated=0
 total_failed=0
@@ -217,15 +334,20 @@ for program in "${PROGRAMS[@]}"; do
         export P_TYPE=$p_type
 
         for instance in $(seq 1 "$NUM_INSTANCES"); do
-            echo -n "    Instance ${instance}/${NUM_INSTANCES}: "
+            echo -e "    Instance ${instance}/${NUM_INSTANCES}:"
+            echo -e "${YELLOW}    ───────────────────────────────────────────────${NC}"
 
-            if python "$program" > /dev/null 2>&1; then
+            # Run with full error output visible
+            if /Users/ankitnakhawa/miniconda3/envs/morse-500/bin/python "$program" 2>&1; then
                 total_generated=$((total_generated + 1))
-                echo -e "${GREEN}✓ Success${NC}"
+                echo -e "${YELLOW}    ───────────────────────────────────────────────${NC}"
+                echo -e "    ${GREEN}✓ Success${NC}"
             else
                 total_failed=$((total_failed + 1))
-                echo -e "${RED}✗ Failed${NC}"
+                echo -e "${YELLOW}    ───────────────────────────────────────────────${NC}"
+                echo -e "    ${RED}✗ Failed (see error above)${NC}"
             fi
+            echo ""
         done
         echo ""
     done
@@ -252,8 +374,13 @@ echo "  ⏱ Time elapsed: ${elapsed}s"
 echo ""
 
 # Show recently generated files
-echo -e "${BOLD}Recent videos (SIZE=$SIZE):${NC}"
-ls -lt questions/*size${SIZE}*.mp4 2>/dev/null | head -n 10 | awk '{print "  "$9}' || echo "  (none found)"
+if [ "$METRIC" = "SIZE" ]; then
+    echo -e "${BOLD}Recent videos (SIZE=$SIZE):${NC}"
+    ls -lt questions/*size${SIZE}*.mp4 2>/dev/null | head -n 10 | awk '{print "  "$9}' || echo "  (none found)"
+else
+    echo -e "${BOLD}Recent videos (DENSITY=$DENSITY):${NC}"
+    ls -lt questions/*density${DENSITY}*.mp4 2>/dev/null | head -n 10 | awk '{print "  "$9}' || echo "  (none found)"
+fi
 echo ""
 
 if [ $total_failed -eq 0 ]; then
@@ -261,8 +388,13 @@ if [ $total_failed -eq 0 ]; then
     echo ""
     echo "Next steps:"
     echo "  • View videos: open questions/"
-    echo "  • Check answers: cat solutions/*size${SIZE}*.txt"
-    echo "  • Read reasoning: cat reasoning_traces/*size${SIZE}*.txt"
+    if [ "$METRIC" = "SIZE" ]; then
+        echo "  • Check answers: cat solutions/*size${SIZE}*.txt"
+        echo "  • Read reasoning: cat reasoning_traces/*size${SIZE}*.txt"
+    else
+        echo "  • Check answers: cat solutions/*density${DENSITY}*.txt"
+        echo "  • Read reasoning: cat reasoning_traces/*density${DENSITY}*.txt"
+    fi
     echo ""
 else
     echo -e "${BOLD}${YELLOW}⚠ Some videos failed. Check error messages above.${NC}"
