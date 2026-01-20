@@ -7,144 +7,43 @@ from openai import AsyncOpenAI
 from typing import Dict, Optional, Any
 import re
 from tqdm.asyncio import tqdm
-from string import Template
 
 # =============================================================================
 #  NEW PROMPT DEFINITION
 # =============================================================================
 
-ANALYSIS_PROMPT = Template(
-    """For the following problem: $question
-Carefully read the following correct reasoning trace:
-$gt_reasoning
+ANALYSIS_PROMPT = """You are an expert evaluator analyzing vision-language model errors.
 
-Now, examine the following reasoning trace (your task is to evaluate its accuracy step by step):                                                                                                                                                                                                                                                                                                    
-$model_reasoning
-                                                                                                                                                                                                                                                                                                                                                                                                    
-For each step in the reasoning trace above, determine whether it is correct by comparing it to the correct reasoning trace. If a step is incorrect, briefly reflect on why it deviates. After identifying all incorrect steps, group the errors into meaningful categories based on their nature.                                                                                                   
+Given:
+- Question: {question}
+- Ground Truth Reasoning: {gt_reasoning}
+- Ground Truth Answer: {gt_answer}
+- Model Reasoning: {model_reasoning}
+- Model Answer: {model_answer}
 
-Use the following in-context examples to guide your analysis:
+ERROR CATEGORIES:
 
-**Example 1:**
-- *Correct Trace:* "The meal costs $$50 before tax. With a 10% tax, the total becomes $$50 × 1.1 = $$55."
-- *Incorrect Trace:* "To find the pre-tax price from $$55, subtract 10%: $$55 − $$5.50 = $$49.50."
-- *Error Analysis:* The step incorrectly assumes that reversing a 10% increase can be done by subtracting 10% of the final amount. The correct method is to divide by 1.1. This is an **Arithmetic Error** because it misapplies percentage reversal.                                                                                                                                               
-                                                                                                                                                                                                                                                                                                                                                                                                    
-**Example 2:**                                                                                                                                                                                                                                                                                                                                                                                      
-- *Correct Trace:* "A car travels at 60 mph for 2.5 hours. Distance = 60 × 2.5 = 150 miles."                                                                                                                                                                                                                                                                                                        
-- *Incorrect Trace:* "At 60 mph, in 2.5 hours, the car travels 60 + 60 = 120 miles, and the extra half hour adds 20 miles, totaling 140 miles."                                                                                                                                                                                                                                                     
-- *Error Analysis:* The multiplication is partially replaced with addition, and the half-hour distance is miscalculated (should be 30 miles, not 20). This contains both an **Arithmetic Error** and a **Logical Misstep**, as the reasoning distorts the relationship between speed, time, and distance.                                                                                           
+{categories}
 
-**Example 3:**
-- *Correct Trace:* "The problem asks for the probability that both coins are heads given that at least one is heads. The sample space is {HH, HT, TH}, so P(HH | at least one H) = 1/3."
-- *Incorrect Trace:* "There are two coins, each has a 50% chance of heads, so the probability both are heads is 0.5 × 0.5 = 0.25."
-- *Error Analysis:* The reasoning ignores the conditional aspect of the problem and answers the unconditional probability instead. This is a **Misinterpretation of Problem**, as it fails to account for the given condition.
-
-**Example 4:**
-- *Correct Trace:* "We are told the sequence increases by 3 each time: 2, 5, 8, 11, ..."
-- *Incorrect Trace:* "The differences between terms are 3, then 3, so it’s doubling every time."
-- *Error Analysis:* The reasoning incorrectly infers a multiplicative pattern from an additive one. This is a **Logical Misstep**, as it misidentifies the rule governing the sequence.
-
-**Example 5:**
-- *Correct Trace:* "The discount is applied first, then tax. So $$100 with 20% off is $$80, then $$80 × 1.1 = $$88."
-- *Incorrect Trace:* "Tax is applied before the discount, so $$100 × 1.1 = $$110, then 20% off is $$88."
-- *Error Analysis:* Although the final answer is numerically correct, the order of operations contradicts the problem statement. This reflects an **Invalid Assumption**, as it assumes a different sequence of operations without justification.                                                                                                                                                   
-
-Using these examples as a guide, analyze the provided reasoning trace.
-                                                                                                                                                                                                                                                                                                                                                                                                    
-Your final output must follow this exact json format:
-{
-  "evaluation_summary": {
-    "is_correct": boolean,
-    "total_mistakes_found": integer,
-    "primary_reason_for_failure": "string"
-  },
-  "mistakes": [
-    {
-      "step": "The specific string from the model reasoning that is incorrect",
-      "explanation": "Why this step is wrong compared to the ground truth",
-      "assigned_category": "Your custom category name"
-    }, 
+OUTPUT FORMAT (JSON):
+{{
+  "has_error": true/false,
+  "primary_error_category": [category name from list of categories],
+  "errors": [
+    {{
+      "category": [category name from list of categories],
+      "subcategory": [subcategory name from list of subcategories under assigned category],
+      "evidence_quote": [quoted line(s) from model reasoning],
+      "description": [explanation of how it's wrong according to the ground truth reasoning],
+      "severity": [if it's a major or minor mistake]
+    }}, 
     ...
   ],
-  "defined_categories": [
-    {
-      "category_name": "The custom category name used above",
-      "description": "A brief definition of what this category of error represents in the context of this problem"
-    }, 
-    ...
-  ]
-}
+  "analysis": [concise summary of errors]
+}}
+
+Now analyze:
 """
-)
-
-# ANALYSIS_PROMPT = """You are an expert evaluator analyzing vision-language model errors.
-
-# Given:
-# - Question: {question}
-# - Ground Truth Reasoning: {gt_reasoning}
-# - Ground Truth Answer: {gt_answer}
-# - Model Reasoning: {model_reasoning}
-# - Model Answer: {model_answer}
-
-# ERROR CATEGORIES:
-
-# 1. PERCEPTION - The "Eye" (Input Errors)
-#    - Missed object: Failed to detect an object clearly visible in the frame.
-#    - Hallucinated object: Claimed to see an object/feature that does not exist.
-#    - Attribute error: Correct object detected, but intrinsic properties (color, texture, shape) are wrong.
-#    - OCR error: Failed to read text or numbers visible in the image correctly.
-
-# 2. GROUNDING - The "Index Finger" (Mapping Errors)
-#    - Reference error: Model describes the scene correctly but selects/points to the wrong object for the query.
-#    - Attribute binding error: Detected multiple objects and attributes correctly, but assigned the wrong attribute to the wrong object.
-#    - Spatial binding error: Confused the subject/object in a relationship.
-
-# 3. PHYSICAL - World Modeling (The Physics Engine)
-#    - Object Permanence: Failing to realize an object still exists when occluded or out of frame.
-#    - Gravity/Stability: Objects floating without support or not falling when they should.
-#    - Collision/Solidity: Objects passing through each other (clipping) or occupying the same space.
-#    - Trajectory/Kinematics: Unnatural movement paths.
-#    - Material Interaction: Misunderstanding how materials react.
-#    - Conservation Laws: Mass/Volume appearing or disappearing.
-
-# 4. SPATIAL - Static Geometry (The Map)
-#    - Absolute position: Wrong coordinates or location description.
-#    - Relative position: Wrong relationship between static objects (behind/in front/next to).
-#    - Perspective/Viewpoint: Failure to understand depth or camera angle.
-
-# 5. TEMPORAL - The Timeline
-#    - Event ordering: Swapping the sequence of cause and effect or steps.
-#    - Duration estimation: Grossly misjudging how long an action takes.
-#    - Action recognition: Misidentifying the verb/action being performed.
-
-# 6. REASONING - Abstract Logic (The Calculator)
-#    - Counting: Correctly identified objects but failed to sum them up.
-#    - Arithmetic: Failed mathematical calculation on correct numbers.
-#    - Textual Logic: Failed logical deduction not related to physics.
-#    - Negative Constraints: Failed to process "not" or exclusionary criteria.
-
-# 7. LUCKY_GUESS - False Success
-#    - The Final Answer matches Ground Truth, but the Reasoning trace contains significant hallucinations or logic errors.
-
-# OUTPUT FORMAT (JSON):
-# {{
-#   "has_error": true/false,
-#   "primary_error_category": "CATEGORY_NAME",
-#   "errors": [
-#     {{
-#       "category": "PHYSICAL",
-#       "subcategory": "Trajectory/Kinematics",
-#       "description": "Model predicted the ball would turn left, but momentum dictates it continues straight.",
-#       "evidence_quote": "Model trace: 'The ball will curve around the obstacle...'",
-#       "severity": "major"
-#     }}
-#   ],
-#   "analysis": "Brief explanation of how the reasoning broke down."
-# }}
-
-# Now analyze:
-# """
 
 # =============================================================================
 #  HELPER CLASSES & FUNCTIONS
@@ -304,23 +203,27 @@ async def label_example(
     top_k: int,
     min_p: float,
 ):
-
+    c = "".join(
+        [
+            f"{i + 1}. {category['category_name']}"
+            + "".join(
+                [
+                    f"  - {subcategory['sub_category_name']}: {subcategory['description']}\n"
+                    for subcategory in category["sub_categories"]
+                ]
+            )
+            for i, category in enumerate(entry["categories"])
+        ]
+    )
     # Fill the prompt template
-    # prompt = ANALYSIS_PROMPT.format(
-    #     question=entry["question"],
-    #     gt_reasoning=entry["gt_reasoning_trace"],
-    #     gt_answer=entry["solution"],
-    #     model_reasoning=entry["model_output"],
-    #     model_answer=extract_answer(entry["model_output"]),
-    # )
-
-    prompt = ANALYSIS_PROMPT.substitute(
+    prompt = ANALYSIS_PROMPT.format(
         question=entry["question"],
         gt_reasoning=entry["gt_reasoning_trace"],
+        gt_answer=entry["solution"],
         model_reasoning=entry["model_output"],
+        model_answer=extract_answer(entry["model_output"]),
+        categories=c,
     )
-
-    print("using prompt: ", prompt)
 
     content = await query_llm(
         client,
@@ -340,20 +243,18 @@ async def label_example(
             "primary_error_category": "API_FAILURE",
         }
 
-    return content
+    # Parse the structured JSON response
+    result_json = extract_json_from_response(content)
 
-    # # Parse the structured JSON response
-    # result_json = extract_json_from_response(content)
+    # If parsing failed completely, return a fallback object
+    if "error" in result_json:
+        return {
+            "has_error": True,
+            "primary_error_category": "PARSE_ERROR",
+            "analysis": f"Could not parse JSON. Raw content: {content[:200]}",
+        }
 
-    # # If parsing failed completely, return a fallback object
-    # if "error" in result_json:
-    #     return {
-    #         "has_error": True,
-    #         "primary_error_category": "PARSE_ERROR",
-    #         "analysis": f"Could not parse JSON. Raw content: {content[:200]}",
-    #     }
-
-    # return result_json
+    return result_json
 
 
 # =============================================================================
@@ -364,6 +265,7 @@ async def label_example(
 async def process_single_question(
     question_name: str,
     prediction_folder: Path,
+    categories_file: Path,
     question_text_folder: Path,
     ground_truth_folder: Path,
     solutions_folder: Path,
@@ -380,8 +282,8 @@ async def process_single_question(
         output_file = output_folder / f"{question_name}.json"  # Save as JSON
 
         # Skip if already processed
-        # if output_file.exists():
-        #     return True
+        if output_file.exists():
+            return True
 
         # Read Prediction
         pred_path = prediction_folder / question_name
@@ -416,6 +318,12 @@ async def process_single_question(
             with open(question_text_path, "r", encoding="utf-8") as f:
                 question_text = f.read()
 
+        # Read Categories Text
+        if categories_file.exists():
+            with open(categories_file, "r", encoding="utf-8") as f:
+                categories_data = json.load(f)
+                categories_list = categories_data["categories"]
+
         # Calculate accuracy (Simple check)
         is_correct = calculate_accuracy(prediction, solution)
 
@@ -426,6 +334,7 @@ async def process_single_question(
             "model_output": prediction,
             "gt_reasoning_trace": ground_truth,
             "is_correct": is_correct,
+            "categories": categories_list,
         }
 
         # ALWAYS Run Analysis now (because we have LUCKY_GUESS category for correct answers)
@@ -461,6 +370,7 @@ async def process_single_question(
 
 async def analyze_model_predictions(
     prediction_folder: Path,
+    categories_file: Path,
     question_text_folder: Path,
     ground_truth_folder: Path,
     solutions_folder: Path,
@@ -494,6 +404,7 @@ async def analyze_model_predictions(
             return await process_single_question(
                 question_file.name,
                 prediction_folder,
+                categories_file,
                 question_text_folder,
                 ground_truth_folder,
                 solutions_folder,
@@ -585,10 +496,11 @@ async def analyze_model_predictions(
 
 # Config
 PREDICTION_FOLDER = Path("Qwen3-VL-8B-Instruct")
+CATEGORIES_FILE = Path("Qwen3-VL-8B-Instruct_analyze/simplified_categories.json")
 QUESTION_TEXT_FOLDER = Path("../spatial_reasoning/question_text")
 GROUND_TRUTH_FOLDER = Path("../spatial_reasoning/reasoning_traces")
 SOLUTIONS_FOLDER = Path("../spatial_reasoning/solutions")
-EVALUATOR_MODEL = "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"
+EVALUATOR_MODEL = "Qwen/Qwen3-VL-235B-A22B-Instruct-FP8"
 EVALUATOR_PORT = 8000
 TEMPERATURE = 0.7
 TOP_P = 0.8
@@ -602,10 +514,12 @@ if __name__ == "__main__":
 
     model_name_arg = sys.argv[1] if len(sys.argv) > 1 else "Qwen3-VL-8B-Instruct"
     PREDICTION_FOLDER = Path(model_name_arg)
+    CATEGORIES_FILE = Path(f"{model_name_arg}_analyze/simplified_categories.json")
 
     asyncio.run(
         analyze_model_predictions(
             prediction_folder=PREDICTION_FOLDER,
+            categories_file=CATEGORIES_FILE,
             question_text_folder=QUESTION_TEXT_FOLDER,
             ground_truth_folder=GROUND_TRUTH_FOLDER,
             solutions_folder=SOLUTIONS_FOLDER,

@@ -21,36 +21,7 @@ $gt_reasoning
 Now, examine the following reasoning trace (your task is to evaluate its accuracy step by step):                                                                                                                                                                                                                                                                                                    
 $model_reasoning
                                                                                                                                                                                                                                                                                                                                                                                                     
-For each step in the reasoning trace above, determine whether it is correct by comparing it to the correct reasoning trace. If a step is incorrect, briefly reflect on why it deviates. After identifying all incorrect steps, group the errors into meaningful categories based on their nature.                                                                                                   
-
-Use the following in-context examples to guide your analysis:
-
-**Example 1:**
-- *Correct Trace:* "The meal costs $$50 before tax. With a 10% tax, the total becomes $$50 × 1.1 = $$55."
-- *Incorrect Trace:* "To find the pre-tax price from $$55, subtract 10%: $$55 − $$5.50 = $$49.50."
-- *Error Analysis:* The step incorrectly assumes that reversing a 10% increase can be done by subtracting 10% of the final amount. The correct method is to divide by 1.1. This is an **Arithmetic Error** because it misapplies percentage reversal.                                                                                                                                               
-                                                                                                                                                                                                                                                                                                                                                                                                    
-**Example 2:**                                                                                                                                                                                                                                                                                                                                                                                      
-- *Correct Trace:* "A car travels at 60 mph for 2.5 hours. Distance = 60 × 2.5 = 150 miles."                                                                                                                                                                                                                                                                                                        
-- *Incorrect Trace:* "At 60 mph, in 2.5 hours, the car travels 60 + 60 = 120 miles, and the extra half hour adds 20 miles, totaling 140 miles."                                                                                                                                                                                                                                                     
-- *Error Analysis:* The multiplication is partially replaced with addition, and the half-hour distance is miscalculated (should be 30 miles, not 20). This contains both an **Arithmetic Error** and a **Logical Misstep**, as the reasoning distorts the relationship between speed, time, and distance.                                                                                           
-
-**Example 3:**
-- *Correct Trace:* "The problem asks for the probability that both coins are heads given that at least one is heads. The sample space is {HH, HT, TH}, so P(HH | at least one H) = 1/3."
-- *Incorrect Trace:* "There are two coins, each has a 50% chance of heads, so the probability both are heads is 0.5 × 0.5 = 0.25."
-- *Error Analysis:* The reasoning ignores the conditional aspect of the problem and answers the unconditional probability instead. This is a **Misinterpretation of Problem**, as it fails to account for the given condition.
-
-**Example 4:**
-- *Correct Trace:* "We are told the sequence increases by 3 each time: 2, 5, 8, 11, ..."
-- *Incorrect Trace:* "The differences between terms are 3, then 3, so it’s doubling every time."
-- *Error Analysis:* The reasoning incorrectly infers a multiplicative pattern from an additive one. This is a **Logical Misstep**, as it misidentifies the rule governing the sequence.
-
-**Example 5:**
-- *Correct Trace:* "The discount is applied first, then tax. So $$100 with 20% off is $$80, then $$80 × 1.1 = $$88."
-- *Incorrect Trace:* "Tax is applied before the discount, so $$100 × 1.1 = $$110, then 20% off is $$88."
-- *Error Analysis:* Although the final answer is numerically correct, the order of operations contradicts the problem statement. This reflects an **Invalid Assumption**, as it assumes a different sequence of operations without justification.                                                                                                                                                   
-
-Using these examples as a guide, analyze the provided reasoning trace.
+For each step in the reasoning trace above, determine whether it is correct by comparing it to the correct reasoning trace. If a step is incorrect, briefly reflect on why it deviates. After identifying all incorrect steps, group the errors into meaningful categories based on their nature.
                                                                                                                                                                                                                                                                                                                                                                                                     
 Your final output must follow this exact json format:
 {
@@ -78,73 +49,26 @@ Your final output must follow this exact json format:
 """
 )
 
-# ANALYSIS_PROMPT = """You are an expert evaluator analyzing vision-language model errors.
 
-# Given:
-# - Question: {question}
-# - Ground Truth Reasoning: {gt_reasoning}
-# - Ground Truth Answer: {gt_answer}
-# - Model Reasoning: {model_reasoning}
-# - Model Answer: {model_answer}
+CATEGORIES_PROMPT = Template(
+    """Condense this list of categories to a concise list of 5-10 categories, each with up to 5 subcategories. Be sure to remove each category that is too similar to another existing category:
+$categories
 
-# ERROR CATEGORIES:
-
-# 1. PERCEPTION - The "Eye" (Input Errors)
-#    - Missed object: Failed to detect an object clearly visible in the frame.
-#    - Hallucinated object: Claimed to see an object/feature that does not exist.
-#    - Attribute error: Correct object detected, but intrinsic properties (color, texture, shape) are wrong.
-#    - OCR error: Failed to read text or numbers visible in the image correctly.
-
-# 2. GROUNDING - The "Index Finger" (Mapping Errors)
-#    - Reference error: Model describes the scene correctly but selects/points to the wrong object for the query.
-#    - Attribute binding error: Detected multiple objects and attributes correctly, but assigned the wrong attribute to the wrong object.
-#    - Spatial binding error: Confused the subject/object in a relationship.
-
-# 3. PHYSICAL - World Modeling (The Physics Engine)
-#    - Object Permanence: Failing to realize an object still exists when occluded or out of frame.
-#    - Gravity/Stability: Objects floating without support or not falling when they should.
-#    - Collision/Solidity: Objects passing through each other (clipping) or occupying the same space.
-#    - Trajectory/Kinematics: Unnatural movement paths.
-#    - Material Interaction: Misunderstanding how materials react.
-#    - Conservation Laws: Mass/Volume appearing or disappearing.
-
-# 4. SPATIAL - Static Geometry (The Map)
-#    - Absolute position: Wrong coordinates or location description.
-#    - Relative position: Wrong relationship between static objects (behind/in front/next to).
-#    - Perspective/Viewpoint: Failure to understand depth or camera angle.
-
-# 5. TEMPORAL - The Timeline
-#    - Event ordering: Swapping the sequence of cause and effect or steps.
-#    - Duration estimation: Grossly misjudging how long an action takes.
-#    - Action recognition: Misidentifying the verb/action being performed.
-
-# 6. REASONING - Abstract Logic (The Calculator)
-#    - Counting: Correctly identified objects but failed to sum them up.
-#    - Arithmetic: Failed mathematical calculation on correct numbers.
-#    - Textual Logic: Failed logical deduction not related to physics.
-#    - Negative Constraints: Failed to process "not" or exclusionary criteria.
-
-# 7. LUCKY_GUESS - False Success
-#    - The Final Answer matches Ground Truth, but the Reasoning trace contains significant hallucinations or logic errors.
-
-# OUTPUT FORMAT (JSON):
-# {{
-#   "has_error": true/false,
-#   "primary_error_category": "CATEGORY_NAME",
-#   "errors": [
-#     {{
-#       "category": "PHYSICAL",
-#       "subcategory": "Trajectory/Kinematics",
-#       "description": "Model predicted the ball would turn left, but momentum dictates it continues straight.",
-#       "evidence_quote": "Model trace: 'The ball will curve around the obstacle...'",
-#       "severity": "major"
-#     }}
-#   ],
-#   "analysis": "Brief explanation of how the reasoning broke down."
-# }}
-
-# Now analyze:
-# """
+Your output list should be in this json format: 
+[
+  {
+    "category_name": "Name of the high-level category",
+    "description": "A brief definition of what this category represents",
+    "sub_categories": [
+      {
+        "sub_category_name": "Name of the subcategory",
+        "description": "Brief description of the subcategory"
+      }
+    ]
+  }
+]
+"""
+)
 
 # =============================================================================
 #  HELPER CLASSES & FUNCTIONS
@@ -305,27 +229,38 @@ async def label_example(
     min_p: float,
 ):
 
-    # Fill the prompt template
-    # prompt = ANALYSIS_PROMPT.format(
-    #     question=entry["question"],
-    #     gt_reasoning=entry["gt_reasoning_trace"],
-    #     gt_answer=entry["solution"],
-    #     model_reasoning=entry["model_output"],
-    #     model_answer=extract_answer(entry["model_output"]),
-    # )
-
     prompt = ANALYSIS_PROMPT.substitute(
         question=entry["question"],
         gt_reasoning=entry["gt_reasoning_trace"],
         model_reasoning=entry["model_output"],
     )
 
-    print("using prompt: ", prompt)
-
-    content = await query_llm(
+    return await query_llm_json(
         client,
         evaluator_model,
         prompt,
+        rate_limiter,
+        temperature=temperature,
+        top_p=top_p,
+        top_k=top_k,
+        min_p=min_p,
+    )
+
+
+async def query_llm_json(
+    client,
+    evaluator_model,
+    query,
+    rate_limiter,
+    temperature=0.7,
+    top_p=0.8,
+    top_k=20,
+    min_p=0.0,
+):
+    content = await query_llm(
+        client,
+        evaluator_model,
+        query,
         rate_limiter,
         temperature=temperature,
         top_p=top_p,
@@ -340,20 +275,18 @@ async def label_example(
             "primary_error_category": "API_FAILURE",
         }
 
-    return content
+    # Parse the structured JSON response
+    result_json = extract_json_from_response(content)
 
-    # # Parse the structured JSON response
-    # result_json = extract_json_from_response(content)
+    # If parsing failed completely, return a fallback object
+    if "error" in result_json:
+        return {
+            "has_error": True,
+            "primary_error_category": "PARSE_ERROR",
+            "analysis": f"Could not parse JSON. Raw content: {content[:200]}",
+        }
 
-    # # If parsing failed completely, return a fallback object
-    # if "error" in result_json:
-    #     return {
-    #         "has_error": True,
-    #         "primary_error_category": "PARSE_ERROR",
-    #         "analysis": f"Could not parse JSON. Raw content: {content[:200]}",
-    #     }
-
-    # return result_json
+    return result_json
 
 
 # =============================================================================
@@ -380,8 +313,8 @@ async def process_single_question(
         output_file = output_folder / f"{question_name}.json"  # Save as JSON
 
         # Skip if already processed
-        # if output_file.exists():
-        #     return True
+        if output_file.exists():
+            return True
 
         # Read Prediction
         pred_path = prediction_folder / question_name
@@ -441,6 +374,8 @@ async def process_single_question(
             top_k=top_k,
             min_p=min_p,
         )
+
+        # breakpoint()
 
         entry["analysis_result"] = label_result
 
@@ -515,13 +450,14 @@ async def analyze_model_predictions(
         results.append(result)
 
     # =========================================================================
-    #  SUMMARY STATISTICS GENERATION
+    #  FINAL CATEGORIES GENERATION
     # =========================================================================
 
     total_count = 0
     correct_count = 0
     primary_category_counts = Counter()
     subcategory_counts = Counter()
+    all_categories = []
 
     for result_file in output_folder.glob("*.json"):
         if result_file.name == "summary.json":
@@ -532,21 +468,28 @@ async def analyze_model_predictions(
             total_count += 1
             if data.get("is_correct"):
                 correct_count += 1
-
             analysis = data.get("analysis_result", {})
+            if type(analysis) == str:
+                breakpoint()
 
-            # Count Primary Category
-            primary = analysis.get("primary_error_category", "Unknown")
-            if primary:
-                primary_category_counts[primary] += 1
-
-            # Count Subcategories
-            errors = analysis.get("errors", [])
-            if isinstance(errors, list):
-                for err in errors:
-                    sub = err.get("subcategory", "Unknown")
-                    cat = err.get("category", "Unknown")
-                    subcategory_counts[f"{cat} - {sub}"] += 1
+            if analysis and analysis.get("defined_categories", []):
+                all_categories += analysis["defined_categories"]
+            else:
+                print(
+                    "Warning: skipped file ",
+                    result_file,
+                    "since it didn't have any list of categories.",
+                )
+    output = await query_llm_json(
+        client,
+        evaluator_model,
+        CATEGORIES_PROMPT.substitute(categories=all_categories),
+        rate_limiter,
+        temperature,
+        top_p,
+        top_k,
+        min_p,
+    )
 
     print("\n" + "=" * 80)
     print(f"Model: {prediction_folder.stem}")
@@ -568,12 +511,10 @@ async def analyze_model_predictions(
         "total": total_count,
         "correct": correct_count,
         "accuracy": correct_count / total_count if total_count else 0,
-        "primary_distribution": dict(primary_category_counts),
-        "subcategory_distribution": dict(subcategory_counts),
-        "timestamp": datetime.now().isoformat(),
+        "categories": output,
     }
 
-    with open(output_folder / "summary.json", "w", encoding="utf-8") as f:
+    with open(output_folder / "categories.json", "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
 
     await client.close()
@@ -588,7 +529,9 @@ PREDICTION_FOLDER = Path("Qwen3-VL-8B-Instruct")
 QUESTION_TEXT_FOLDER = Path("../spatial_reasoning/question_text")
 GROUND_TRUTH_FOLDER = Path("../spatial_reasoning/reasoning_traces")
 SOLUTIONS_FOLDER = Path("../spatial_reasoning/solutions")
-EVALUATOR_MODEL = "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"
+EVALUATOR_MODEL = (
+    "Qwen/Qwen3-VL-235B-A22B-Instruct-FP8"  # "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"
+)
 EVALUATOR_PORT = 8000
 TEMPERATURE = 0.7
 TOP_P = 0.8
