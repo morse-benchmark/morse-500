@@ -1,0 +1,167 @@
+We are given a sequence of word transformations, starting from "PRINCESS", and asked to count how many shuffles were performed.
+
+Let’s list each frame in order:
+
+1. **Initial word**: `P R I N C E S S`  
+   → This is the starting point. No shuffle yet.
+
+2. **First shuffle**: `S P R I N C E S`  
+   → The first letter 'P' moved to position 2, and the last 'S' moved to front? Actually, looking closely:  
+   Original: P R I N C E S S  
+   New:      S P R I N C E S  
+   → It looks like the last 'S' was moved to the front. That’s one shuffle.
+
+3. **Second shuffle**: `P N S I R C E S`  
+   → From `S P R I N C E S` to `P N S I R C E S`  
+   This is a significant rearrangement. Let’s not try to reverse-engineer the shuffle type — the question is just counting *how many* shuffles occurred between each displayed state.
+
+   Each time the word changes to a new arrangement, that’s one shuffle.
+
+4. **Third shuffle**: `C P R I S S N E`  
+   → From `P N S I R C E S` to `C P R I S S N E`
+
+5. **Fourth shuffle**: `E P S C N I S R`  
+   → From `C P R I S S N E` to `E P S C N I S R`
+
+6. **Fifth shuffle**: `S C E P S N N I`  
+   → From `E P S C N I S R` to `S C E P S N N I`
+
+7. **Sixth shuffle**: `S E R E C S N N`  
+   → From `S C E P S N N I` to `S E R E C S N N`
+
+8. **Seventh shuffle**: `E H P S C S R N`  
+   → Wait — this looks odd. “H” is not in “PRINCESS”.  
+   Original letters: P, R, I, N, C, E, S, S — no H.
+
+   This suggests a possible typo or error in the video. But since we’re to count shuffles *as shown*, and assuming the video intends to show valid permutations (even if one frame has a typo), we should note:
+
+   - The word at 0:12 is `E H P S C S R N` — contains ‘H’, which is invalid.
+   - The next frame at 0:13 is `N P C I S R S E` — which is valid (letters: N, P, C, I, S, R, S, E — all from original).
+
+   So perhaps the `E H P S C S R N` is a mistake. But since the question is “how many shuffles were performed on the word?” and we are to count transitions between displayed states, we count each change.
+
+   Let’s count the transitions:
+
+   - Start: Frame 0:03 → `PRINCESS`
+   - Frame 0:05 → shuffle 1 → `SPRINCES` (or similar, but it’s a rearrangement)
+   - Frame 0:06 → shuffle 2 → `PNSIRCES`
+   - Frame 0:07 → shuffle 3 → `CPRIS SNE` (C P R I S S N E)
+   - Frame 0:08 → shuffle 4 → `EPSCNISR`
+   - Frame 0:09 → shuffle 5 → `SCEPSNNI`
+   - Frame 0:10 → shuffle 6 → `SEREC SNN`
+   - Frame 0:11 → shuffle 7 → `EHPS CSR N` (with H — likely error)
+   - Frame 0:12 → shuffle 8 → `NPCISRSE`
+
+   But wait — from 0:03 to 0:14, we have 11 frames total? Let’s recount the actual video frames shown with word changes:
+
+   - 0:03: PRINCESS (initial)
+   - 0:05: S P R I N C E S → shuffle 1
+   - 0:06: P N S I R C E S → shuffle 2
+   - 0:07: C P R I S S N E → shuffle 3
+   - 0:08: E P S C N I S R → shuffle 4
+   - 0:09: S C E P S N N I → shuffle 5
+   - 0:10: S E R E C S N N → shuffle 6
+   - 0:11: E H P S C S R N → shuffle 7 (despite H)
+   - 0:12: N P C I S R S E → shuffle 8
+   - 0:13: N P C I S R S E (same as previous) → no shuffle
+   - 0:14: N P C I S R S E (still same) → no shuffle
+
+   So from initial to final, there are 8 distinct shuffles shown (each new arrangement after the first).
+
+   However, note that the question is: “How many shuffles were performed on the word?” — and it’s likely expecting the number of times the word was shuffled *to reach the final state*.
+
+   Final state is `NPCISRSE` at 0:12.
+
+   Let’s count the number of transformations from the original:
+
+   1. PRINCESS → SPRINCES (shuffle 1)
+   2. → PNSIRCES (shuffle 2)
+   3. → CPRIS SNE (shuffle 3)
+   4. → EPSCNISR (shuffle 4)
+   5. → SCEPSNNI (shuffle 5)
+   6. → SEREC SNN (shuffle 6)
+   7. → EHPS CSR N (shuffle 7) — invalid, but shown
+   8. → NPCISRSE (shuffle 8)
+
+   So 8 shuffles were performed to get to the final state.
+
+   But perhaps the “H” is a typo and should be “I” or “N”? Let’s check if `E H P S C S R N` could be `E I P S C S R N` or something — but even so, we count what’s displayed.
+
+   Alternatively, maybe the video intends to show 7 shuffles, excluding the invalid one? But the question doesn’t say to validate the shuffles, just count how many were performed.
+
+   Given that, and since each new arrangement after the first is a result of a shuffle, we count 8 shuffles.
+
+   However, let’s look again at the timestamps:
+
+   - 0:03: initial
+   - 0:05: 1st shuffle
+   - 0:06: 2nd
+   - 0:07: 3rd
+   - 0:08: 4th
+   - 0:09: 5th
+   - 0:10: 6th
+   - 0:11: 7th
+   - 0:12: 8th
+
+   That’s 8 shuffles.
+
+   But wait — at 0:13 and 0:14, the word is still `NPCISRSE`, so no more shuffles.
+
+   Therefore, total shuffles performed: 8.
+
+   However, let’s consider: maybe the first display at 0:05 is not a shuffle but the original? No, at 0:03 it’s `PRINCESS`, at 0:05 it’s `SPRINCES` — clearly different.
+
+   So, from `PRINCESS` to `NPCISRSE`, there are 8 intermediate states, meaning 8 shuffles.
+
+   But actually, the number of shuffles is the number of transitions, which is the number of new arrangements minus one.
+
+   Wait — no: if you start with state 0, then after 1 shuffle you have state 1, after 2 shuffles state 2, etc.
+
+   So:
+
+   - State 0: PRINCESS (0 shuffles)
+   - State 1: after 1st shuffle
+   - State 2: after 2nd shuffle
+   - ...
+   - State 8: after 8th shuffle → `NPCISRSE`
+
+   Yes, 8 shuffles.
+
+   But let’s list them explicitly:
+
+   1. PRINCESS → SPRINCES
+   2. SPRINCES → PNSIRCES
+   3. PNSIRCES → CPRIS SNE
+   4. CPRIS SNE → EPSCNISR
+   5. EPSCNISR → SCEPSNNI
+   6. SCEPSNNI → SEREC SNN
+   7. SEREC SNN → EHPS CSR N
+   8. EHPS CSR N → NPCISRSE
+
+   So 8 shuffles.
+
+   Even though one state has an invalid letter, the video shows it, so we count it.
+
+   Therefore, the answer is 8.
+
+   However, I notice that in the final frame (0:14), the word is `NPCISRSE`, which is the same as at 0:12 and 0:13, so no additional shuffle.
+
+   So total shuffles performed: 8.
+
+   But let’s double-check the frame count:
+
+   - Frame 1 (0:03): initial
+   - Frame 2 (0:05): shuffle 1
+   - Frame 3 (0:06): shuffle 2
+   - Frame 4 (0:07): shuffle 3
+   - Frame 5 (0:08): shuffle 4
+   - Frame 6 (0:09): shuffle 5
+   - Frame 7 (0:10): shuffle 6
+   - Frame 8 (0:11): shuffle 7
+   - Frame 9 (0:12): shuffle 8
+   - Frame 10 (0:13): no change
+   - Frame 11 (0:14): no change
+
+   So 8 shuffles.
+
+   Final answer: \boxed{8}

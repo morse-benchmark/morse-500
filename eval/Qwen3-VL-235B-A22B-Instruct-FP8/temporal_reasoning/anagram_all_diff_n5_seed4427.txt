@@ -1,0 +1,138 @@
+We are asked to compute the **sum of the distance of all shifts that happened to the letter 'A' across all word moves**.
+
+Let’s break this down step by step.
+
+---
+
+We are shown a sequence of word rearrangements (or “moves”), starting from:
+
+**MOUNTAIN**
+
+Then it changes to:
+
+**A O M T U N N I** → Wait, this seems misaligned. Let me re-examine the frames carefully.
+
+Actually, looking at the video frames:
+
+- Frame 0: Question only.
+- Frame 1: “MOUNTAIN” appears.
+- Frame 2: Letters rearranged → “A O M T U N N I” — but this doesn’t look like a valid rearrangement of MOUNTAIN (which has 8 letters: M-O-U-N-T-A-I-N). “A O M T U N N I” has 8 letters too, but two N’s and no second I? Wait — MOUNTAIN has letters: M, O, U, N, T, A, I, N → so two N’s, one of each others.
+
+Actually, let’s list the letters in MOUNTAIN:
+
+Positions (1-indexed):
+
+1: M  
+2: O  
+3: U  
+4: N  
+5: T  
+6: A  
+7: I  
+8: N  
+
+So letter 'A' is at position **6** initially.
+
+Now, the video shows a sequence of rearrangements. Let’s track the position of 'A' in each frame.
+
+---
+
+**Frame 1: MOUNTAIN**
+
+Positions:  
+1:M, 2:O, 3:U, 4:N, 5:T, 6:A, 7:I, 8:N  
+→ A is at position **6**
+
+---
+
+**Frame 2: A O M T U N N I**
+
+Wait — this seems to be a typo or misrendering. Let’s look at the actual frames as described:
+
+From the user’s description:
+
+> 0.2s: black screen with question  
+> 0.4s: “MOUNTAIN” appears  
+> 0.6s: “A O M T U N N I” — but this has 8 letters: A, O, M, T, U, N, N, I — that’s correct (same letters as MOUNTAIN)  
+> 0.8s: “N U I O T M N A”  
+> 1.0s: “A N N O T I M U”  
+> 1.2s: “M I N U N O A T”  
+> 1.4s: “T M I A U N N O”
+
+So let’s list each word and the position of 'A':
+
+---
+
+**Step 1: MOUNTAIN**
+
+Letters: M O U N T A I N  
+Positions: 1 2 3 4 5 6 7 8  
+→ A is at **position 6**
+
+---
+
+**Step 2: A O M T U N N I**
+
+Letters: A O M T U N N I  
+Positions: 1 2 3 4 5 6 7 8  
+→ A is at **position 1**
+
+Shift from 6 → 1 → distance = |6 - 1| = **5**
+
+---
+
+**Step 3: N U I O T M N A**
+
+Letters: N U I O T M N A  
+Positions: 1 2 3 4 5 6 7 8  
+→ A is at **position 8**
+
+Shift from 1 → 8 → distance = |1 - 8| = **7**
+
+---
+
+**Step 4: A N N O T I M U**
+
+Letters: A N N O T I M U  
+Positions: 1 2 3 4 5 6 7 8  
+→ A is at **position 1**
+
+Shift from 8 → 1 → distance = |8 - 1| = **7**
+
+---
+
+**Step 5: M I N U N O A T**
+
+Letters: M I N U N O A T  
+Positions: 1 2 3 4 5 6 7 8  
+→ A is at **position 7**
+
+Shift from 1 → 7 → distance = |1 - 7| = **6**
+
+---
+
+**Step 6: T M I A U N N O**
+
+Letters: T M I A U N N O  
+Positions: 1 2 3 4 5 6 7 8  
+→ A is at **position 4**
+
+Shift from 7 → 4 → distance = |7 - 4| = **3**
+
+---
+
+Now, we are to sum the **distances of all shifts** that happened to the letter 'A' across all moves.
+
+That means, we sum the absolute differences between consecutive positions of 'A':
+
+- Move 1 → 2: 6 → 1 → 5  
+- Move 2 → 3: 1 → 8 → 7  
+- Move 3 → 4: 8 → 1 → 7  
+- Move 4 → 5: 1 → 7 → 6  
+- Move 5 → 6: 7 → 4 → 3  
+
+Total = 5 + 7 + 7 + 6 + 3 = **28**
+
+---
+
+✅ Final Answer: $\boxed{28}$

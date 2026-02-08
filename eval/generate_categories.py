@@ -375,8 +375,6 @@ async def process_single_question(
             min_p=min_p,
         )
 
-        # breakpoint()
-
         entry["analysis_result"] = label_result
 
         # Save result
@@ -414,9 +412,10 @@ async def analyze_model_predictions(
     client = AsyncOpenAI(api_key=openai_api_key, base_url=openai_api_base)
     rate_limiter = AsyncRateLimiter(calls_per_minute=calls_per_minute)
 
-    output_folder = Path(f"{prediction_folder.stem}_analyze")
+    output_folder = prediction_folder / "fine_analysis"
     output_folder.mkdir(exist_ok=True)
 
+    print("prediction folder:", prediction_folder)
     question_files = list(prediction_folder.glob("*.txt"))
     if not question_files:
         print("No prediction files found!")
@@ -469,8 +468,8 @@ async def analyze_model_predictions(
             if data.get("is_correct"):
                 correct_count += 1
             analysis = data.get("analysis_result", {})
-            if type(analysis) == str:
-                breakpoint()
+            # if type(analysis) == str:
+            #     breakpoint()
 
             if analysis and analysis.get("defined_categories", []):
                 all_categories += analysis["defined_categories"]
@@ -525,10 +524,11 @@ async def analyze_model_predictions(
 # =============================================================================
 
 # Config
-PREDICTION_FOLDER = Path("Qwen3-VL-8B-Instruct")
-QUESTION_TEXT_FOLDER = Path("../spatial_reasoning/question_text")
-GROUND_TRUTH_FOLDER = Path("../spatial_reasoning/reasoning_traces")
-SOLUTIONS_FOLDER = Path("../spatial_reasoning/solutions")
+CATEGORY_NAME = "temporal_reasoning"
+PREDICTION_FOLDER = Path(f"Qwen3-VL-8B-Instruct/{CATEGORY_NAME}")
+QUESTION_TEXT_FOLDER = Path(f"../{CATEGORY_NAME}/question_text")
+GROUND_TRUTH_FOLDER = Path(f"../{CATEGORY_NAME}/reasoning_traces")
+SOLUTIONS_FOLDER = Path(f"../{CATEGORY_NAME}/solutions")
 EVALUATOR_MODEL = (
     "Qwen/Qwen3-VL-235B-A22B-Instruct-FP8"  # "Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"
 )
@@ -544,7 +544,7 @@ if __name__ == "__main__":
     import sys
 
     model_name_arg = sys.argv[1] if len(sys.argv) > 1 else "Qwen3-VL-8B-Instruct"
-    PREDICTION_FOLDER = Path(model_name_arg)
+    PREDICTION_FOLDER = Path(f"{model_name_arg}/{CATEGORY_NAME}")
 
     asyncio.run(
         analyze_model_predictions(

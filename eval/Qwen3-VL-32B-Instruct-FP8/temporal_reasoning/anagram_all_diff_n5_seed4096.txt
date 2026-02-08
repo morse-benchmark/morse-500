@@ -1,0 +1,215 @@
+We are given a sequence of transformations of the word **"WONDERFUL"**, and we are to track the **letter 'O'** across all transformations, computing the **sum of the distances** it moves in each step.
+
+---
+
+### Step 1: Understand the problem
+
+We are told to compute the **sum of the distances** that the letter **'O'** moves **across all word moves**. That is, for each transformation from one word to the next, we track how far the **'O'** moves in position (left/right), and sum all those distances.
+
+Note: The word is always 9 letters long (WONDERFUL has 9 letters), so positions are from 0 to 8 (if we index from 0) or 1 to 9 (if we index from 1). We'll use 0-based indexing for calculation.
+
+---
+
+### Step 2: List all the word states
+
+From the video, the sequence of words is:
+
+1. **WONDERFUL** → original word
+2. **DL ENWOUFR** → appears at 0:05
+3. **LFRNOUEWD** → appears at 0:06
+4. **FOU RDLUNW E** → appears at 0:07 (note: this seems to have spaces, but likely it's meant to be **FOURDLUNWE** or similar? Wait — let's check the exact letters shown)
+
+Wait — let’s look carefully at the frames:
+
+At 0:05: **DL ENWOUFR** — that’s 9 characters if we ignore spaces? Let’s count:
+
+- D L [space] E N W O U F R → that’s 9 letters if we ignore the space? Or is the space part of the display? Probably not — likely it’s **DL ENWOUFR** as a visual artifact. But the letters are: D, L, E, N, W, O, U, F, R → 9 letters.
+
+At 0:06: **LFRNOUEWD** → L, F, R, N, O, U, E, W, D → 9 letters.
+
+At 0:07: **FOU RDLUNW E** — again, with spaces. Letters: F, O, U, R, D, L, U, N, W, E → that’s 10 letters? Wait — that can’t be.
+
+Wait — let me re-examine the frames.
+
+Actually, looking again:
+
+At 0:07: The text is **FOU RDLUNW E** — but if we remove spaces: F O U R D L U N W E → 10 letters? That’s too many.
+
+But the original word is 9 letters. So likely, the spaces are visual separators, and the actual word is **FOURDLUNWE**? But that’s 10 letters.
+
+Wait — perhaps it’s **FOU RDLUNW E** → maybe it’s **FOURDLUNWE** but with a typo? Or perhaps it’s **FOU RDLUNW E** meaning **FOURDLUNWE** — but that’s 10 letters.
+
+Alternatively, maybe the spaces are not part of the word, and we should count only the letters.
+
+Let’s count the letters in each displayed word:
+
+1. **WONDERFUL** → 9 letters: W O N D E R F U L
+
+2. **DL ENWOUFR** → letters: D, L, E, N, W, O, U, F, R → 9 letters
+
+3. **LFRNOUEWD** → L, F, R, N, O, U, E, W, D → 9 letters
+
+4. **FOU RDLUNW E** → F, O, U, R, D, L, U, N, W, E → 10 letters? That’s a problem.
+
+Wait — perhaps it’s **FOU RDLUNW E** but the last E is a typo? Or maybe it’s **FOURDLUNWE** — still 10.
+
+Wait — maybe it’s **FOU RDLUNW E** but the “E” is meant to be part of the word? But that would make 10 letters.
+
+Alternatively, perhaps the display is broken. Let’s look at the next frame:
+
+At 0:08: **WEOF RDLUN** — letters: W, E, O, F, R, D, L, U, N → 9 letters.
+
+At 0:09: **RDEWNOFUL** — R, D, E, W, N, O, F, U, L → 9 letters.
+
+So, the 4th word must be **FOU RDLUNW E** — but perhaps the “E” at the end is a mistake? Or maybe it’s **FOURDLUNW**? But that’s 9 letters: F O U R D L U N W — that’s 9 letters.
+
+Wait — let’s count:
+
+F O U R D L U N W — that’s 9 letters.
+
+So likely, the “E” at the end is a typo or visual artifact. So we’ll assume the 4th word is **FOURDLUNW**.
+
+But then the 5th word is **WEOF RDLUN** — which is 9 letters: W E O F R D L U N.
+
+And the 6th word is **RDEWNOFUL** — R D E W N O F U L — 9 letters.
+
+So the sequence is:
+
+1. WONDERFUL → positions: W(0), O(1), N(2), D(3), E(4), R(5), F(6), U(7), L(8)
+
+2. DL ENWOUFR → D(0), L(1), E(2), N(3), W(4), O(5), U(6), F(7), R(8)
+
+3. LFRNOUEWD → L(0), F(1), R(2), N(3), O(4), U(5), E(6), W(7), D(8)
+
+4. FOURDLUNW → F(0), O(1), U(2), R(3), D(4), L(5), U(6), N(7), W(8) — note: two U’s? But original has only one U. Hmm — maybe it’s a typo? Or perhaps it’s acceptable.
+
+Wait — original word: WONDERFUL → letters: W, O, N, D, E, R, F, U, L — so U appears once.
+
+In word 4: FOURDLUNW — letters: F, O, U, R, D, L, U, N, W — U appears twice. That’s inconsistent.
+
+Perhaps it’s **FOURDLUNW** — but that’s 9 letters, and has two U’s? That can’t be.
+
+Wait — maybe the 4th word is **FOU RDLUNW E** — but if we ignore the last E, it’s **FOURDLUNW** — still two U’s.
+
+Alternatively, perhaps the 4th word is **FOU RDLUNW** — but that’s 8 letters? No, F O U R D L U N W — that’s 9 letters.
+
+Wait — perhaps the word is **FOURDLUNW** — but that’s 9 letters, and has two U’s — which is not possible if we’re permuting the original letters.
+
+Original letters: W, O, N, D, E, R, F, U, L — only one U.
+
+So if the 4th word has two U’s, that’s invalid.
+
+Perhaps it’s a typo in the video? Or perhaps the “U” is repeated? That doesn’t make sense.
+
+Wait — let’s look at the 5th word: **WEOF RDLUN** — letters: W, E, O, F, R, D, L, U, N — that’s 9 letters, and has one U.
+
+6th word: **RDEWNOFUL** — R, D, E, W, N, O, F, U, L — 9 letters, one U.
+
+So perhaps the 4th word is **FOU RDLUNW E** — but if we assume the “E” is a typo, and it’s meant to be **FOURDLUNW**, then it has two U’s — which is inconsistent.
+
+Alternatively, maybe the 4th word is **FOU RDLUNW** — 8 letters? No, it’s 9 letters.
+
+Wait — perhaps it’s **FOU RDLUNW** — but that’s 9 letters: F, O, U, R, D, L, U, N, W — still two U’s.
+
+This is a problem.
+
+Wait — perhaps the 4th word is **FOU RDLUNW** — but the second U is actually an “E”? That would make sense.
+
+Let’s check: if it’s **FOU RDL ENW** — but that’s not what’s shown.
+
+Alternatively, perhaps the 4th word is **FOU RDLUNW E** — but the “E” is meant to be part of the word, and the U is only once? But then it’s 10 letters.
+
+This is confusing.
+
+Wait — let’s look back at the frame at 0:07: **FOU RDLUNW E**
+
+Maybe it’s **FOU RDLUNW E** — but the “E” is not part of the word? Or perhaps it’s **FOURDLUNW** and the “E” is a mistake.
+
+Alternatively, perhaps the word is **FOU RDLUNW** — 9 letters, but with two U’s — which is impossible.
+
+Wait — maybe the original word has two U’s? Let’s check: WONDERFUL — letters: W, O, N, D, E, R, F, U, L — only one U.
+
+So the only way this makes sense is if the 4th word is **FOU RDLUNW** — and the second U is a typo, and it should be an “E” or something else.
+
+But in the 5th word, we have **WEOF RDLUN** — which has U at position 7.
+
+Perhaps the 4th word is **FOU RDLUNW** — but with the second U being an “E”? That would make it **FOU RDL ENW** — which is 9 letters: F, O, U, R, D, L, E, N, W — that’s possible.
+
+Let’s try that.
+
+Assume the 4th word is **FOURDL ENW** — but written as **FOU RDLUNW E** — perhaps the “U” is a typo for “E”.
+
+Alternatively, perhaps the 4th word is **FOU RDL ENW** — which is 9 letters: F, O, U, R, D, L, E, N, W — that matches the original letters.
+
+Let’s go with that for now.
+
+So revised sequence:
+
+1. WONDERFUL → W O N D E R F U L
+
+2. DL ENWOUFR → D L E N W O U F R
+
+3. LFRNOUEWD → L F R N O U E W D
+
+4. FOURDL ENW → F O U R D L E N W
+
+5. WEOF RDLUN → W E O F R D L U N
+
+6. RDEWNOFUL → R D E W N O F U L
+
+Now, let’s track the position of the letter **'O'** in each word.
+
+We’ll use 0-based indexing.
+
+---
+
+### Step 3: Track position of 'O' in each word
+
+Word 1: **WONDERFUL** → positions:  
+W(0), O(1), N(2), D(3), E(4), R(5), F(6), U(7), L(8)  
+→ O is at position **1**
+
+Word 2: **DL ENWOUFR** → D(0), L(1), E(2), N(3), W(4), O(5), U(6), F(7), R(8)  
+→ O is at position **5**
+
+Word 3: **LFRNOUEWD** → L(0), F(1), R(2), N(3), O(4), U(5), E(6), W(7), D(8)  
+→ O is at position **4**
+
+Word 4: **FOURDL ENW** → F(0), O(1), U(2), R(3), D(4), L(5), E(6), N(7), W(8)  
+→ O is at position **1**
+
+Word 5: **WEOF RDLUN** → W(0), E(1), O(2), F(3), R(4), D(5), L(6), U(7), N(8)  
+→ O is at position **2**
+
+Word 6: **RDEWNOFUL** → R(0), D(1), E(2), W(3), N(4), O(5), F(6), U(7), L(8)  
+→ O is at position **5**
+
+---
+
+### Step 4: Compute distances between consecutive positions
+
+We need the **distance** that 'O' moves from one word to the next.
+
+Distance = |position_new - position_old|
+
+- From Word 1 to Word 2: |5 - 1| = **4**
+
+- From Word 2 to Word 3: |4 - 5| = **1**
+
+- From Word 3 to Word 4: |1 - 4| = **3**
+
+- From Word 4 to Word 5: |2 - 1| = **1**
+
+- From Word 5 to Word 6: |5 - 2| = **3**
+
+---
+
+### Step 5: Sum the distances
+
+4 + 1 + 3 + 1 + 3 = **12**
+
+---
+
+### ✅ Final Answer:
+
+\boxed{12}

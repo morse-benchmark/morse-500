@@ -1,0 +1,762 @@
+Okay, let's try to figure out this problem. The question is asking for the maximum number of visible square faces in a parallel 2D projection, considering only the side faces. First, I need to understand what the structure is. The video shows a 3D structure made up of colored cubes, and it rotates, showing different angles. 
+
+First, let's recall that a parallel 2D projection (like orthographic projection) shows the object without perspective, so the size of faces doesn't change with depth. The "side faces" probably refer to the faces that are not the top or bottom, but maybe all faces except front/back? Wait, no—usually in 3D, a cube has 6 faces: front, back, left, right, top, bottom. But the problem says "only the side faces"—maybe "side" here means the lateral faces, so excluding top and bottom? Or maybe "side" as in all faces, but the problem says "side faces," so maybe front, back, left, right, but not top and bottom? Wait, the question says "visible square faces that can be seen in a parallel 2D projection, considering only the side faces." Hmm.
+
+Wait, let's look at the structure. The video shows a 3D structure that starts as a cube (maybe 3x3x3?) but then breaks apart. Wait, the initial structure is a cube made of smaller cubes, then it rotates and some cubes seem to move. Let's count the number of small cubes. In the frames, when it's a solid cube, maybe it's 3x3x3? But when it rotates, parts come apart. Let's check the frames:
+
+Frame 4: a cube with colored squares, looks like a 3x3x3 cube (each face has 9 squares). Then in frame 5, it rotates, frame 6, etc. Frame 7 shows some cubes missing from the bottom, frame 8 has more missing, frame 9 and 10 show a structure that's not a solid cube anymore.
+
+Wait, maybe it's a specific structure. Let's try to reconstruct it. Let's assume the structure is made of unit cubes. Let's consider the standard 3D view where we can see front, right, and top faces. But the problem says "only the side faces"—maybe "side" here refers to the faces that are not the top or bottom, i.e., the four vertical faces (front, back, left, right). Or maybe "side" is a misnomer, and they mean all faces except maybe the ones on the projection direction, but the question is about visible faces in projection.
+
+Wait, the key is: in a parallel 2D projection, each visible face is a square (since it's a unit cube face, projected orthographically, so it's a square). We need to count how many such faces are visible in the projection, and find the maximum possible over all angles.
+
+First, we need to know how many small cubes are in the structure. Let's count the cubes from the video. Let's look at frame 10, which shows a clear structure. Let's break it down by layers.
+
+Assume the structure is in 3D coordinates (x, y, z), where x is left-right, y is front-back, z is top-bottom.
+
+Looking at frame 10: it's a structure where on the bottom layer (z=1), there's a yellow cube on the left (x=1, z=1, y=1?), and then the main part. Let's count the cubes:
+
+Top layer (z=3): Let's see, in frame 8, there are cubes at the top. Frame 10 shows the top has a 2x2 or 3x2? Maybe better to count the number of cubes.
+
+When it's a solid cube (frame 4), it's 3x3x3=27 cubes, but then it breaks into a smaller structure. Let's check the number of visible cubes in the rotating structure. In frame 7, it looks like some cubes are missing from the bottom. Let's count the total number of cubes.
+
+Another approach: the problem is about the maximum number of visible square faces in a parallel projection, considering only side faces. Wait, maybe "side faces" means the faces that are not on the front/back of the projection, but no—visible faces in projection are those that are not occluded by other cubes.
+
+In 3D, a visible face in orthographic projection is a face that has no other cube in front of it along the projection direction. For example, if projecting onto the xy-plane (viewing from z-axis), the visible faces are the top faces of each column. But the question says "side faces," so maybe we are projecting onto a plane where we see the side, like the xz-plane, so we see the front/back faces (y=constant) of the cubes.
+
+Wait, the problem says: "considering only the side faces". Maybe "side faces" refers to the faces that are not the top or bottom, i.e., the faces with normal vectors in the x or y directions (assuming z is vertical). So top and bottom faces have normal in z-direction, side faces have normal in x or y.
+
+In a parallel projection, the number of visible side faces would be the number of visible front/back (y) and left/right (x) faces.
+
+To maximize the number of visible square faces, we need to find an angle where the projection shows as many side faces as possible without occlusion.
+
+First, let's determine the structure. Let's analyze the frames:
+
+Frame 4: A 3x3x3 cube, but with colored faces. Each face has 9 squares, so it's a solid cube.
+
+Frame 5-6: Rotating, still solid.
+
+Frame 7: The bottom part is missing some cubes. Let's see the bottom layer (z=1) has a yellow cube on the left (x=1, z=1), and the rest of the bottom layer might be missing? Wait, frame 7 shows a structure where the bottom has a yellow cube on the left, and the main body is above.
+
+Frame 8: More cubes missing, the structure is like a 3x3x2 on the right, with some cubes missing on the left.
+
+Frame 9: Similar, frame 10: The structure has a yellow cube at the bottom left, then a 2x3x2 structure on top of it? Wait, let's count the cubes:
+
+Let's list all cubes:
+
+- Bottom layer (z=1): Let's assume z=1 is the lowest layer.
+
+In frame 10, from the side view, we can see:
+
+- At x=1 (leftmost), z=1 (bottom): 1 cube (yellow).
+
+- At x=2, z=1: maybe no cube, since the yellow cube is alone at the bottom left.
+
+- At x=3 (rightmost), z=1: maybe cubes, but in frame 10, the right side has more cubes.
+
+Top layer (z=3):
+
+- x=1, y=1: cube (red), x=1, y=2: cube (blue), x=1, y=3: cube (red) [from frame 10, the top front has red and blue].
+
+- x=2, y=1: cube (yellow), x=2, y=2: cube (green), x=2, y=3: cube (yellow).
+
+- x=3, y=1: cube (red), x=3, y=2: cube (blue), x=3, y=3: cube (red).
+
+But wait, maybe the structure is 3 units in x, 3 in y, and varying in z.
+
+Let's consider the structure as follows (from the rotation):
+
+When it rotates, the number of visible cubes changes. Let's count the total number of cubes. In frame 7, the structure has a base that's missing the front-left bottom cube, so maybe 26 cubes? No, frame 8 shows more missing.
+
+Wait, maybe it's a 3x3x3 cube with some cubes removed. Let's think of the standard "maximum visible faces" problem for a polycube.
+
+In general, for a polycube (a structure made of unit cubes), the maximum number of visible faces in an orthographic projection is the sum over the three orthogonal directions of the number of faces visible in each direction, but since we're projecting onto 2D, a single projection can show faces from two directions (e.g., front and right).
+
+Wait, in a parallel projection (orthographic), the projection is along a direction, say vector (a,b,c), and the visible faces are those whose normal has a positive dot product with the projection direction (or negative, depending on convention), and not occluded.
+
+But to maximize the number of visible square faces, we need to choose a projection direction such that as many faces as possible are visible, with no two cubes occluding each other's faces in that direction.
+
+For a single cube, maximum visible side faces (excluding top/bottom?) would be 2, but here it's a structure.
+
+Wait, the problem says "considering only the side faces". Maybe "side faces" means all faces except the top and bottom, so the four lateral faces (front, back, left, right). In a 3D structure, each cube can have up to 4 side faces, but many are occluded.
+
+First, we need to know the structure. Let's try to reconstruct it from the video frames.
+
+Frame 4: A 3x3x3 cube (27 cubes), each face has 9 colored squares.
+
+Frame 7: The structure now has a "notch" at the bottom left front. Let's assume the bottom layer (z=1) has the front-left cube missing, so z=1 has 8 cubes (3x3 minus 1).
+
+Frame 8: The structure is like a 3x3x2 cube on the right, and a 1x3x1 cube on the left at z=2 and z=3? Wait, no.
+
+Frame 9: The structure has a base with a yellow cube at the bottom left, and the rest is stacked. Let's count the number of cubes by layers (z=1, z=2, z=3):
+
+- z=3 (top layer): Let's see, in frame 10, the top has 3x2=6 cubes? Because when viewed from the front, the top layer might be 3 columns wide and 2 deep.
+
+- z=2 (middle layer): Maybe 3x3=9 cubes.
+
+- z=1 (bottom layer): Let's see, in frame 7, there's a yellow cube at the bottom left, so maybe z=1 has 1 cube (x=1, y=1, z=1), and z=1, x=2, y=1 has no cube, etc.
+
+Wait, maybe a better approach is to count the number of cubes from the visible faces in a particular view.
+
+In frame 10, the structure is shown from a 3D angle. Let's consider the front view (y=1), right view (x=3), and top view (z=3).
+
+Front view (y=1, looking along y-axis):
+
+- z=3: x=1,2,3 have cubes (3 faces).
+
+- z=2: x=1,2,3 have cubes (3 faces).
+
+- z=1: x=1 has a cube (yellow), x=2,3 no (1 face).
+
+Total front faces: 3+3+1=7.
+
+Back view (y=3, looking along negative y-axis):
+
+- z=3: x=1,2,3 have cubes (3).
+
+- z=2: x=1,2,3 have cubes (3).
+
+- z=1: x=1,2,3: let's assume the back layer (y=3) at z=1 has cubes (since in frame 7, the back might be intact), so 3.
+
+Total back faces: 3+3+3=9.
+
+Left view (x=1, looking along negative x-axis):
+
+- z=3: y=1,2,3 have cubes (3).
+
+- z=2: y=1,2,3 have cubes (3).
+
+- z=1: y=1 has a cube (yellow), y=2,3: maybe cubes (since left side might have more).
+
+If x=1 layer has:
+
+- z=3: y=1,2,3 (3)
+
+- z=2: y=1,2,3 (3)
+
+- z=1: y=1,2,3 (3) (since the yellow cube is at x=1,y=1,z=1, but maybe left side is full)
+
+Right view (x=3, looking along x-axis):
+
+- z=3: y=1,2,3 (3)
+
+- z=2: y=1,2,3 (3)
+
+- z=1: y=1,2,3 (3) (assuming right side is full)
+
+But the structure is not a full 3x3x3, because in frame 7, the bottom front left is missing. Let's check frame 7: when rotating, the bottom part has a missing cube, so maybe the cube at (x=1,y=1,z=1) is present, but (x=2,y=1,z=1) is missing? No, in frame 10, the yellow cube is separate, so maybe the structure is:
+
+- (x,y,z) where:
+
+z=3: all (1-3,1-3,3) → 9 cubes
+
+z=2: all (1-3,1-3,2) → 9 cubes
+
+z=1: (1,1,1), (2,2,1), (3,1,1), (3,2,1), (3,3,1) → let's count, but this is guesswork.
+
+Alternatively, maybe the structure is the one where in the video, when it's rotating, the maximum visible faces in a projection is the sum of the number of cubes visible from two adjacent directions.
+
+Wait, the standard problem for a polycube: the maximum number of visible faces in an orthographic projection is the sum of the number of cubes in the front view (along x) and the number in the side view (along y), but actually, for a projection that's at a 45-degree angle, you can see both the front and side faces, with no overlap, so the total visible faces are the number of front faces (for each column, the topmost cube in y-direction) plus the number of side faces (for each row, the topmost cube in x-direction), but in orthographic projection, the visible faces are those that are not occluded in the projection direction.
+
+For a projection direction that's not aligned with the axes, the visible faces are those where, for each cube, the face is the one facing the direction, and no other cube is in front of it along the projection line.
+
+The maximum number of visible faces occurs when the projection direction is such that each cube contributes one visible face, and the structure is arranged so that no two cubes are aligned along the projection direction, so all faces are visible.
+
+But the problem says "only the side faces", so we need to exclude top and bottom faces.
+
+Let's assume "side faces" are the ones with normals in the x or y directions (i.e., front/back/left/right), so top/bottom are z-direction.
+
+In a 2D projection, the visible side faces would be the sum of visible front/back faces (y-direction) and visible left/right faces (x-direction) in that projection.
+
+To maximize, we need a projection angle where both x and y side faces are visible without occlusion.
+
+Let's consider a structure. Let's count the number of cubes. From frame 10, it looks like:
+
+- Bottom layer (z=1): 1 cube (yellow) at the front-left.
+
+- Middle layer (z=2): Maybe 3x3=9 cubes.
+
+- Top layer (z=3): 3x3=9 cubes.
+
+But frame 7 shows that the bottom layer has more cubes. Wait, frame 7: the structure has a base that's 2x3 at z=1, with a missing part on the front. Maybe z=1 has 5 cubes, z=2 has 8, z=3 has 9? Not sure.
+
+Alternative approach: In the video, the structure is a 3x3x3 cube with the front-left-bottom cube missing. So total cubes = 26.
+
+But when it rotates, in frame 7, it looks like more cubes are missing. Wait, frame 8: the structure is like a 2x3x3 on the right, and a 1x3x1 on the left at z=2 and z=3. Let's count:
+
+- x=1 (left): z=2 and z=3, y=1,2,3 → 2x3=6 cubes.
+
+- x=2 and x=3 (right): z=1,2,3, y=1,2,3 → 2x3x3=18 cubes.
+
+Total: 6+18=24 cubes.
+
+Let's verify with frame 10: the yellow cube is at x=1,z=1,y=1? No, in frame 10, the yellow cube is at the bottom left, so maybe x=1,z=1,y=1 is present, and x=1,z=2,y=1 is present, etc.
+
+Wait, maybe the structure is as follows (from the rotation):
+
+- When viewed from the front (y=1), the structure has:
+
+  - z=3: 3 cubes (x=1,2,3)
+
+  - z=2: 3 cubes
+
+  - z=1: 2 cubes (x=2,3) — the yellow cube is at x=1,z=1,y=2 (side view)
+
+This is getting too vague. Maybe the structure is the one where the maximum visible side faces is calculated by considering the three orthogonal projections:
+
+- Front (y=constant): number of visible front/back faces.
+
+- Side (x=constant): number of visible left/right faces.
+
+- Top (z=constant): top/bottom faces, which we ignore.
+
+In a 2D projection that's a combination of front and side, the maximum visible side faces would be the sum of the front projection count and the side projection count, because in a non-axial projection, you can see both front and side faces.
+
+For example, a single cube: front projection shows 1 face, side projection shows 1 face, so combined 2 visible side faces.
+
+For a 2x2x2 cube: front projection shows 4 faces, side projection shows 4 faces, so combined 8 visible side faces.
+
+But in reality, for a 2x2x2 cube, in a 45-degree projection, you can see 4 front faces and 4 side faces, total 8.
+
+Now, let's determine the structure's dimensions. Let's assume it's a 3x3x3 cube with some cubes removed. The video shows it rotating, and in the initial frames, it's a full cube, then it breaks into a structure where some cubes are missing from the bottom left.
+
+Let's count the number of cubes by looking at the visible faces in the rotating video.
+
+In frame 7, the structure has a "step" at the bottom. Let's count the number of cubes along the x-axis (left-right):
+
+- Leftmost column (x=1): Let's see how many cubes. In frame 8, the leftmost column has cubes up to z=2 (since the top layer at x=1 is visible).
+
+- Middle column (x=2): Full height (z=1 to 3).
+
+- Rightmost column (x=3): Full height.
+
+Along the y-axis (front-back):
+
+- Front row (y=1): Missing the bottom cube (z=1) at x=1, so has cubes at z=2,3 for x=1; z=1,2,3 for x=2,3.
+
+- Middle row (y=2): Full height for all x.
+
+- Back row (y=3): Full height for all x.
+
+So let's list all cubes:
+
+- x=1:
+
+  - y=1: z=2,3 (2 cubes)
+
+  - y=2: z=1,2,3 (3 cubes)
+
+  - y=3: z=1,2,3 (3 cubes)
+
+  Total x=1: 8
+
+- x=2:
+
+  - y=1: z=1,2,3 (3)
+
+  - y=2: z=1,2,3 (3)
+
+  - y=3: z=1,2,3 (3)
+
+  Total x=2: 9
+
+- x=3:
+
+  - y=1: z=1,2,3 (3)
+
+  - y=2: z=1,2,3 (3)
+
+  - y=3: z=1,2,3 (3)
+
+  Total x=3: 9
+
+Total cubes: 8+9+9=26. So it's a 3x3x3 cube missing the cube at (x=1,y=1,z=1).
+
+Now, let's find the number of visible side faces (x and y direction faces) in a parallel projection.
+
+First, side faces are:
+
+- For each cube, the face facing positive y (front) if there's no cube in front of it (y+1), or negative y (back) if no cube behind (y-1).
+
+- Similarly, positive x (right) if no cube to the right (x+1), negative x (left) if no cube to the left (x-1).
+
+But in a projection, the visible faces depend on the projection direction. To maximize visible side faces, we want a direction where we can see both left/right and front/back faces, with as many as possible not occluded.
+
+The maximum number of visible side faces in a 2D projection is equal to the number of cubes that are on the "exterior" in the x and y directions, considering the projection angle.
+
+For a structure, the maximum visible side faces (excluding top/bottom) in a parallel projection is the sum of the number of cubes visible in the front view (along y) and the number visible in the side view (along x), but adjusted for overlap.
+
+Wait, in orthographic projection with a direction that's a diagonal in the xy-plane, the visible faces are:
+
+- For each column along the projection direction, the cube that is farthest along the direction will have its side face visible.
+
+But maybe a better way is to consider the "silhouette" in the projection.
+
+The number of visible square faces in a parallel projection is equal to the area of the silhouette in the projection, but since we're only considering side faces, it's the sum of the projections of the side faces.
+
+Wait, no—each square face that is visible contributes 1 to the count, regardless of size (since it's a unit square, projected as a square).
+
+In the problem, it says "visible square faces", so each face of a cube that is visible (not occluded) and is a side face (not top/bottom) counts as 1.
+
+Assuming "side faces" means all faces except top and bottom (i.e., front, back, left, right), then we need to count all visible front/back/left/right faces in the projection.
+
+To maximize, we choose a projection direction where the line of sight is such that for each cube, either its front/back or left/right face is visible, and as many as possible are visible without occlusion.
+
+For the structure we assumed (3x3x3 minus (1,1,1)), let's calculate the number of visible side faces in different projections.
+
+First, let's define coordinates: (x,y,z), x=1 (left) to 3 (right), y=1 (front) to 3 (back), z=1 (bottom) to 3 (top).
+
+Missing cube: (1,1,1).
+
+Now, consider a projection direction that is along the vector (1,1,0), i.e., looking from the top-front-left towards bottom-back-right. In this projection, the visible faces will be the ones where, for each (x,y), the highest z (but z is top/bottom, which we're not counting) no, wait, side faces are x and y normals.
+
+Wait, maybe better to think in terms of the two orthogonal directions for side faces:
+
+- Front/back faces: normal in y-direction. A front face (y=1 side) is visible if there's no cube with a smaller y (more front) in the same (x,z). A back face (y=3 side) is visible if no cube with larger y (more back) in the same (x,z).
+
+- Left/right faces: normal in x-direction. A left face (x=1 side) is visible if no cube with smaller x (more left) in the same (y,z). A right face (x=3 side) is visible if no cube with larger x (more right) in the same (y,z).
+
+In a parallel projection that shows both front/back and left/right faces (i.e., not aligned with x or y axis), the visible side faces are all the front/back faces that are visible in the front projection plus all the left/right faces that are visible in the side projection, because they don't overlap in the 2D projection.
+
+For example, for the front/back faces: the number of visible front faces is the number of (x,z) positions where there is a cube with y=1 (front) and no cube in front (but since y=1 is the frontmost, all front faces of cubes in y=1 are visible). Wait, no: if there's a cube at (x,y,z), its front face (facing y=0) is visible if there's no cube at (x,y-1,z). Since y=1 is the smallest y, for y=1 cubes, front faces are visible; for y>1, front faces are visible if the cube at (x,y-1,z) is missing.
+
+Similarly, back faces (facing y=4) are visible for y=3 cubes, or y<3 if the cube behind is missing.
+
+Same for left/right faces.
+
+Let's calculate the number of visible front/back faces (y-direction):
+
+- Front faces (facing -y): visible for cubes where y=1 or y>1 but (x,y-1,z) is empty.
+
+In our structure:
+
+- y=1 layer: cubes at (x,y=1,z) where:
+
+  x=1: z=2,3 (since (1,1,1) is missing)
+
+  x=2: z=1,2,3
+
+  x=3: z=1,2,3
+
+  So for y=1 layer, the cubes are:
+
+  (1,1,2), (1,1,3), (2,1,1), (2,1,2), (2,1,3), (3,1,1), (3,1,2), (3,1,3) → 8 cubes.
+
+  Each of these has a front face, but is it visible? Yes, because there's no cube in front (y=0), so all 8 front faces are visible.
+
+- Back faces (facing +y): visible for cubes where y=3 or y<3 but (x,y+1,z) is empty.
+
+  y=3 layer: all (x,3,z) for x=1,2,3 and z=1,2,3 → 9 cubes (since no cubes missing in y=3).
+
+  These have back faces visible (no cubes behind), so 9 back faces.
+
+  Now, for y=2 layer: cubes where (x,2,z) and (x,3,z) is missing. But (x,3,z) exists for all x,z (since no missing cubes in y=3), so no back faces from y=2.
+
+  For y=1 layer: (x,1,z) and (x,2,z) is missing. (x,2,z) exists for all x,z (since y=2 has no missing cubes), so no back faces from y=1.
+
+  So total back faces visible: 9.
+
+Total front/back visible side faces: 8 + 9 = 17.
+
+Now left/right faces (x-direction):
+
+- Left faces (facing -x): visible for cubes where x=1 or x>1 but (x-1,y,z) is empty.
+
+  x=1 layer: cubes at (1,y,z) where:
+
+  y=1: z=2,3
+
+  y=2: z=1,2,3
+
+  y=3: z=1,2,3
+
+  Total: 2 + 3 + 3 = 8 cubes.
+
+  Left faces visible: 8 (no cubes to the left).
+
+- Right faces (facing +x): visible for cubes where x=3 or x<3 but (x+1,y,z) is empty.
+
+  x=3 layer: all (3,y,z) for y=1,2,3 and z=1,2,3 → 9 cubes (no missing cubes in x=3).
+
+  Right faces visible: 9.
+
+  For x=2 layer: (2,y,z) and (3,y,z) exists, so no right faces from x=2.
+
+  For x=1 layer: (1,y,z) and (2,y,z) exists (since x=2 has all cubes), so no right faces from x=1.
+
+  Total right faces visible: 9.
+
+Total left/right visible side faces: 8 + 9 = 17.
+
+Now, in a projection that is along the diagonal (e.g., 45 degrees between x and y), we can see both the front/back and left/right faces without overlap, so the total visible side faces would be the sum of front/back visible faces and left/right visible faces? Wait, no—because in a 2D projection, a single face can't be both front and left; each visible face is either front/back or left/right.
+
+Wait, no: in 3D, each cube has up to 4 side faces (front, back, left, right), but in projection, only the faces that are oriented towards the viewer and not occluded are visible.
+
+For a projection direction that has both x and y components (e.g., direction vector (1,1,0)), the visible side faces are those where the face normal has a positive dot product with the projection direction.
+
+- Front face normal is (-1,0,0) if it's the front face (y=1 side), wait no: the normal vector for the front face (facing negative y) is (0,-1,0), back face (facing positive y) is (0,1,0), left face (facing negative x) is (-1,0,0), right face (facing positive x) is (1,0,0).
+
+The projection direction vector is, say, (a,b,0) with a>0, b>0 (looking from top-front-left).
+
+The dot product of the face normal with the projection direction:
+
+- Front face (0,-1,0): dot product = -b < 0 → not visible (facing away)
+
+- Back face (0,1,0): dot product = b > 0 → visible if not occluded
+
+- Left face (-1,0,0): dot product = -a < 0 → not visible
+
+- Right face (1,0,0): dot product = a > 0 → visible if not occluded
+
+So in this direction, only back and right faces are visible.
+
+To see front and right faces, the projection direction should have positive x and negative y components: (a,-b,0), a>0, b>0.
+
+Then:
+
+- Front face (0,-1,0): dot product = b > 0 → visible
+
+- Right face (1,0,0): dot product = a > 0 → visible
+
+- Back and left faces: dot product negative → not visible.
+
+Ah, right! So the visible side faces in a projection are determined by the direction of the projection. To see both front and right faces, we need a direction that is in the front-right quadrant (negative y and positive x).
+
+In such a direction, the visible faces are:
+
+- All front faces (facing negative y) that are not occluded by a cube in front (i.e., with smaller y), but since we're looking from front, the front faces of the frontmost cubes in each column (x,z) are visible.
+
+- All right faces (facing positive x) that are not occluded by a cube to the right (i.e., with larger x), so the right faces of the rightmost cubes in each row (y,z) are visible.
+
+Since these two sets of faces (front and right) project to different parts of the 2D image (no overlap), the total number of visible side faces is the number of visible front faces plus the number of visible right faces.
+
+Let's calculate that.
+
+Number of visible front faces (facing negative y, i.e., the front side of the structure):
+
+For each (x,z), the frontmost cube in y (smallest y) will have its front face visible.
+
+- x=1:
+
+  z=1: y=2 (since (1,1,1) is missing), so front face at (1,2,1) is visible? Wait, no: for (x=1,z=1), the cubes in y are y=2,3 (since y=1 is missing). The frontmost y is y=2, so the front face of (1,2,1) is visible (facing y=1).
+
+  z=2: y=1,2,3; frontmost y=1, so front face of (1,1,2) visible.
+
+  z=3: same as z=2, front face of (1,1,3) visible.
+
+  So for x=1: 3 visible front faces (z=1,2,3).
+
+- x=2:
+
+  z=1: y=1,2,3; frontmost y=1, front face visible.
+
+  z=2: same, front face visible.
+
+  z=3: same, front face visible.
+
+  So 3 visible front faces.
+
+- x=3:
+
+  Same as x=2, 3 visible front faces.
+
+Total visible front faces: 3+3+3=9.
+
+Number of visible right faces (facing positive x, i.e., the right side of the structure):
+
+For each (y,z), the rightmost cube in x (largest x) will have its right face visible.
+
+- y=1:
+
+  z=1: x=1,2,3; rightmost x=3, right face of (3,1,1) visible.
+
+  z=2: x=1,2,3; rightmost x=3, visible.
+
+  z=3: same, visible.
+
+  So 3 visible right faces.
+
+- y=2:
+
+  z=1: x=1,2,3; rightmost x=3, visible.
+
+  z=2: visible.
+
+  z=3: visible.
+
+  3 visible right faces.
+
+- y=3:
+
+  Same as y=2, 3 visible right faces.
+
+Total visible right faces: 3+3+3=9.
+
+Now, is there overlap? In the 2D projection, the front faces (from the front view) and right faces (from the side view) will appear as two separate regions, so they don't overlap, meaning all 9+9=18 faces are visible.
+
+But wait, in the structure we assumed (3x3x3 minus (1,1,1)), let's check if there are any occlusions.
+
+For front faces:
+
+- At (x=1,z=1), the frontmost cube is y=2 (since y=1 is missing), so the front face of (1,2,1) is visible. There's no cube in front of it (y<2), so yes.
+
+- At (x=1,z=2), frontmost is y=1, visible.
+
+- Same for others.
+
+For right faces:
+
+- At (y=1,z=1), rightmost is x=3, visible (no cubes to the right).
+
+All right faces are visible because x=3 is the rightmost, and all cubes at x=3 exist.
+
+Now, is there a case where a front face and a right face would overlap in projection? In orthographic projection, the projection of a front face (y=constant) is a square in the x-z plane, and the projection of a right face (x=constant) is a square in the y-z plane. When projecting along a direction with both x and y components, these project to different parts of the 2D image, so no overlap.
+
+Now, let's check if the structure has more cubes. Wait, in the video, when it's rotating, does it have the back layer intact? Let's assume the structure is a 3x3x3 cube with the front-left-bottom cube missing, so 26 cubes.
+
+But maybe the structure is different. Let's look at frame 10: it shows a structure where the bottom has a single yellow cube on the left, and the rest is a 2x3x3 block on the right. So:
+
+- Bottom layer (z=1):
+
+  x=1: y=1 (1 cube)
+
+  x=2,3: y=1,2,3 (6 cubes)
+
+  Total z=1: 7 cubes
+
+- Middle layer (z=2):
+
+  x=1: y=1,2,3 (3 cubes)
+
+  x=2,3: y=1,2,3 (6 cubes)
+
+  Total z=2: 9 cubes
+
+- Top layer (z=3):
+
+  x=1: y=1,2,3 (3 cubes)
+
+  x=2,3: y=1,2,3 (6 cubes)
+
+  Total z=3: 9 cubes
+
+Total cubes: 7+9+9=25.
+
+Let's verify with frame 7: the bottom layer has a yellow cube on the left, which is x=1,z=1,y=1, and the rest of z=1 has x=2-3,y=1-3 (6), so 7. Middle and top layers are full (x=1-3,y=1-3), so 9 each. Total 25.
+
+Now, calculate visible front faces (facing -y):
+
+For each (x,z), frontmost y (smallest y with cube).
+
+- x=1:
+
+  z=1: y=1 (exists), so front face visible.
+
+  z=2: y=1, front face visible.
+
+  z=3: y=1, front face visible.
+
+  Total: 3
+
+- x=2:
+
+  z=1: y=1, visible.
+
+  z=2: y=1, visible.
+
+  z=3: y=1, visible.
+
+  Total: 3
+
+- x=3:
+
+  Same as x=2, 3.
+
+Total front faces: 9.
+
+Visible right faces (facing +x):
+
+For each (y,z), rightmost x (largest x with cube).
+
+- y=1:
+
+  z=1: x=3 (exists), visible.
+
+  z=2: x=3, visible.
+
+  z=3: x=3, visible.
+
+  Total: 3
+
+- y=2:
+
+  z=1: x=3, visible.
+
+  z=2: x=3, visible.
+
+  z=3: x=3, visible.
+
+  Total: 3
+
+- y=3:
+
+  Same as y=2, 3.
+
+Total right faces: 9.
+
+Total: 18.
+
+But wait, what if there's a structure where more faces are visible? Let's consider the standard 3x3x3 cube (27 cubes).
+
+Visible front faces: 9 (3x3).
+
+Visible right faces: 9 (3x3).
+
+Total: 18.
+
+If we remove a cube, does it increase or decrease the count?
+
+If we remove a cube from the interior, it might expose a face, but since we're only counting visible faces in projection, removing an interior cube (e.g., (2,2,2)) would not change the front or right projections, because the front projection still shows 9 faces (the front layer), and the right projection shows 9 faces (the right layer).
+
+If we remove a front-right-top cube (3,1,3), then the front projection at (x=3,z=3) would have y=2 as frontmost, so front face still visible (1 face), and the right projection at (y=1,z=3) would have x=2 as rightmost, so right face still visible (1 face). So no change.
+
+If we remove a corner cube, like (1,1,1), the front projection at (x=1,z=1) now has y=2 as frontmost, so still 1 face (previously y=1), so front count remains 9. Similarly, right projection at (y=1,z=1) still has x=3 as rightmost, so right count remains 9.
+
+Now, what if the structure is not a cube but has a protrusion? Wait, in the video, when it rotates, it seems like the structure has a part that sticks out, which might allow more visible faces.
+
+Let's look at frame 8: the structure has a cube sticking out on the left side at the top. So maybe x=1 has more cubes in higher z.
+
+Wait, in frame 8, the structure looks like:
+
+- Left part: a column of 3 cubes (z=1,2,3) at x=1,y=2.
+
+- Middle and right parts: 3x3x3 minus some.
+
+No, better to count the number of visible faces in the rotating structure.
+
+In the video, when it's rotating, the number of visible square faces changes. The question is about the maximum number in any projection.
+
+For a polycube, the maximum number of visible side faces (x and y directions) in a parallel projection is equal to the sum of the number of distinct (x,z) columns and the number of distinct (y,z) rows, because in a 45-degree projection, you can see all front faces (one per column) and all right faces (one per row).
+
+For a 3x3x3 cube:
+
+- Number of (x,z) columns: 3x3=9 (x=1-3, z=1-3)
+
+- Number of (y,z) rows: 3x3=9 (y=1-3, z=1-3)
+
+Total visible side faces: 9+9=18.
+
+If the structure is 3x3x3, this is the maximum.
+
+But the video shows a structure that is a 3x3x3 cube initially (frame 4), then it breaks into a structure where maybe some cubes are added or removed. Wait, no—frame 4 is the structure, which then rotates, showing different angles, so it's the same structure, just rotating.
+
+Ah! The structure is a single solid 3x3x3 cube. The initial frames show it as a cube, then it rotates, but it's the same cube. The colored faces are just for visualization.
+
+Wait, that makes more sense. The problem says "the following structure", which is shown as a cube rotating. So it's a 3x3x3 cube (27 small cubes).
+
+In that case, for a 3x3x3 cube:
+
+- In a parallel projection that is at a 45-degree angle to the x and y axes, the visible side faces (front/back/left/right) would be:
+
+  - Front faces: for each column in the x-z plane (3x3=9), the frontmost cube (y=1) has its front face visible.
+
+  - Right faces: for each column in the y-z plane (3x3=9), the rightmost cube (x=3) has its right face visible.
+
+  Total: 9+9=18.
+
+Is there a way to get more? For a 3x3x3 cube, no, because there are only 9 columns in x-z and 9 in y-z.
+
+Wait, but side faces also include back and left faces. If we project from the opposite direction, we can see back and left faces, but it's still 9+9=18.
+
+What about the number of visible faces including all four side faces? For a cube, the maximum visible side faces in a projection is 18 for 3x3x3.
+
+Let's confirm with a 1x1x1 cube: visible side faces in a diagonal projection: 2 (front and right), which is 1+1=2. Correct.
+
+2x2x2 cube: 4 (front) + 4 (right) = 8. Correct, because each of the 4 front columns has a front face, and 4 right rows has a right face.
+
+3x3x3: 9+9=18.
+
+The problem says "only the side faces"—if side faces include all four (front, back, left, right), but in a single projection, you can only see two of them (e.g., front and right), because the other two (back and left) are facing away.
+
+Yes, in a single projection direction, you can see faces that are oriented towards the viewer, which would be two of the four side directions (e.g., front and right), not all four.
+
+So for a 3x3x3 cube, the maximum number of visible side faces in a parallel 2D projection is 9 (front) + 9 (right) = 18.
+
+Is there a structure where it's more? The video shows a 3x3x3 cube, so the structure is 3x3x3.
+
+Let's check the video again: frame 4 shows a cube with 3x3 squares on each face, so it's a 3x3x3 cube.
+
+When it rotates (frames 5-10), it's the same cube, so the structure is a solid 3x3x3 cube.
+
+Therefore, the maximum number of visible square side faces in a parallel projection is 18.
+
+Wait, but let's make sure "side faces" doesn't exclude front and back. If "side faces" means only left and right, then it would be 9, but that's unlikely. The problem says "side faces" in the context of 3D, which usually includes all non-top/bottom faces, i.e., front, back, left, right.
+
+In a 3x3x3 cube, the number of visible side faces in the best projection is the sum of the front projection (9 faces) and the right projection (9 faces), totaling 18.
+
+Another way: the maximum number of visible faces in any orthographic projection for a polycube is the sum of the number of cubes in the front view and the side view, but since each face is a square, it's the number of faces, which for a solid cube is n² + n² for an n x n x n cube.
+
+For n=3, 9+9=18.
+
+Yes, this makes sense.
+
+Let's confirm with n=1: 1+1=2 (correct, two side faces visible).
+
+n=2: 4+4=8 (correct).
+
+So for n=3, it's 18.
+
+The problem says "the following structure", which is a 3x3x3 cube, so the answer should be 18.
+</think>
+
+To determine the **maximum number of visible square faces** that can be seen in a **parallel 2D projection**, considering **only the side faces**, we must first understand the structure and the nature of the projection.
+
+---
+
+### Understanding the Structure
+
+The video shows a **3×3×3 cube** made up of unit cubes. This is evident from the initial frames where the cube has 9 colored squares on each face (i.e., 3×3 grid), and it rotates to show different perspectives. The structure is a solid **3×3×3 polycube**, consisting of **27 unit cubes**.
+
+---
+
+### Clarifying the Problem
+
+- **"Side faces"** refers to all **lateral faces**—i.e., **front, back, left, and right**—but **not top or bottom**.
+- In a **parallel 2D projection**, such as an orthographic projection, **no perspective distortion** occurs, so the size of each square face remains consistent.
+- We are to find the **maximum number of visible square faces** (from the side faces only) that can be seen **in a single 2D projection**.
+
+---
+
+### Key Insight
+
+In any **orthographic projection**, **only two directions** of side faces can be visible simultaneously:
+- One set from the **x-direction** (left/right)
+- One set from the **y-direction** (front/back)
+
+This is because the projection direction determines which faces are oriented toward the viewer and not occluded by other cubes.
+
+For a **solid 3×3×3 cube**, the maximum number of visible side faces occurs when the projection angle allows us to see **all front faces** and **all right faces** without overlap.
+
+- **Front faces**: Each column in the x-z plane (3 columns × 3 layers = 9 positions) has one visible front face.
+- **Right faces**: Each row in the y-z plane (3 rows × 3 layers = 9 positions) has one visible right face.
+
+These two sets of faces do **not overlap** in the 2D projection, so they can both be counted.
+
+---
+
+### Calculation
+
+- Number of visible **front** faces: **9**
+- Number of visible **right** faces: **9**
+
+$$
+\text{Total visible side faces} = 9 + 9 = \boxed{18}
+$$
+
+---
+
+### Final Answer
+
+$$
+\boxed{18}
+$$

@@ -1,0 +1,128 @@
+We are given a 3D structure made of unit cubes (each side = 1 unit), and we are to compute its **surface area**.
+
+---
+
+### Step 1: Understand the structure
+
+The video shows a 3D object made of colored cubes rotating. We need to count how many **unit square faces** are exposed to the outside.
+
+Each cube has 6 faces, but when cubes are adjacent, the touching faces are **not** part of the surface area.
+
+So, the strategy is:
+
+> **Total surface area = (number of cubes × 6) − 2 × (number of adjacent pairs)**
+
+Why? Because each adjacent pair hides 2 faces (one from each cube).
+
+---
+
+### Step 2: Count the number of cubes
+
+Let’s carefully count the cubes as the structure rotates.
+
+From the frames (4–10), we can observe the structure from multiple angles. It appears to be a 3D shape made of **7 cubes**.
+
+Let me verify:
+
+- At 0:04, we see a structure that looks like a 2x2x2 cube with one cube missing — but not exactly.
+- Actually, looking at the rotations, it seems to be a **2x2x2 cube minus one cube**, which would be 7 cubes.
+
+But wait — let’s be more precise.
+
+Looking at the structure from different angles:
+
+- At 0:05: We see a front view with 4 cubes (2x2).
+- At 0:06: Rotating, we see a side view — 3 cubes in a row? Or 2x2 with one sticking out?
+- At 0:07: We see a compact structure — looks like a 2x2x2 cube with one cube removed from a corner.
+
+Yes — it’s a **2x2x2 cube with one cube missing**, so **7 cubes total**.
+
+---
+
+### Step 3: Count the number of adjacent pairs
+
+In a full 2x2x2 cube, there are 8 cubes. Each cube touches 3 others (in a corner), but let’s count total adjacent pairs.
+
+In a 2x2x2 cube:
+
+- Each cube has 3 neighbors → 8×3 = 24, but each adjacency is counted twice → total adjacent pairs = 12.
+
+But we removed one cube. When we remove a corner cube, how many adjacencies are broken?
+
+A corner cube in 2x2x2 has 3 neighbors. Removing it removes 3 adjacent pairs.
+
+So, remaining adjacent pairs = 12 − 3 = **9**.
+
+Wait — let’s double-check.
+
+Alternatively, we can count directly.
+
+---
+
+### Step 4: Alternative approach — count exposed faces
+
+Each cube contributes 6 faces. Total = 7 × 6 = 42.
+
+Now, subtract 2 for each pair of cubes that are touching (since each pair hides 2 faces).
+
+So, we need to count how many **adjacent pairs** there are.
+
+Let’s build the structure mentally.
+
+Imagine a 2x2x2 cube. Label the positions as (x,y,z) with x,y,z ∈ {0,1}.
+
+Remove cube at (0,0,0).
+
+Now, which cubes remain? All except (0,0,0).
+
+Now, count adjacencies (edges between cubes):
+
+Each cube can be adjacent to others sharing a face.
+
+List all remaining cubes:
+
+1. (0,0,1) — adjacent to (0,1,1), (1,0,1), (0,0,0) — but (0,0,0) is gone → so 2 neighbors
+2. (0,1,0) — adjacent to (0,1,1), (1,1,0), (0,0,0) — (0,0,0) gone → 2 neighbors
+3. (0,1,1) — adjacent to (0,0,1), (0,1,0), (1,1,1), (0,1,1) — wait, neighbors: (0,0,1), (0,1,0), (1,1,1) — 3 neighbors
+4. (1,0,0) — adjacent to (1,0,1), (1,1,0), (0,0,0) — (0,0,0) gone → 2 neighbors
+5. (1,0,1) — adjacent to (0,0,1), (1,0,0), (1,1,1) — 3 neighbors
+6. (1,1,0) — adjacent to (0,1,0), (1,0,0), (1,1,1) — 3 neighbors
+7. (1,1,1) — adjacent to (0,1,1), (1,0,1), (1,1,0) — 3 neighbors
+
+Now, count total adjacencies (each edge counted once):
+
+- (0,0,1) connects to (0,1,1), (1,0,1) → 2
+- (0,1,0) connects to (0,1,1), (1,1,0) → 2
+- (0,1,1) connects to (1,1,1) → already counted above? Let’s list unique pairs.
+
+Better: list all unique adjacent pairs:
+
+1. (0,0,1) — (0,1,1)
+2. (0,0,1) — (1,0,1)
+3. (0,1,0) — (0,1,1)
+4. (0,1,0) — (1,1,0)
+5. (0,1,1) — (1,1,1)
+6. (1,0,0) — (1,0,1)
+7. (1,0,0) — (1,1,0)
+8. (1,0,1) — (1,1,1)
+9. (1,1,0) — (1,1,1)
+
+That’s **9 adjacent pairs**.
+
+Yes, matches earlier calculation.
+
+---
+
+### Step 5: Compute surface area
+
+Total faces: 7 cubes × 6 = 42
+
+Each adjacent pair hides 2 faces → 9 pairs × 2 = 18
+
+Surface area = 42 − 18 = **24**
+
+---
+
+### ✅ Final Answer:
+
+\boxed{24}

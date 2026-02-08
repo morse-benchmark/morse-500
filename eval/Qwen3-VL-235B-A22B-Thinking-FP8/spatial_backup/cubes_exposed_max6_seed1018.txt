@@ -1,0 +1,354 @@
+Okay, let's try to figure out how many cubes have exactly 1 face exposed. First, I need to understand the structure shown in the video. The video starts with a text "Observe the following structure," then shows a 3D structure made of colored cubes. The structure seems to be a larger cube that's been modified, maybe with some cubes removed? Wait, in the video, the structure rotates, and at some point, it looks like parts of it are broken off, so it's not a solid cube anymore.
+
+Let me recall: in a solid cube of size n x n x n, the number of cubes with exactly 1 face exposed are the ones on the faces but not on the edges. For each face, it's (n-2)^2, so total 6*(n-2)^2. But this isn't a solid cube; it's a different structure. So I need to visualize the structure from the video.
+
+Looking at the frames: frame 4 shows a cube with colored squares (each face of the big cube has smaller cubes of different colors). Frame 5 is a different angle, frame 6 shows it's maybe a 3x3x3 cube? Wait, in frame 7, the structure starts to break apart, so it's not solid. Let's check the rotation.
+
+In frame 4: the front face has a 3x3 grid (9 small cubes), same for the top and right faces visible. So maybe the original structure is a 3x3x3 cube, but some cubes are removed. Let's count the cubes in the structure.
+
+Wait, in frame 7, the structure is broken, so some cubes are missing. Let's try to reconstruct the structure. Let's consider a 3x3x3 cube, which has 27 small cubes. If some are removed, the remaining structure will have fewer cubes.
+
+To find cubes with exactly 1 face exposed, a cube must have one face on the outer surface of the structure, and all other faces (5) must be adjacent to other cubes in the structure (so not exposed). So it can't be on an edge or corner, because those have more faces exposed.
+
+Let's list the possible positions in a 3x3x3 cube:
+
+- Corner cubes: 8 in total, each has 3 faces exposed (if the structure is solid), but if some adjacent cubes are removed, maybe more faces exposed.
+
+- Edge cubes (not corners): 12 edges, each with 1 cube (since 3-2=1), so 12 cubes, each has 2 faces exposed in solid cube.
+
+- Face centers: 6 faces, each with 1 cube (3x3 - 4 corners - 4 edges = 1), so 6 cubes, each has 1 face exposed in solid cube.
+
+- Center cube: 1 cube, no faces exposed.
+
+But in the video, the structure is not solid. Let's check the rotation frames. In frame 7, the structure seems to have a missing cube on the top front right, maybe? Wait, frame 7 shows the structure as if it's a 3x3x3 with some cubes removed. Let's count the cubes.
+
+Alternatively, maybe the structure is a 3x3x3 cube with some cubes missing, and we need to count for each small cube how many of its faces are exposed (i.e., not touching another cube in the structure).
+
+Let's consider the standard 3x3x3 cube first, then see what's missing.
+
+In a solid 3x3x3 cube:
+
+- 8 corners: 3 faces exposed each.
+
+- 12 edge centers: 2 faces exposed each.
+
+- 6 face centers: 1 face exposed each.
+
+- 1 center: 0 faces exposed.
+
+But in the video, when the structure rotates, it's clear that some cubes are missing. For example, in frame 7, the structure looks like it has a cube missing from the top layer. Let's try to see all the visible cubes.
+
+Alternatively, maybe the structure is the one where the outer layer is present, but some inner cubes are missing? Wait, no. Let's look at the frames:
+
+Frame 4: front face is a 3x3 grid (9 cubes), top face is 3x3, right face is 3x3. So the outer dimensions are 3x3x3.
+
+Frame 5: rotated, still 3x3x3 outer size.
+
+Frame 6: rotated, still same outer size.
+
+Frame 7: the structure starts to break, so maybe it's a 3x3x3 cube with some cubes removed from the interior?
+
+Wait, in frame 8, it's more fragmented, but maybe it's a specific structure. Wait, maybe the structure is the one where all the cubes are present except for the very center cube? No, because in frame 7, it looks like some edge cubes are missing.
+
+Wait, another approach: when they ask for "exactly 1 face exposed," that means the cube is on the surface of the entire structure, but all its other faces (5) are adjacent to other cubes in the structure. So the cube must be on a face of the structure, but not on an edge or corner of the structure.
+
+Let's consider the structure's faces. Let's count the number of cubes on each face of the structure, then subtract those that are on edges (which would have 2 or 3 faces exposed).
+
+First, we need to know the structure's shape. Let's try to count the cubes.
+
+In a 3x3x3 cube, there are 27 cubes. If we remove some, let's see the video frames.
+
+Looking at frame 7: the structure has, on the top layer, maybe 8 cubes (missing one), middle layer maybe 8, bottom layer 9? Wait, maybe it's a cube with the center cube of each face removed? No.
+
+Wait, maybe the structure is a 3x3x3 cube with the 7 inner cubes removed? No, that would be a shell, which has 27 - 1 = 26 cubes (if only center removed), but a shell (hollow cube) would have the outer layer, which is 27 - 1 = 26 for 3x3x3 (since inner is 1x1x1).
+
+Wait, in a hollow 3x3x3 cube (only the outer layer), the cubes are:
+
+- 8 corners: 3 faces exposed.
+
+- 12 edge centers (each edge has 1 cube between corners): 2 faces exposed.
+
+- 6 face centers (each face has 1 cube in the middle of the face): 1 face exposed.
+
+So total cubes: 8 + 12 + 6 = 26, which matches 3^3 - 1^3 = 27 - 1 = 26.
+
+In this case, the face centers (6 cubes) each have exactly 1 face exposed. But is the structure in the video a hollow cube?
+
+Let's check the video. In frame 4, the front face is a 3x3 grid, which would be the case for a hollow cube (since the front face has 9 cubes, but if it's hollow, the middle of the front face is a cube that's part of the shell, so yes, the front face has 9 cubes: 4 corners, 4 edges, 1 center).
+
+Wait, but in a hollow cube, the inner part is empty, so the center cube of each face is still present (it's part of the shell), but the very center of the big cube is empty.
+
+Yes, for a 3x3x3 hollow cube (only the outer layer), each face has a 3x3 grid of small cubes, because the thickness is 1 cube.
+
+Now, let's confirm the number of exposed faces for each type:
+
+- Corner cubes: each corner is shared by 3 faces, so 3 faces exposed.
+
+- Edge centers (not corners): each is on 2 faces (e.g., top front edge center is on top face and front face), so 2 faces exposed.
+
+- Face centers: each is only on 1 face (the center of a face, with the inner side adjacent to the empty space, but wait no—if the structure is hollow, the face center cube has one face on the outer surface, and the opposite face is adjacent to the empty interior, so actually, the face center cube has 1 outer face exposed and 1 inner face exposed? Wait, no—the problem says "exposed" meaning exposed to the outside, not to the interior of the structure.
+
+Ah, right! The structure is a solid object (even if it has holes), so "exposed faces" are the faces that are on the exterior of the entire structure, not touching any other cube in the structure.
+
+So for the hollow 3x3x3 cube (outer layer only), the face center cube (e.g., front face center) has:
+
+- Front face: exposed to the outside.
+
+- Back face: adjacent to the empty space inside the structure, so not adjacent to another cube, so back face is also exposed?
+
+Wait, no. The structure is the set of cubes present. If a cube is in the front face center, its back face is not touching any other cube (since the interior is empty), so the back face is exposed to the interior, but is the interior considered "exposed"? The problem says "exposed," which usually means exposed to the external environment, not internal cavities.
+
+This is a crucial point. In standard problems, "exposed faces" refer to faces that are on the exterior of the entire structure, so faces that are not adjacent to any other cube in the structure, regardless of direction.
+
+So for a cube in the structure, each face is exposed if there is no cube in the structure adjacent to it on that face.
+
+So for the face center cube of a hollow 3x3x3 cube (outer layer):
+
+- Front face: no cube in front (it's the front of the structure), so exposed.
+
+- Back face: no cube behind it (since it's the outer layer, the next cube back would be the inner layer, which is missing), so back face is also exposed.
+
+Wait, no—if the structure is the outer layer, then the front face center cube is at position (2,2,1) in a 1-3 coordinate system (x,y,z), so the cube behind it would be (2,2,2), which is part of the structure? Wait, no, in a 3x3x3 outer layer, the structure includes all cubes where x=1 or 3, y=1 or 3, or z=1 or 3.
+
+So for z=1 (front face), all x and y from 1-3 are included (since z=1 is a face).
+
+For z=2 (middle layer), only x=1,3 or y=1,3 (the edges of the middle layer).
+
+For z=3 (back face), all x and y from 1-3.
+
+So the front face center cube is (2,2,1). Its neighbors are:
+
+- (1,2,1): present (x=1 is a face), so left face is not exposed.
+
+- (3,2,1): present (x=3 is a face), so right face is not exposed.
+
+- (2,1,1): present (y=1 is a face), so bottom face is not exposed.
+
+- (2,3,1): present (y=3 is a face), so top face is not exposed.
+
+- (2,2,2): present? In the outer layer, z=2, x=2, y=2: is x=2 not 1 or 3, y=2 not 1 or 3, z=2 not 1 or 3, so no, (2,2,2) is not part of the structure. So the back face (z=2 direction) is not adjacent to any cube, so exposed.
+
+- Front face (z=0) is outside the structure, so exposed.
+
+Wait, so (2,2,1) has front face exposed (z=0) and back face exposed (z=2, since no cube there), so 2 faces exposed.
+
+Oh! That's important. I made a mistake earlier. In a hollow cube (outer layer), the face center cubes have 2 faces exposed: the outer face and the inner face.
+
+Let's take a corner cube, say (1,1,1). Its neighbors:
+
+- (2,1,1): present (x=2, y=1, z=1: y=1 is a face, so yes), so right face (x=2) is not exposed.
+
+- (1,2,1): present (y=2, x=1, z=1: x=1 is a face), so top face (y=2) is not exposed.
+
+- (1,1,2): present (z=2, x=1, y=1: x=1 and y=1 are faces), so back face (z=2) is not exposed.
+
+The other three faces (x=0, y=0, z=0) are outside, so 3 faces exposed. Correct.
+
+Edge center cube, not corner: e.g., (2,1,1) (middle of front bottom edge).
+
+Neighbors:
+
+- (1,1,1): present (corner), so left face (x=1) not exposed.
+
+- (3,1,1): present (corner), so right face (x=3) not exposed.
+
+- (2,2,1): present (y=2, x=2, z=1: z=1 is a face), so top face (y=2) not exposed.
+
+- (2,1,2): present (z=2, x=2, y=1: y=1 is a face), so back face (z=2) not exposed.
+
+The bottom face (y=0) is outside, front face (z=0) is outside? Wait, z=1 is the front, so z=0 is outside, so front face (z=0) is exposed.
+
+Wait, coordinates: let's say z=1 is front, z=3 is back, so z increases from front to back.
+
+So cube at (2,1,1) (x=2, y=1, z=1):
+
+- Front face: z=0 (outside), exposed.
+
+- Back face: z=2, which has cube (2,1,2) present (since z=2, y=1 is a face, so yes), so back face not exposed.
+
+- Left face: x=1, has cube (1,1,1) present, not exposed.
+
+- Right face: x=3, has cube (3,1,1) present, not exposed.
+
+- Top face: y=2, has cube (2,2,1) present, not exposed.
+
+- Bottom face: y=0 (outside), exposed.
+
+So two faces exposed: front and bottom. Correct, so edge centers have 2 faces exposed.
+
+Now face center: (2,2,1) (center of front face).
+
+Neighbors:
+
+- x=1: (1,2,1) present (x=1 is a face), so left face not exposed.
+
+- x=3: (3,2,1) present, right face not exposed.
+
+- y=1: (2,1,1) present, bottom face not exposed.
+
+- y=3: (2,3,1) present, top face not exposed.
+
+- z=2: (2,2,2) is not present (since z=2, x=2, y=2: not on any face), so back face exposed.
+
+- z=0: outside, front face exposed.
+
+So two faces exposed: front and back.
+
+Ah, so in a hollow 3x3x3 cube, all face center cubes have 2 faces exposed, edge centers have 2, corners have 3, and the inner edge centers (the ones on the middle layer edges) also have 2.
+
+Wait, but the problem is about the structure shown in the video. Let's go back to the video frames.
+
+In frame 4: the cube is a 3x3x3 with all outer faces colored, so it's a solid cube? But then in frame 7, it breaks apart, so maybe it's a solid cube, but the video shows it rotating and then disassembling, but the structure we need to consider is the initial solid cube before it breaks? Wait, the question is "Observe the following structure," which is the one shown in frames 4-10, which is a 3D structure. The disassembling is just animation; the structure is the one before disassembling.
+
+Wait, frame 4: it's a 3x3x3 cube with colored faces (each small cube on the surface has a color: red, blue, yellow, green). Frame 5: rotated, still a solid cube. Frame 6: rotated, solid. Frame 7: starts to break, but maybe that's just a visual effect, and the structure we need to consider is the solid 3x3x3 cube.
+
+Wait, the question is "How many cubes have exactly 1 face exposed?" In a solid 3x3x3 cube, let's calculate:
+
+- Corner cubes: 8 corners, each has 3 faces exposed (since they're on three outer faces).
+
+- Edge cubes (not corners): each edge has 3-2=1 cube, 12 edges, so 12 cubes, each has 2 faces exposed (on two outer faces).
+
+- Face center cubes: each face has (3-2)^2=1 cube, 6 faces, so 6 cubes, each has 1 face exposed (only on one outer face; the other 5 faces are adjacent to other cubes).
+
+- Center cube: 1 cube, no faces exposed (all 6 faces are adjacent to other cubes).
+
+Yes! In a solid cube, the face center cubes have exactly 1 face exposed. Because for a face center cube (e.g., front face center), it's on the front face, so front face is exposed; the back face is adjacent to the middle layer cube, left and right faces are adjacent to edge cubes, top and bottom faces are adjacent to edge cubes. So only 1 face exposed.
+
+The center cube (middle of the whole cube) has all faces adjacent to other cubes, so 0 exposed.
+
+Edge centers (not corners) have two faces exposed (e.g., top front edge center is on top and front faces).
+
+Corners have three faces exposed.
+
+So in a solid 3x3x3 cube, the number of cubes with exactly 1 face exposed is 6 (one per face).
+
+But wait, does the structure in the video show a solid cube? Let's check frame 4: the cube has colored squares on all visible faces, which would be the case for a solid cube. The disassembling animation (frames 7-10) is probably just a visual effect, but the structure we need to consider is the solid cube before it breaks, as the question says "Observe the following structure" and the structure is shown rotating (frames 4-6) as a solid cube.
+
+Wait, in frame 7, it starts to break, but maybe that's to show it's made of small cubes, but the actual structure is the solid 3x3x3 cube. Because when it's rotating in frames 4-6, it looks like a solid cube with a 3x3 grid on each face.
+
+Let's confirm with a 2x2x2 cube: all cubes are corners, 8 cubes, each with 3 faces exposed. No cubes with 1 face exposed.
+
+3x3x3: as above, 6 cubes with 1 face exposed.
+
+4x4x4: each face has (4-2)^2=4 cubes with 1 face exposed, so 24 total.
+
+So for n x n x n, it's 6*(n-2)^2.
+
+Here, the structure looks like a 3x3x3 cube (since each face has 3x3 small cubes), so n=3.
+
+Thus, 6*(3-2)^2=6*1=6.
+
+But wait, the video shows the structure breaking apart in frames 7-10, which might indicate that it's not a solid cube. Let's check frame 7: the structure has some cubes missing. Let's count the cubes.
+
+In frame 7: the structure is rotated, and it looks like there's a cube missing from the top layer. Let's see:
+
+- Top layer: maybe 8 cubes (3x3 minus 1).
+
+- Middle layer: maybe 8 cubes.
+
+- Bottom layer: 9 cubes.
+
+Total: 25? But let's count the visible cubes.
+
+Alternatively, maybe the structure is a 3x3x3 cube with the very center cube removed. Let's see:
+
+If the center cube (2,2,2) is removed, then what happens to the face center cubes?
+
+The face center cubes are (2,2,1), (2,2,3), (2,1,2), (2,3,2), (1,2,2), (3,2,2).
+
+For (2,2,1): back face is adjacent to (2,2,2), which is now missing, so back face is exposed. So (2,2,1) has front face exposed (z=0) and back face exposed (z=2), so 2 faces exposed.
+
+Similarly, all face center cubes now have 2 faces exposed.
+
+The edge center cubes: e.g., (2,1,1) has neighbors (1,1,1), (3,1,1), (2,2,1), (2,1,2). If (2,1,2) is present (since only center is removed), then (2,1,1) still has 2 faces exposed.
+
+The corner cubes still have 3 faces exposed.
+
+The cube adjacent to the center: the 6 face center cubes now have an extra exposed face, and the center is gone.
+
+But the question is about the structure shown in the video. Let's look at frame 4: it's a solid cube with no missing cubes, because all faces are fully colored (9 squares per face). Frame 5: same, frame 6: same. Frames 7-10 are the disassembly animation, which is just showing the structure is made of small cubes, but the actual structure is the solid one.
+
+The key is that when they say "the following structure," it's the one shown in the rotating frames (4-6), which is a solid 3x3x3 cube. The disassembly is just a visual effect to show it's composed of small cubes.
+
+In a solid 3x3x3 cube, the cubes with exactly 1 face exposed are the six face centers (one on each face). Each of these is in the middle of a face, with all other faces adjacent to other cubes in the structure.
+
+Let's verify with a small example:
+
+- Take the front face center cube: it has the front face exposed (since it's on the outside), and the back, left, right, top, bottom faces are all adjacent to other cubes (back to the middle layer center, left to the left edge center, etc.). So only 1 face exposed.
+
+- A corner cube has three faces exposed (e.g., top front right corner: top, front, right faces are exposed).
+
+- An edge center cube (not corner) has two faces exposed (e.g., top front edge center: top and front faces exposed).
+
+- The very center cube has no faces exposed.
+
+So in 3x3x3, count:
+
+- 8 corners: 3 faces exposed.
+
+- 12 edge centers (12 edges * 1 cube per edge): 2 faces exposed.
+
+- 6 face centers: 1 face exposed.
+
+- 1 center: 0 faces exposed.
+
+8+12+6+1=27, which is correct.
+
+Therefore, the number of cubes with exactly 1 face exposed is 6.
+</think>
+
+To determine how many cubes have **exactly 1 face exposed** in the given structure, we begin by analyzing the visual information provided in the video.
+
+---
+
+### Step 1: Understand the Structure
+
+The video shows a **3D structure** that rotates and appears to be made up of smaller colored cubes. Initially, it looks like a **solid cube**, with each visible face showing a **3x3 grid** of small cubes. This strongly suggests the structure is a **3×3×3 cube**, which contains:
+
+$$
+3 \times 3 \times 3 = 27 \text{ small cubes}
+$$
+
+Although the structure later breaks apart (as seen in frames 7–10), this disassembly is likely just for visual effect and does not change the underlying structure being analyzed. The question asks about the **original structure**, which is a solid 3×3×3 cube.
+
+---
+
+### Step 2: Categorize Cubes Based on Exposure
+
+In a **solid 3×3×3 cube**, the small cubes can be categorized based on their position and number of exposed faces:
+
+| Position | Count | Faces Exposed |
+|----------|-------|----------------|
+| **Corners** | 8 | 3 |
+| **Edges (non-corner)** | 12 | 2 |
+| **Face centers** | 6 | 1 |
+| **Center cube** | 1 | 0 |
+
+- **Corner cubes**: Each corner touches three faces of the larger cube, so they have **3 exposed faces**.
+- **Edge center cubes**: These are the middle cubes along the edges (not at corners), touching two outer faces, so they have **2 exposed faces**.
+- **Face center cubes**: These lie at the center of each face of the large cube. They only touch one outer face, while all other sides are adjacent to other cubes inside the structure. Thus, they have **exactly 1 face exposed**.
+- **Center cube**: The single cube at the very center has no faces exposed—it is completely surrounded.
+
+---
+
+### Step 3: Identify the Relevant Category
+
+We are specifically asked:
+
+> "How many cubes have exactly 1 face exposed?"
+
+From the table above, the only category where cubes have **exactly 1 face exposed** is the **face centers**.
+
+There are **6 faces** on a cube, and **one cube per face** lies at the center of that face. Therefore:
+
+$$
+\text{Number of cubes with exactly 1 face exposed} = 6
+$$
+
+---
+
+### Final Answer
+
+$$
+\boxed{6}
+$$

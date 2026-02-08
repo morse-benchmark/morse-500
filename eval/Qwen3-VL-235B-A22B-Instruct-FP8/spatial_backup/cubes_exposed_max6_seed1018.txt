@@ -1,0 +1,534 @@
+We are given a 3D structure made of small colored cubes, and we are asked:
+
+> **How many cubes have exactly 3 faces exposed?**
+
+---
+
+### Step 1: Understand the structure
+
+The structure is shown rotating from 0:04 to 0:10. It appears to be composed of small unit cubes stacked together in a 3D shape. From the rotations, we can infer that it is a **3x3x3 cube with some cubes missing**, or perhaps a more irregular assembly.
+
+But looking closely at the rotations, especially at 0:08 and 0:09, we can see that the structure is **not a full cube**. It has some cubes missing — particularly, it looks like a 3x3x3 cube with the center cube of each face and the very center cube removed? Or perhaps it’s a different configuration.
+
+Actually, let’s analyze the visible structure more carefully.
+
+At 0:04, we see a structure that looks like a 3x3x3 cube but with some cubes missing. Let’s try to count the total number of small cubes.
+
+From the rotations, we can see:
+
+- The structure has 3 layers in height.
+- Each layer appears to be 3x3, but not fully filled.
+
+Looking at 0:08 and 0:09, we can see that:
+
+- The bottom layer has 8 cubes (missing the center).
+- The middle layer has 8 cubes (missing the center).
+- The top layer has 8 cubes (missing the center).
+
+Wait — actually, looking again, it might be a **3x3x3 cube with the very center cube removed**.
+
+But in that case, total cubes = 27 - 1 = 26.
+
+But let’s check the exposed faces.
+
+Actually, let’s take a different approach.
+
+---
+
+### Step 2: Define “exposed faces”
+
+A cube has 6 faces. In a 3D structure, a cube’s face is “exposed” if it is not adjacent to another cube (i.e., no cube is touching it on that face).
+
+We are to count cubes that have **exactly 3 faces exposed**.
+
+This typically happens for cubes that are at **corners** of a solid cube — but in a solid 3x3x3 cube, corner cubes have 3 faces exposed.
+
+But in our structure, it’s not solid — some cubes are missing.
+
+So we must analyze the actual structure.
+
+---
+
+### Step 3: Reconstruct the structure from video frames
+
+Let’s try to reconstruct the structure.
+
+From 0:04 to 0:10, we see:
+
+- The structure is roughly 3 units wide, 3 units deep, 3 units tall.
+- It appears that the **center cube of the entire structure is missing** — because when we look at the top, we see a hole in the center, and similarly from the side.
+
+Also, from the side views, it looks like the **center of each face is open**, meaning that the structure is like a 3x3x3 cube with the center cube removed, and possibly the centers of each face are also removed? No — actually, if only the very center cube is removed, then the face centers are still present.
+
+Wait — let’s think.
+
+In a 3x3x3 cube:
+
+- There are 8 corner cubes → each has 3 faces exposed.
+- 12 edge cubes (not corners) → each has 2 faces exposed.
+- 6 face-center cubes → each has 1 face exposed.
+- 1 center cube → 0 faces exposed.
+
+But if we **remove the center cube**, then:
+
+- The 6 face-center cubes now have 2 faces exposed (because the center cube was adjacent to them, so now that face is exposed).
+
+So:
+
+- Corner cubes: still 3 faces exposed → 8 cubes.
+- Edge cubes: still 2 faces exposed → 12 cubes.
+- Face-center cubes: now 2 faces exposed → 6 cubes.
+
+So no cube has exactly 3 faces exposed? That can’t be — the corners still have 3.
+
+Wait — no, the corners are unaffected by removing the center cube.
+
+So if only the center cube is removed, then the 8 corner cubes still have exactly 3 faces exposed.
+
+But is that the structure in the video?
+
+Looking at 0:08 and 0:09, we can see that the structure has holes — for example, from the top, we see a 3x3 grid with the center missing, and from the side, we see that the middle layer has a hole.
+
+Actually, let’s count the cubes visible.
+
+From the top view at 0:05: we see 8 cubes (3x3 minus center).
+
+From the side view at 0:07: we see 3 layers, each with 3 cubes in a row, but the middle one is missing? No — it’s not clear.
+
+Perhaps it’s easier to assume that the structure is a 3x3x3 cube with only the center cube removed.
+
+In that case, as above, the 8 corner cubes have exactly 3 faces exposed.
+
+But let’s verify with the video.
+
+At 0:09, we see a side view where the middle layer has a cube missing in the center, and the top and bottom layers are full? No — actually, it looks like all three layers have the center missing.
+
+So perhaps it’s a 3x3x3 cube with the center cube of each layer removed — but that would be 3 cubes removed.
+
+But in a 3x3x3, removing the center of each layer would remove 3 cubes: one from each z-layer.
+
+But then the structure would have 24 cubes.
+
+And the face-center cubes would be affected.
+
+This is getting messy.
+
+---
+
+### Step 4: Look for a better way — count exposed faces per cube
+
+Perhaps we can use the fact that in the video, the structure is shown rotating, and we can count how many cubes have exactly 3 faces visible from the outside.
+
+But since it’s a 3D structure, some faces are hidden.
+
+However, the question is about “exposed” faces, not “visible” faces — so we need to consider all faces that are not adjacent to another cube.
+
+So we must mentally reconstruct the structure.
+
+Let me try to build it.
+
+Assume the structure is a 3x3x3 cube with the very center cube removed.
+
+Total cubes: 26.
+
+Now, classify each cube:
+
+- **Corner cubes (8)**: each has 3 faces exposed (unchanged, since they are at corners, and removing the center doesn’t affect them). So 8 cubes with 3 exposed faces.
+
+- **Edge cubes (12)**: these are the cubes on the edges but not corners. In a solid 3x3x3, each has 2 faces exposed. When we remove the center cube, does any edge cube gain an exposed face? No, because the center cube is not adjacent to edge cubes — it’s adjacent to face-center cubes.
+
+So edge cubes still have 2 exposed faces.
+
+- **Face-center cubes (6)**: in a solid cube, each has 1 face exposed. When we remove the center cube, each face-center cube now has an additional face exposed (the one facing the center), so now they have 2 exposed faces.
+
+- **Center cube (1)**: removed, so not counted.
+
+So only the 8 corner cubes have exactly 3 faces exposed.
+
+But is this the structure in the video?
+
+Let’s check the video at 0:08: we see a view where the structure has a hole in the center, and the cubes around it are present.
+
+Also, at 0:09, we see that the top layer has 8 cubes, middle layer has 8, bottom layer has 8? No — from the side, it looks like the middle layer has fewer cubes.
+
+Actually, looking at 0:07: we see a side view where the structure is 3 units tall, and at each level, there are 3 cubes in a row, but the middle one is missing? No, it’s not clear.
+
+Perhaps the structure is different.
+
+Another possibility: the structure is a 3x3x3 cube with the center cube and the face-center cubes removed? But that would be 7 cubes removed, leaving 20.
+
+But that seems unlikely.
+
+Let’s count the cubes from the video.
+
+At 0:05, top view: 8 cubes visible.
+
+At 0:06, rotated: we can see the side, and it looks like there are 3 layers, each with 8 cubes? But that would be 24, which is possible.
+
+At 0:08, we see a view where the structure has a hole in the center, and the cubes are arranged such that each layer is a ring of 8 cubes.
+
+So perhaps it’s 3 layers, each a 3x3 with center missing, so 8 per layer, total 24 cubes.
+
+And the layers are stacked directly on top of each other.
+
+In this case, the structure is like a 3x3x3 cube with the center column removed — i.e., the cube at (2,2,1), (2,2,2), (2,2,3) are missing? No, if each layer has the center missing, then it's the cubes at (2,2,z) for z=1,2,3 are missing.
+
+So total cubes = 27 - 3 = 24.
+
+Now, let's analyze the exposed faces.
+
+We need to find cubes with exactly 3 faces exposed.
+
+Consider the cubes at the corners of each layer.
+
+For example, the cube at (1,1,1): this is a corner cube.
+
+Its faces:
+
+- Front, left, bottom: exposed (assuming the structure is oriented with x,y,z).
+
+- Top: adjacent to (1,1,2)? Yes, if there is a cube there.
+
+- Right: adjacent to (1,2,1)? But (1,2,1) is not present if the center is missing? No, (1,2,1) is the edge cube, which should be present.
+
+In a 3x3x3 with only the center of each layer missing, the edge cubes are still there.
+
+So for cube (1,1,1):
+
+- Faces: 
+  - -x: exposed (left)
+  - -y: exposed (front)
+  - -z: exposed (bottom)
+  - +x: adjacent to (2,1,1) — which is present (since only (2,2,1) is missing)
+  - +y: adjacent to (1,2,1) — present
+  - +z: adjacent to (1,1,2) — present
+
+So only 3 faces exposed: -x, -y, -z.
+
+Similarly for other corners.
+
+Now, what about the edge cubes, like (1,2,1)? This is the front edge, center of bottom layer.
+
+Its faces:
+
+- -y: exposed (front)
+- -z: exposed (bottom)
+- +x: adjacent to (2,2,1) — but (2,2,1) is missing! So this face is exposed.
+- -x: adjacent to (1,2,1) has -x? No, (1,2,1) has x=1, so -x is exposed? Let's define coordinates.
+
+Assume:
+
+- x from 1 to 3 (left to right)
+- y from 1 to 3 (front to back)
+- z from 1 to 3 (bottom to top)
+
+Cube at (1,2,1): bottom front edge, not corner.
+
+Faces:
+
+- -x: x=1, so left face — exposed (no cube at x=0)
+- +x: x=2, so right face — adjacent to (2,2,1) — but (2,2,1) is missing, so exposed.
+- -y: y=1? No, y=2, so -y is y=1, which is front — exposed if no cube in front, but there is no cube at (1,1,1)? No, (1,1,1) is present, but it's at y=1, so for cube (1,2,1), the -y face is adjacent to (1,1,1)? Yes, because (1,1,1) is at y=1, so it is adjacent in the y-direction.
+
+In 3D grid, cube (i,j,k) is adjacent to (i±1,j,k), (i,j±1,k), (i,j,k±1).
+
+So for cube (1,2,1):
+
+- (0,2,1): no cube — so -x face exposed.
+- (2,2,1): no cube (missing) — so +x face exposed.
+- (1,1,1): present — so -y face not exposed.
+- (1,3,1): present — so +y face not exposed.
+- (1,2,0): no cube — so -z face exposed.
+- (1,2,2): present — so +z face not exposed.
+
+So exposed faces: -x, +x, -z — that's 3 faces.
+
+Oh! So this cube has 3 exposed faces.
+
+Similarly, let's check.
+
+So in this structure, the edge cubes (not corners) on the bottom and top layers may have 3 exposed faces if the center is missing.
+
+Let's systematize.
+
+For a 3x3x3 cube with the center of each layer removed, i.e., cubes at (2,2,1), (2,2,2), (2,2,3) are missing.
+
+Total cubes: 24.
+
+Now, classify:
+
+1. **Corner cubes**: there are 8 corners: (1,1,1), (1,1,3), (1,3,1), (1,3,3), (3,1,1), (3,1,3), (3,3,1), (3,3,3).
+
+For (1,1,1):
+
+- -x, -y, -z exposed.
+- +x: adjacent to (2,1,1) — present.
+- +y: adjacent to (1,2,1) — present.
+- +z: adjacent to (1,1,2) — present.
+
+So 3 exposed faces.
+
+Similarly for all 8 corners: 3 exposed faces each.
+
+2. **Edge cubes (not corners)**: there are 12 edges, but each edge has one cube in the middle.
+
+In 3x3x3, there are 12 edge cubes (not corners).
+
+But in our case, for each edge, the middle cube is still there, except that for the vertical edges, they are not affected by the missing center.
+
+Let's take an edge cube on the bottom layer, say (1,2,1) — as above.
+
+We saw it has 3 exposed faces: -x, +x, -z.
+
+Similarly, (2,1,1): bottom front edge, center.
+
+Faces:
+
+- -x: adjacent to (1,1,1) — present.
+- +x: adjacent to (3,1,1) — present.
+- -y: y=1, so -y exposed? No, y=1 is front, and there is no cube in front, but for (2,1,1), -y is the front face, and since y=1, there is no cube at y=0, so exposed.
+- +y: adjacent to (2,2,1) — missing! So exposed.
+- -z: exposed (bottom).
+- +z: adjacent to (2,1,2) — present.
+
+So exposed faces: -y, +y, -z — 3 faces.
+
+Similarly, for (2,3,1): bottom back edge.
+
+- -y: adjacent to (2,2,1) — missing, so exposed.
+- +y: y=3, so +y exposed (no cube behind).
+- -z: exposed.
+- etc.
+
+So all edge cubes on the bottom and top layers have 3 exposed faces.
+
+Now, what about edge cubes on the middle layer? Say (1,2,2).
+
+This is on the middle layer, front edge.
+
+Faces:
+
+- -x: exposed (left).
+- +x: adjacent to (2,2,2) — missing, so exposed.
+- -y: adjacent to (1,1,2) — present.
+- +y: adjacent to (1,3,2) — present.
+- -z: adjacent to (1,2,1) — present.
+- +z: adjacent to (1,2,3) — present.
+
+So exposed faces: -x, +x — only 2 faces.
+
+Similarly, for (2,1,2): middle layer, front edge.
+
+- -y: exposed (front).
+- +y: adjacent to (2,2,2) — missing, so exposed.
+- -x: adjacent to (1,1,2) — present.
+- +x: adjacent to (3,1,2) — present.
+- -z: adjacent to (2,1,1) — present.
+- +z: adjacent to (2,1,3) — present.
+
+So exposed: -y, +y — 2 faces.
+
+Now, what about the face-center cubes? But in this structure, the face-center cubes are missing! Because we removed (2,2,z) for all z, which are the face-centers for the front, back, left, right, top, bottom? No.
+
+In 3x3x3, the face-center for front face is (2,1,2), for example.
+
+But in our removal, we removed (2,2,1), (2,2,2), (2,2,3), which are the center of each layer, not the face-centers.
+
+The face-center for the front face is (2,1,2), which is still present.
+
+But in our case, for the front face, the center is (2,1,2), which is an edge cube of the middle layer.
+
+And we just saw that (2,1,2) has 2 exposed faces.
+
+Similarly, all face-center cubes are still present and have 2 exposed faces, as above.
+
+Now, are there any other cubes?
+
+We have:
+
+- 8 corner cubes: each has 3 exposed faces.
+- 12 edge cubes: but in 3x3x3, there are 12 edge cubes (not corners).
+
+Among these 12:
+
+- 4 on bottom layer: (1,2,1), (2,1,1), (2,3,1), (3,2,1) — each has 3 exposed faces, as calculated.
+- 4 on top layer: (1,2,3), (2,1,3), (2,3,3), (3,2,3) — similarly, each has 3 exposed faces.
+- 4 on middle layer: (1,2,2), (2,1,2), (2,3,2), (3,2,2) — each has 2 exposed faces, as calculated.
+
+So total cubes with exactly 3 exposed faces: 8 (corners) + 8 (bottom and top edge cubes) = 16.
+
+But is that correct?
+
+Let's verify with a specific example.
+
+Take (1,2,1): bottom front edge.
+
+Exposed faces: -x (left), +x (right, since (2,2,1) missing), -z (bottom) — yes, 3.
+
+Take (2,1,1): bottom left edge.
+
+Exposed: -y (front), +y (since (2,2,1) missing), -z (bottom) — 3.
+
+Take (1,2,2): middle front edge.
+
+Exposed: -x (left), +x (right, since (2,2,2) missing) — only 2, since -y and +y are adjacent to (1,1,2) and (1,3,2), which are present, and -z and +z are adjacent to (1,2,1) and (1,2,3), present.
+
+So yes, 2 exposed faces.
+
+Now, are there any other cubes? The face-center cubes like (2,1,2) — we have it as an edge cube.
+
+In 3x3x3, the cubes are:
+
+- 8 corners
+- 12 edges (middle of each edge)
+- 6 face-centers
+- 1 center
+
+But in our structure, we removed the 3 center cubes of each layer, which are (2,2,1), (2,2,2), (2,2,3). Note that (2,2,2) is the very center, and (2,2,1) and (2,2,3) are the centers of bottom and top layers.
+
+The face-center for the front face is (2,1,2), which is not removed.
+
+So total cubes: 27 - 3 = 24.
+
+The 24 cubes consist of:
+
+- 8 corners
+- 12 edge cubes (as defined)
+- 4 face-center cubes? No, in 3x3x3, there are 6 face-center cubes: one for each face.
+
+But we removed (2,2,1), (2,2,2), (2,2,3), which are not face-centers; (2,2,1) is the center of the bottom face, so it is the face-center for the bottom face.
+
+Similarly, (2,2,3) is face-center for top face, and (2,2,2) is the very center.
+
+So we removed:
+
+- Bottom face-center: (2,2,1)
+- Top face-center: (2,2,3)
+- Very center: (2,2,2)
+
+So the face-centers for the front, back, left, right faces are still there: (2,1,2), (2,3,2), (1,2,2), (3,2,2).
+
+But these are exactly the 4 edge cubes of the middle layer that we classified earlier.
+
+And we saw that each has 2 exposed faces.
+
+So no cube has 1 or 0 exposed faces in this structure? The face-centers for front, etc., have 2 exposed faces, as above.
+
+Now, back to counting cubes with exactly 3 exposed faces:
+
+- 8 corner cubes: 3 each
+- 8 edge cubes on bottom and top layers: 3 each (4 on bottom, 4 on top)
+
+Total: 16.
+
+But is that accurate? Let's list them.
+
+Bottom layer (z=1): cubes present: all except (2,2,1)
+
+So cubes: (1,1,1), (1,2,1), (1,3,1), (2,1,1), (2,3,1), (3,1,1), (3,2,1), (3,3,1)
+
+Among these:
+
+- Corners: (1,1,1), (1,3,1), (3,1,1), (3,3,1) — 4 cubes, each with 3 exposed faces.
+- Edge centers: (1,2,1), (2,1,1), (2,3,1), (3,2,1) — 4 cubes, each with 3 exposed faces, as calculated.
+
+Similarly for top layer (z=3): same as bottom, 8 cubes, all with 3 exposed faces? No, the corners have 3, the edge centers have 3.
+
+For (1,1,3): top front left corner.
+
+Exposed: -x, -y, +z (top) — and adjacent to (2,1,3), (1,2,3), (1,1,2) — all present, so only 3 exposed.
+
+For (1,2,3): top front edge center.
+
+Exposed: -x (left), +x (right, since (2,2,3) missing), +z (top) — 3 faces.
+
+Similarly for others.
+
+Now for middle layer (z=2): cubes present: all except (2,2,2)
+
+So cubes: (1,1,2), (1,2,2), (1,3,2), (2,1,2), (2,3,2), (3,1,2), (3,2,2), (3,3,2)
+
+Among these:
+
+- Corners: (1,1,2), (1,3,2), (3,1,2), (3,3,2) — these are not corners of the whole structure; they are on the middle layer.
+
+For (1,1,2): this is the front left of middle layer.
+
+Faces:
+
+- -x: exposed (left)
+- -y: exposed (front)
+- -z: adjacent to (1,1,1) — present
+- +z: adjacent to (1,1,3) — present
+- +x: adjacent to (2,1,2) — present
+- +y: adjacent to (1,2,2) — present
+
+So exposed faces: -x, -y — only 2.
+
+Similarly for other "corners" of the middle layer — they have only 2 exposed faces.
+
+The edge centers of middle layer: (1,2,2), etc., as before, have 2 exposed faces.
+
+So in middle layer, no cube has 3 exposed faces.
+
+Therefore, only the bottom and top layers have cubes with 3 exposed faces.
+
+Bottom layer: 8 cubes, all have 3 exposed faces.
+
+Top layer: 8 cubes, all have 3 exposed faces.
+
+Middle layer: 8 cubes, all have 2 exposed faces.
+
+Total: 16 cubes with exactly 3 exposed faces.
+
+But is that possible? Let's verify with a specific cube.
+
+Take (1,1,1): corner, 3 exposed faces — yes.
+
+Take (1,2,1): edge, 3 exposed faces — yes.
+
+Take (1,1,2): middle layer, only 2 exposed faces — yes.
+
+So total 16.
+
+But in the video, is the structure exactly this? Let's check the rotation.
+
+At 0:08, we see a view where the structure has a hole in the center, and the cubes are arranged in a way that suggests this.
+
+Also, at 0:09, we see the side, and it looks like the middle layer has cubes on the perimeter.
+
+So yes, it matches.
+
+Therefore, the answer should be 16.
+
+But let's make sure there are no cubes with more or less.
+
+For example, is there any cube with 4 exposed faces? In this structure, no, because even the edge cubes have at least three faces adjacent to other cubes.
+
+For instance, (1,2,1) has -x, +x, -z exposed, but +y adjacent to (1,3,1), -y adjacent to (1,1,1), +z adjacent to (1,2,2), so only 3 exposed.
+
+Similarly for others.
+
+So all 16 cubes have exactly 3 exposed faces.
+
+But wait, are there 16 such cubes? Bottom layer 8, top layer 8, total 16.
+
+Yes.
+
+So the answer is 16.
+
+But let's double-check with the video.
+
+At 0:05, top view: 8 cubes visible, which matches.
+
+At 0:06, rotated: we can see the side, and it looks like 3 layers.
+
+At 0:08, we see a view where the structure is like a frame.
+
+Also, in the initial frames, the structure is colorful, and from the rotations, it seems symmetric.
+
+So I think 16 is correct.
+
+But earlier I thought it might be 8, but that was for a different structure.
+
+So final answer: \boxed{16}

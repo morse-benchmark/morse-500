@@ -1,0 +1,1095 @@
+Okay, let's see. The problem is to find the surface area of a 3D figure made up of small cubes, each with side length 1 unit. First, I need to figure out how many cubes there are and then count the number of exposed faces.
+
+First, let me try to visualize the figure from the video. The video shows a 3D structure rotating. Let's break it down. Let's count the number of cubes. From the frames, it looks like it's a 2x2x2 cube missing some parts? Wait, no. Let's check the frames.
+
+In frame 4, it's a 3D shape with red, blue, green, and yellow. Let's think in terms of layers. Maybe top, middle, bottom.
+
+Looking at the rotation, maybe it's a structure with 5 cubes? Wait, let's count. Let's see: when it's rotating, how many cubes are there?
+
+Let me think. Let's consider the standard way to count cubes in such structures. Each cube has 6 faces, but when they are adjacent, the touching faces are not exposed.
+
+First, count the number of cubes. Let's see. Let's try to reconstruct the structure.
+
+Looking at frame 4: there's a cube with red, blue, green. Then frame 5: different angle, maybe 2x2 on the bottom and one on top? Wait, maybe it's 5 cubes. Let's check:
+
+Suppose the base layer has 3 cubes, and the top layer has 2? Or maybe 4 in the base and 1 on top? Wait, let's think.
+
+Alternatively, maybe it's a 3x2x1 structure but with some missing. Wait, let's count the visible faces in different views.
+
+Wait, maybe a better approach is to count the number of cubes first. Let's see. Let's assume the structure is made of 5 unit cubes. Wait, how?
+
+Let me think of the standard surface area problem. For a 2x2x2 cube, surface area is 24, but if it's missing some cubes, it's different.
+
+Wait, let's check the frames. In frame 7, it's a shape with yellow at the bottom, red, blue, green. Let's imagine the coordinates.
+
+Let's assign coordinates (x, y, z). Let's say x is front-back, y is left-right, z is up-down.
+
+Suppose the bottom layer (z=1) has some cubes, and z=2 has some.
+
+Looking at frame 5: when it's rotated, maybe there are 4 cubes in the base and 1 on top? Wait, no. Let's count the number of cubes.
+
+Each cube is visible from some angle. Let's see: in frame 4, the structure has a red cube, blue, green. Maybe it's 5 cubes. Let's see: if you have a 2x2 square on the bottom (4 cubes), but one is missing, so 3, and then one on top of one of them. Wait, 3 + 1 = 4? No.
+
+Wait, another way: when you look at the front, how many squares do you see? Let's assume the front view has, say, 3 squares. The top view might have 3, and the side view 3. But maybe not.
+
+Alternatively, let's count the number of exposed faces by considering all six directions: front, back, left, right, top, bottom.
+
+For each direction, count the number of faces visible, then sum them up.
+
+Let's try that.
+
+First, front view: how many faces are visible from the front?
+
+Looking at the video, when the structure is rotated, in some frames, the front has 3 faces. Wait, let's think. Let's imagine the structure:
+
+Suppose it's a 2x2x2 cube missing two cubes. Wait, no. Let's think of the structure as follows:
+
+Let's say there's a column of two cubes in the back right (so z=1 and z=2), then a single cube in front left (z=1), and another single cube in front right (z=1). Wait, that would be 2 + 1 + 1 = 4 cubes. Let's check.
+
+But maybe it's 5 cubes. Let's see. Let's count the number of cubes by looking at the rotations.
+
+In frame 4: the structure has a red cube (maybe front left), blue (front right), green (back right top), and another red (back right bottom), and yellow (back left bottom). Wait, maybe 5 cubes: let's list them:
+
+- (1,1,1): yellow
+
+- (1,2,1): red
+
+- (2,1,1): blue
+
+- (2,2,1): red
+
+- (2,2,2): green
+
+Yes, that might be it. So coordinates where x=1 is front, x=2 is back; y=1 is left, y=2 is right; z=1 is bottom, z=2 is top.
+
+So:
+
+- (1,1,1): yellow (front-left-bottom)
+
+- (1,2,1): red (front-right-bottom)
+
+- (2,1,1): blue (back-left-bottom)
+
+- (2,2,1): red (back-right-bottom)
+
+- (2,2,2): green (back-right-top)
+
+So total 5 cubes.
+
+Now, let's calculate the surface area.
+
+Each cube has 6 faces, but adjacent cubes share faces, so we need to subtract 2 for each shared face (since each shared face is hidden on both cubes).
+
+Total faces without considering adjacency: 5 * 6 = 30.
+
+Now, count the number of shared faces.
+
+Which cubes are adjacent?
+
+- (2,2,2) is on top of (2,2,1), so they share a face (z=1 top and z=2 bottom). So 1 shared face.
+
+- (2,1,1) is next to (2,2,1) (same z, adjacent y), so they share a face. 1 shared face.
+
+- (1,2,1) is next to (2,2,1) (same z, adjacent x), so they share a face. 1 shared face.
+
+- (1,1,1) is next to (1,2,1)? No, if y=1 and y=2 are left and right, then (1,1,1) and (1,2,1) are adjacent in y-direction (front row, left and right). So yes, they share a face. 1 shared face.
+
+Wait, let's list all adjacent pairs:
+
+1. (1,1,1) and (1,2,1): adjacent in y (x=1, z=1), so share a face. 1.
+
+2. (1,1,1) and (2,1,1): adjacent in x (y=1, z=1), so share a face. 1.
+
+3. (1,2,1) and (2,2,1): adjacent in x (y=2, z=1), share a face. 1.
+
+4. (2,1,1) and (2,2,1): adjacent in y (x=2, z=1), share a face. 1.
+
+5. (2,2,1) and (2,2,2): adjacent in z (x=2, y=2), share a face. 1.
+
+Wait, is (1,1,1) adjacent to (2,1,1)? If x=1 is front, x=2 is back, then yes, they are adjacent front-back. So (1,1,1) is front-left-bottom, (2,1,1) is back-left-bottom, so they share a face in the x-direction (front-back). So that's a shared face.
+
+Similarly, (1,2,1) (front-right-bottom) and (2,2,1) (back-right-bottom) share a face.
+
+Also, (2,1,1) (back-left-bottom) and (2,2,1) (back-right-bottom) share a face in y-direction (left-right).
+
+And (1,1,1) (front-left-bottom) and (1,2,1) (front-right-bottom) share a face in y-direction.
+
+So in the bottom layer (z=1), the 4 cubes form a 2x2 square? Wait, (1,1,1), (1,2,1), (2,1,1), (2,2,1) – that's a 2x2 square on the bottom, so all adjacent. So in the bottom layer, each internal adjacency:
+
+- Between (1,1,1) and (1,2,1): 1
+
+- (1,1,1) and (2,1,1):1
+
+- (1,2,1) and (2,2,1):1
+
+- (2,1,1) and (2,2,1):1
+
+So 4 shared faces in the bottom layer.
+
+Then, the top cube (2,2,2) is on top of (2,2,1), so 1 shared face.
+
+Total shared faces: 4 (bottom layer) + 1 (top) = 5.
+
+Each shared face reduces the total surface area by 2 (since each cube loses one face).
+
+So total surface area = 5*6 - 2*5 = 30 - 10 = 20.
+
+Wait, but let's verify by counting from each direction.
+
+Front view (x=1 direction): how many faces visible?
+
+The front layer (x=1) has (1,1,1) and (1,2,1). So two cubes in the front. So front view has 2 faces.
+
+Back view (x=2 direction): the back layer (x=2) has (2,1,1), (2,2,1), and (2,2,2). So in the back view, we see the back faces of these cubes. The (2,1,1) and (2,2,1) are at z=1, and (2,2,2) is at z=2. So the back view has 3 faces (since (2,2,2) is on top of (2,2,1), so it's visible above).
+
+Left view (y=1 direction): left layer (y=1) has (1,1,1) and (2,1,1). So two cubes, so 2 faces.
+
+Right view (y=2 direction): right layer (y=2) has (1,2,1), (2,2,1), (2,2,2). So three faces (since (2,2,2) is on top).
+
+Top view (z=2 direction): top layer. Only (2,2,2) is at z=2, but also (1,1,1), (1,2,1), (2,1,1) are at z=1, so their top faces might be visible if not covered. Wait, no: top view is looking down, so we see the top faces of the highest cubes in each (x,y) position.
+
+For (x,y) positions:
+
+- (1,1): z=1, so top face visible.
+
+- (1,2): z=1, top face visible.
+
+- (2,1): z=1, top face visible.
+
+- (2,2): z=2, top face visible.
+
+So top view has 4 faces (all four (x,y) positions have a top face).
+
+Bottom view (z=1 direction, looking up from below): bottom faces of the cubes at z=1. There are 4 cubes at z=1, so 4 bottom faces. The cube at z=2 is on top of z=1, so its bottom face is hidden, but the bottom view only sees the bottom of the lowest cubes, which are the z=1 cubes. So bottom view has 4 faces.
+
+Wait, let's list all six directions:
+
+Front (x=1): 2 faces (from (1,1,1) and (1,2,1))
+
+Back (x=2): 3 faces (from (2,1,1), (2,2,1), (2,2,2))
+
+Left (y=1): 2 faces (from (1,1,1), (2,1,1))
+
+Right (y=2): 3 faces (from (1,2,1), (2,2,1), (2,2,2))
+
+Top (z=2): 4 faces (as above, each (x,y) has a top face: (1,1), (1,2), (2,1) have z=1 top, (2,2) has z=2 top)
+
+Bottom (z=1): 4 faces (the bottom faces of all z=1 cubes: 4 cubes at z=1)
+
+Wait, but let's check top view again. When looking down, the top faces visible are:
+
+- (1,1,1) top: yes
+
+- (1,2,1) top: yes
+
+- (2,1,1) top: yes
+
+- (2,2,2) top: yes (since (2,2,1) is below it, but the top face of (2,2,2) is visible)
+
+So that's 4, correct.
+
+Bottom view: the bottom faces of the cubes that are on the ground (z=1). There are 4 cubes at z=1, so 4 bottom faces. The cube at z=2 is not on the ground, so its bottom face is against (2,2,1), so not visible from below.
+
+Now sum all directions:
+
+Front: 2
+
+Back: 3
+
+Left: 2
+
+Right: 3
+
+Top: 4
+
+Bottom: 4
+
+Total: 2+3+2+3+4+4 = 18.
+
+Wait, that's different from the previous calculation. Which is correct?
+
+Wait, maybe my first method was wrong because I assumed the bottom layer is 2x2, but maybe it's not.
+
+Let's recount the number of cubes. Maybe there are 5 cubes, but the bottom layer is not 2x2.
+
+Let's go back to the video frames. In frame 4: the structure has a red cube, blue, green. Let's see:
+
+In frame 4: the structure has a cube with red (front), blue (left), green (top). Wait, maybe it's a 2x2x2 cube missing three cubes, but that seems unlikely.
+
+Alternatively, let's count the number of cubes by seeing how many are visible from different angles.
+
+In frame 5: it's a 3D shape with yellow at the bottom. Maybe there are 5 cubes: 4 on the bottom layer (but not all connected), and 1 on top.
+
+Wait, let's try a different approach. Let's count the number of faces in each direction carefully.
+
+Front view: When looking from the front, how many squares do we see? Let's say 3.
+
+Back view: 3.
+
+Left view: 3.
+
+Right view: 3.
+
+Top view: 3.
+
+Bottom view: 3.
+
+No, that's 18, but maybe not.
+
+Wait, let's look for a standard problem. A common structure like this is 5 cubes: 4 in a square base, one on top of one corner. So the base is 2x2 (4 cubes), and one on top of one, making 5.
+
+For such a structure, surface area is calculated as follows:
+
+Each of the 4 base cubes has 5 faces exposed (since they're on the ground, the bottom face is not exposed? Wait no, the problem says "all sides are 1 unit", and surface area includes all exposed faces, including bottom if it's not on a surface. Wait, the problem says "surface area of the figure", which typically includes all outer faces, even the bottom.
+
+Wait, in 3D surface area, it's the total area of all faces not shared with another cube. So bottom faces are included if they're not touching the ground, but in this case, the figure is a standalone structure, so the bottom faces of the lowest cubes are exposed (since there's nothing below them).
+
+Wait, yes, in standard surface area for such problems, we consider all faces that are not adjacent to another cube, including the bottom.
+
+So back to the 2x2 base with one cube on top (total 5 cubes).
+
+Let's list all cubes:
+
+Base layer (z=1):
+
+(1,1,1), (1,2,1), (2,1,1), (2,2,1)
+
+Top layer (z=2):
+
+(2,2,2)
+
+Now, count exposed faces:
+
+For each cube:
+
+(1,1,1):
+
+- x=1 (front): exposed
+
+- x=2 (back): adjacent to (2,1,1), so not exposed
+
+- y=1 (left): exposed
+
+- y=2 (right): adjacent to (1,2,1), so not exposed
+
+- z=1 (bottom): exposed
+
+- z=2 (top): exposed (no cube on top)
+
+So 4 exposed faces.
+
+(1,2,1):
+
+- x=1 (front): exposed
+
+- x=2 (back): adjacent to (2,2,1), not exposed
+
+- y=1 (left): adjacent to (1,1,1), not exposed
+
+- y=2 (right): exposed
+
+- z=1 (bottom): exposed
+
+- z=2 (top): exposed
+
+So 4 exposed faces.
+
+(2,1,1):
+
+- x=1 (front): adjacent to (1,1,1), not exposed
+
+- x=2 (back): exposed
+
+- y=1 (left): exposed
+
+- y=2 (right): adjacent to (2,2,1), not exposed
+
+- z=1 (bottom): exposed
+
+- z=2 (top): exposed
+
+So 4 exposed faces.
+
+(2,2,1):
+
+- x=1 (front): adjacent to (1,2,1), not exposed
+
+- x=2 (back): exposed
+
+- y=1 (left): adjacent to (2,1,1), not exposed
+
+- y=2 (right): exposed
+
+- z=1 (bottom): exposed
+
+- z=2 (top): adjacent to (2,2,2), not exposed
+
+So 4 exposed faces.
+
+(2,2,2):
+
+- x=1 (front): exposed (no cube in front)
+
+- x=2 (back): exposed
+
+- y=1 (left): exposed
+
+- y=2 (right): exposed
+
+- z=1 (bottom): adjacent to (2,2,1), not exposed
+
+- z=2 (top): exposed
+
+So 5 exposed faces.
+
+Now sum them up: 4+4+4+4+5=21.
+
+Wait, that's different from before.
+
+Wait, let's check (2,2,2):
+
+Front (x=1): is there a cube in front of (2,2,2)? (x=1, y=2, z=2) is empty, so yes, front face is exposed.
+
+Back (x=2): x=2 is the back, so the back face is exposed (no cube behind it, since x=2 is the backmost).
+
+Left (y=1): y=1 is left, so the left face of (2,2,2) is exposed (no cube at y=1, z=2).
+
+Right (y=2): right face is exposed (y=2 is the rightmost).
+
+Top (z=2): top face exposed.
+
+Bottom (z=1): shared with (2,2,1), so not exposed.
+
+So yes, 5 faces.
+
+For (1,1,1):
+
+Front (x=1): exposed (no cube in front)
+
+Back (x=2): adjacent to (2,1,1), so not exposed
+
+Left (y=1): exposed (no cube to the left)
+
+Right (y=2): adjacent to (1,2,1), so not exposed
+
+Bottom (z=1): exposed (no cube below)
+
+Top (z=2): exposed (no cube above)
+
+So 4 faces: front, left, bottom, top.
+
+Yes.
+
+(1,2,1):
+
+Front (x=1): exposed
+
+Back (x=2): adjacent to (2,2,1), not exposed
+
+Left (y=1): adjacent to (1,1,1), not exposed
+
+Right (y=2): exposed
+
+Bottom (z=1): exposed
+
+Top (z=2): exposed
+
+So front, right, bottom, top: 4.
+
+Same for (2,1,1) and (2,2,1).
+
+(2,2,1):
+
+Front: adjacent to (1,2,1), not exposed
+
+Back: exposed
+
+Left: adjacent to (2,1,1), not exposed
+
+Right: exposed
+
+Bottom: exposed
+
+Top: adjacent to (2,2,2), not exposed
+
+So back, right, bottom: 3? Wait, no:
+
+Wait, (2,2,1) has:
+
+- Front (x=1): yes, adjacent to (1,2,1), so not exposed.
+
+- Back (x=2): since x=2 is the back, is there a cube behind it? No, so back face is exposed.
+
+- Left (y=1): adjacent to (2,1,1), so not exposed.
+
+- Right (y=2): y=2 is the rightmost, so right face is exposed (no cube to the right).
+
+- Bottom (z=1): exposed.
+
+- Top (z=2): adjacent to (2,2,2), so not exposed.
+
+So that's back, right, bottom: 3 faces? Wait, no, 4?
+
+Wait, front: not exposed (1 face hidden)
+
+back: exposed (1)
+
+left: not exposed (1 hidden)
+
+right: exposed (1)
+
+bottom: exposed (1)
+
+top: not exposed (1 hidden)
+
+So exposed faces: back, right, bottom: 3. Wait, that's 3.
+
+Ah! Here's the mistake. Earlier I thought it was 4, but it's 3.
+
+Let's redo each cube:
+
+(1,1,1):
+
+- Front (x=1): exposed (1)
+
+- Back (x=2): adjacent to (2,1,1) (1 hidden)
+
+- Left (y=1): exposed (1)
+
+- Right (y=2): adjacent to (1,2,1) (1 hidden)
+
+- Bottom (z=1): exposed (1)
+
+- Top (z=2): exposed (1)
+
+Total exposed: 4 (front, left, bottom, top)
+
+(1,2,1):
+
+- Front (x=1): exposed (1)
+
+- Back (x=2): adjacent to (2,2,1) (1 hidden)
+
+- Left (y=1): adjacent to (1,1,1) (1 hidden)
+
+- Right (y=2): exposed (1)
+
+- Bottom (z=1): exposed (1)
+
+- Top (z=2): exposed (1)
+
+Exposed: front, right, bottom, top (4)
+
+(2,1,1):
+
+- Front (x=1): adjacent to (1,1,1) (1 hidden)
+
+- Back (x=2): exposed (1)
+
+- Left (y=1): exposed (1)
+
+- Right (y=2): adjacent to (2,2,1) (1 hidden)
+
+- Bottom (z=1): exposed (1)
+
+- Top (z=2): exposed (1)
+
+Exposed: back, left, bottom, top (4)
+
+(2,2,1):
+
+- Front (x=1): adjacent to (1,2,1) (1 hidden)
+
+- Back (x=2): exposed (1)
+
+- Left (y=1): adjacent to (2,1,1) (1 hidden)
+
+- Right (y=2): exposed (1)
+
+- Bottom (z=1): exposed (1)
+
+- Top (z=2): adjacent to (2,2,2) (1 hidden)
+
+Exposed: back, right, bottom (3)
+
+(2,2,2):
+
+- Front (x=1): exposed (1)
+
+- Back (x=2): exposed (1)
+
+- Left (y=1): exposed (1)
+
+- Right (y=2): exposed (1)
+
+- Bottom (z=1): adjacent to (2,2,1) (1 hidden)
+
+- Top (z=2): exposed (1)
+
+Exposed: front, back, left, right, top (5)
+
+Now sum: 4 + 4 + 4 + 3 + 5 = 20.
+
+Ah, that's 20. So the mistake was with (2,2,1), which has only 3 exposed faces.
+
+Now let's check the directional count:
+
+Front (x=1 direction): faces where x=1 is the front. The cubes with x=1 are (1,1,1) and (1,2,1). Each has a front face, so 2.
+
+Back (x=2 direction): cubes with x=2 are (2,1,1), (2,2,1), (2,2,2). Each has a back face, so 3.
+
+Left (y=1 direction): cubes with y=1 are (1,1,1), (2,1,1). Each has a left face, so 2.
+
+Right (y=2 direction): cubes with y=2 are (1,2,1), (2,2,1), (2,2,2). Each has a right face, so 3.
+
+Top (z=2 direction): cubes with z=2 is (2,2,2), and the top faces of z=1 cubes where there's no cube above. The top faces of (1,1,1), (1,2,1), (2,1,1) are exposed because nothing is on top of them, and the top face of (2,2,2) is exposed. So total top faces: 4 (since (2,2,1) has a cube on top, so its top face is hidden, but the others' top faces are visible).
+
+Bottom (z=1 direction): all cubes have a bottom face except if there's a cube below, but since z=1 is the lowest, all 5 cubes? No, only the cubes at z=1 have bottom faces. (2,2,2) is at z=2, so its bottom face is at z=1.5, but the bottom faces of the structure are the faces where z=0.5 (assuming z=1 is the bottom layer). So the bottom faces are the ones where the cube is at z=1. There are 4 cubes at z=1, so 4 bottom faces.
+
+Wait, bottom view: looking up from below, we see the bottom faces of all cubes that are at the lowest level (z=1). The (2,2,2) cube is above z=1, so its bottom face is against (2,2,1), so not visible from below. So bottom view has 4 faces.
+
+Now directional sum:
+
+Front: 2
+
+Back: 3
+
+Left: 2
+
+Right: 3
+
+Top: 4
+
+Bottom: 4
+
+Total: 2+3+2+3+4+4=18. Wait, but this contradicts the cube-by-cube count of 20.
+
+Ah, I see the mistake. In the directional count, top and bottom:
+
+Top view: when looking down, we see the top faces of all cubes that have no cube above them.
+
+- (1,1,1): no cube above, so top face visible.
+
+- (1,2,1): no cube above, top face visible.
+
+- (2,1,1): no cube above, top face visible.
+
+- (2,2,1): has a cube above (2,2,2), so top face not visible.
+
+- (2,2,2): no cube above, top face visible.
+
+So top view has 4 faces (correct).
+
+Bottom view: when looking up, we see the bottom faces of all cubes that have no cube below them.
+
+- (1,1,1): no cube below, bottom face visible.
+
+- (1,2,1): no cube below, bottom face visible.
+
+- (2,1,1): no cube below, bottom face visible.
+
+- (2,2,1): no cube below, bottom face visible.
+
+- (2,2,2): has a cube below (2,2,1), so bottom face not visible.
+
+So bottom view has 4 faces (correct).
+
+Front view: looking from the front (x=1 direction), we see the front faces of all cubes where there is no cube in front of them (i.e., x=1, and no cube at x=0, which there isn't).
+
+- (1,1,1): front face visible.
+
+- (1,2,1): front face visible.
+
+- (2,1,1): is there a cube in front of it (x=1, y=1, z=1)? Yes, (1,1,1), so front face of (2,1,1) is hidden.
+
+- (2,2,1): front face hidden by (1,2,1).
+
+- (2,2,2): front face visible (no cube at x=1, y=2, z=2).
+
+Wait a minute! Here's the mistake. The front view includes all front faces where the cube is the frontmost in that (y,z) column.
+
+For each (y,z) position:
+
+- y=1, z=1: frontmost cube is (1,1,1), so front face visible.
+
+- y=1, z=2: no cube at z=2, y=1, so nothing.
+
+- y=2, z=1: frontmost cube is (1,2,1), front face visible.
+
+- y=2, z=2: frontmost cube is (2,2,2) (since there's no cube at x=1, z=2, y=2), so front face of (2,2,2) is visible.
+
+So front view has 3 faces: (1,1,1), (1,2,1), (2,2,2).
+
+Ah! That's the error. I was only counting x=1 cubes, but the cube at (2,2,2) is behind in x but at a higher z, so its front face is visible because there's no cube in front of it (at x=1, z=2, y=2).
+
+Let's correct the directional counts:
+
+Front view (x=1 direction):
+
+- For each (y,z), the frontmost cube in x-direction has its front face visible.
+
+y=1, z=1: cube at (1,1,1) is frontmost (x=1), so front face visible.
+
+y=2, z=1: cube at (1,2,1) is frontmost (x=1), front face visible.
+
+y=2, z=2: cube at (2,2,2) is frontmost (since no cube at x=1, z=2, y=2), so front face visible.
+
+y=1, z=2: no cube, so nothing.
+
+Total front: 3.
+
+Back view (x=2 direction):
+
+- For each (y,z), the backmost cube in x-direction has its back face visible.
+
+y=1, z=1: backmost cube is (2,1,1) (x=2), back face visible.
+
+y=2, z=1: backmost cube is (2,2,1), back face visible.
+
+y=2, z=2: backmost cube is (2,2,2), back face visible.
+
+y=1, z=2: no cube.
+
+Total back: 3.
+
+Left view (y=1 direction):
+
+- For each (x,z), the leftmost cube in y-direction has its left face visible.
+
+x=1, z=1: leftmost cube (y=1), left face visible.
+
+x=2, z=1: leftmost cube (y=1), left face visible.
+
+x=2, z=2: no cube at y=1, z=2, so no.
+
+x=1, z=2: no cube.
+
+Total left: 2.
+
+Wait, no:
+
+Left view is looking from y=0 (left side), so for each (x,z), the leftmost cube (smallest y) has its left face visible.
+
+- (x=1, z=1): y=1 is leftmost, so left face visible.
+
+- (x=2, z=1): y=1 is leftmost (cube (2,1,1)), left face visible.
+
+- (x=2, z=2): no cube with y=1, so nothing.
+
+- (x=1, z=2): no cube.
+
+Total left: 2.
+
+Right view (y=2 direction):
+
+- For each (x,z), the rightmost cube in y-direction has its right face visible.
+
+x=1, z=1: rightmost cube (y=2), right face visible.
+
+x=2, z=1: rightmost cube (y=2), right face visible.
+
+x=2, z=2: rightmost cube (y=2), right face visible.
+
+x=1, z=2: no cube.
+
+Total right: 3.
+
+Top view (z=2 direction):
+
+- For each (x,y), the topmost cube in z-direction has its top face visible.
+
+x=1, y=1: z=1 is topmost, top face visible.
+
+x=1, y=2: z=1 is topmost, top face visible.
+
+x=2, y=1: z=1 is topmost, top face visible.
+
+x=2, y=2: z=2 is topmost, top face visible.
+
+Total top: 4.
+
+Bottom view (z=0 direction):
+
+- For each (x,y), the bottommost cube in z-direction has its bottom face visible.
+
+x=1, y=1: z=1 is bottommost, bottom face visible.
+
+x=1, y=2: z=1 is bottommost, bottom face visible.
+
+x=2, y=1: z=1 is bottommost, bottom face visible.
+
+x=2, y=2: z=1 is bottommost (since (2,2,2) is above), so bottom face of (2,2,1) is visible.
+
+Total bottom: 4.
+
+Now front view: 3 (as corrected)
+
+Back view: 3
+
+Left view: 2
+
+Right view: 3
+
+Top view: 4
+
+Bottom view: 4
+
+Sum: 3+3+2+3+4+4=19. Still not 20.
+
+Wait, let's list all exposed faces by position:
+
+Front faces (x=1 direction):
+
+- (1,1,1) front
+
+- (1,2,1) front
+
+- (2,2,2) front (since no cube in front of it at x=1, z=2, y=2)
+
+That's 3.
+
+Back faces (x=2 direction):
+
+- (2,1,1) back
+
+- (2,2,1) back
+
+- (2,2,2) back
+
+3.
+
+Left faces (y=1 direction):
+
+- (1,1,1) left
+
+- (2,1,1) left
+
+2.
+
+Right faces (y=2 direction):
+
+- (1,2,1) right
+
+- (2,2,1) right
+
+- (2,2,2) right
+
+3.
+
+Top faces (z=2 direction):
+
+- (1,1,1) top
+
+- (1,2,1) top
+
+- (2,1,1) top
+
+- (2,2,2) top
+
+4.
+
+Bottom faces (z=1 direction):
+
+- (1,1,1) bottom
+
+- (1,2,1) bottom
+
+- (2,1,1) bottom
+
+- (2,2,1) bottom
+
+4.
+
+Now total: 3+3+2+3+4+4=19. But cube-by-cube was 20.
+
+Let's check cube (2,2,2):
+
+- Front: yes (counted in front view)
+
+- Back: yes (back view)
+
+- Left: is there a left face? (2,2,2) has y=2, so left face is at y=1.5, facing left. Is there a cube to the left (y=1) at (x=2, z=2)? No, so left face of (2,2,2) is exposed. Oh! I forgot the left face of (2,2,2) in the left view.
+
+Left view is looking from the left (y=0), so for (x=2, z=2), the left face of (2,2,2) is visible because there's no cube at y=1, x=2, z=2.
+
+So left view should include:
+
+- (x=1, z=1): (1,1,1) left face
+
+- (x=2, z=1): (2,1,1) left face
+
+- (x=2, z=2): (2,2,2) left face (since no cube at y=1, x=2, z=2)
+
+Ah! That's the mistake. Left view counts all left faces where there's no cube to the left, regardless of z.
+
+For left view (y=1 direction), the left face of a cube is visible if there is no cube at (x, y-1, z). Since y=1 is the leftmost (y=1, y=2), for y=1, there is no y=0, so all cubes with y=1 have left faces exposed. But also, cubes with y=2 have left faces exposed if there's no cube at y=1 for the same x and z.
+
+Yes, for a cube at (x, y, z), the left face is exposed if there is no cube at (x, y-1, z).
+
+So for (2,2,2):
+
+- y=2, so y-1=1. Is there a cube at (2,1,2)? No, so left face is exposed.
+
+Similarly, (1,2,1):
+
+- y=2, y-1=1. Is there a cube at (1,1,1)? Yes, so left face of (1,2,1) is not exposed.
+
+Let's recast all directions by checking adjacency:
+
+For each face direction:
+
+- Front (x-1): exposed if no cube at (x-1, y, z)
+
+- Back (x+1): exposed if no cube at (x+1, y, z)
+
+- Left (y-1): exposed if no cube at (x, y-1, z)
+
+- Right (y+1): exposed if no cube at (x, y+1, z)
+
+- Top (z+1): exposed if no cube at (x, y, z+1)
+
+- Bottom (z-1): exposed if no cube at (x, y, z-1)
+
+Now list all 5 cubes and check each face:
+
+1. (1,1,1):
+
+- Front (x-1=0): no cube → exposed
+
+- Back (x+1=2, y=1, z=1): (2,1,1) exists → not exposed
+
+- Left (y-1=0): no cube → exposed
+
+- Right (y+1=2, x=1, z=1): (1,2,1) exists → not exposed
+
+- Top (z+1=2, x=1, y=1): no cube → exposed
+
+- Bottom (z-1=0): no cube → exposed
+
+Exposed faces: 4
+
+2. (1,2,1):
+
+- Front: exposed
+
+- Back: (2,2,1) exists → not exposed
+
+- Left: (1,1,1) exists → not exposed
+
+- Right: no cube (y+1=3) → exposed
+
+- Top: no cube → exposed
+
+- Bottom: exposed
+
+Exposed: 4
+
+3. (2,1,1):
+
+- Front: (1,1,1) exists → not exposed
+
+- Back: no cube (x+1=3) → exposed
+
+- Left: exposed
+
+- Right: (2,2,1) exists → not exposed
+
+- Top: no cube → exposed
+
+- Bottom: exposed
+
+Exposed: 4
+
+4. (2,2,1):
+
+- Front: (1,2,1) exists → not exposed
+
+- Back: exposed
+
+- Left: (2,1,1) exists → not exposed
+
+- Right: exposed
+
+- Top: (2,2,2) exists → not exposed
+
+- Bottom: exposed
+
+Exposed: 3
+
+5. (2,2,2):
+
+- Front: no cube (x-1=1, y=2, z=2) → exposed (since (1,2,2) doesn't exist)
+
+- Back: exposed
+
+- Left: no cube (x=2, y-1=1, z=2) → exposed (since (2,1,2) doesn't exist)
+
+- Right: exposed
+
+- Top: exposed
+
+- Bottom: (2,2,1) exists → not exposed
+
+Exposed: 5
+
+Now total: 4+4+4+3+5=20.
+
+Now let's count via directions correctly:
+
+Front faces (x-1 direction, i.e., front face of cube where x-1 is empty):
+
+- (1,1,1): x-1=0 empty → front face
+
+- (1,2,1): x-1=0 empty → front face
+
+- (2,2,2): x-1=1 (x=1), y=2, z=2: no cube at (1,2,2) → front face
+
+Total front: 3
+
+Back faces (x+1 direction):
+
+- (2,1,1): x+1=3 empty → back face
+
+- (2,2,1): x+1=3 empty → back face
+
+- (2,2,2): x+1=3 empty → back face
+
+Total back: 3
+
+Left faces (y-1 direction):
+
+- (1,1,1): y-1=0 empty → left face
+
+- (2,1,1): y-1=0 empty → left face
+
+- (2,2,2): y-1=1 (y=1), x=2, z=2: no cube → left face
+
+Total left: 3
+
+Right faces (y+1 direction):
+
+- (1,2,1): y+1=3 empty → right face
+
+- (2,2,1): y+1=3 empty → right face
+
+- (2,2,2): y+1=3 empty → right face
+
+Total right: 3
+
+Top faces (z+1 direction):
+
+- (1,1,1): z+1=2 empty → top face
+
+- (1,2,1): z+1=2 empty → top face
+
+- (2,1,1): z+1=2 empty → top face
+
+- (2,2,2): z+1=3 empty → top face
+
+Total top: 4
+
+Bottom faces (z-1 direction):
+
+- (1,1,1): z-1=0 empty → bottom face
+
+- (1,2,1): z-1=0 empty → bottom face
+
+- (2,1,1): z-1=0 empty → bottom face
+
+- (2,2,1): z-1=0 empty → bottom face
+
+Total bottom: 4
+
+Now sum: 3+3+3+3+4+4=20. Perfect, matches the cube-by-cube count.
+
+So the surface area is 20.
+
+Let me confirm with the shared faces method.
+
+Total faces: 5 cubes * 6 = 30.
+
+Number of shared faces: each shared face is between two cubes, so count the number of adjacent cube pairs.
+
+Adjacent pairs:
+
+- (1,1,1)-(1,2,1): 1 (y-direction)
+
+- (1,1,1)-(2,1,1): 1 (x-direction)
+
+- (1,2,1)-(2,2,1): 1 (x-direction)
+
+- (2,1,1)-(2,2,1): 1 (y-direction)
+
+- (2,2,1)-(2,2,2): 1 (z-direction)
+
+Total adjacent pairs: 5.
+
+Each adjacent pair shares 1 face, so total shared faces: 5.
+
+Each shared face means 2 faces are not exposed (one from each cube), so total hidden faces: 5*2=10.
+
+Total surface area: 30-10=20.
+
+Yes, that's correct.
+
+So the surface area is 20.
+</think>
+
+To determine the **surface area** of the 3D structure shown in the video, we analyze it as a composite of unit cubes (each with side length 1 unit). The structure consists of **5 unit cubes**, arranged in a specific configuration:
+
+- A **2x2 base** on the bottom layer (z = 1), consisting of cubes at positions:
+  - (1,1,1)
+  - (1,2,1)
+  - (2,1,1)
+  - (2,2,1)
+
+- One **additional cube** stacked on top of (2,2,1), at position:
+  - (2,2,2)
+
+---
+
+### Step 1: Total Faces Without Adjacency
+
+Each cube has **6 faces**, and there are **5 cubes**.
+
+$$
+\text{Total faces} = 5 \times 6 = 30
+$$
+
+---
+
+### Step 2: Count Shared Faces
+
+When two cubes are adjacent (i.e., share a face), that face is **not exposed**. We count how many such shared faces exist between the cubes:
+
+- (1,1,1) and (1,2,1): share a face → 1
+- (1,1,1) and (2,1,1): share a face → 1
+- (1,2,1) and (2,2,1): share a face → 1
+- (2,1,1) and (2,2,1): share a face → 1
+- (2,2,1) and (2,2,2): share a face → 1
+
+$$
+\text{Total shared faces} = 5
+$$
+
+Each shared face hides **2 faces** (one from each cube), so the number of **hidden faces** is:
+
+$$
+\text{Hidden faces} = 5 \times 2 = 10
+$$
+
+---
+
+### Step 3: Calculate Exposed Surface Area
+
+$$
+\text{Surface Area} = \text{Total faces} - \text{Hidden faces} = 30 - 10 = 20
+$$
+
+---
+
+### Final Answer
+
+$$
+\boxed{20}
+$$

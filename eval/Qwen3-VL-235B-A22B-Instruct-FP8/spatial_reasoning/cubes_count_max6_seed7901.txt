@@ -1,0 +1,152 @@
+We are shown a 3D structure made of small colored cubes. The structure starts as a solid 3x3x3 cube (27 small cubes), and then cubes are removed one by one in a sequence.
+
+Our task is to count how many cubes are left at the end.
+
+Let’s analyze the sequence:
+
+- At 0:04, we see a full 3x3x3 cube. That’s 27 cubes.
+- From 0:05 to 0:10, cubes are being removed one at a time. Let’s count how many are removed.
+
+We need to carefully watch each frame to see when a cube disappears.
+
+At 0:05: still 27 cubes (no removal yet).
+
+At 0:06: one cube is removed (top front right corner?).
+
+At 0:07: another cube removed (top front center?).
+
+At 0:08: another cube removed (top back right?).
+
+At 0:09: another cube removed (middle front right?).
+
+At 0:10: another cube removed (bottom front right?).
+
+Wait — let’s count the removals more carefully.
+
+Actually, let’s count the cubes in the final structure shown at 0:10.
+
+At 0:10, the structure is stable. We can count the visible cubes, but we must also account for hidden cubes that are still there (since it’s a 3D structure).
+
+But the video is showing a dynamic removal. Let’s count the number of removals:
+
+From 0:04 to 0:05: no removal.
+
+0:05 to 0:06: one cube removed.
+
+0:06 to 0:07: second cube removed.
+
+0:07 to 0:08: third cube removed.
+
+0:08 to 0:09: fourth cube removed.
+
+0:09 to 0:10: fifth cube removed.
+
+So 5 cubes are removed.
+
+Therefore, 27 - 5 = 22 cubes left.
+
+But let’s verify by counting the cubes in the final structure at 0:10.
+
+We can try to count layer by layer.
+
+Top layer (z=3):
+
+- Front row: left and middle are present, right is missing → 2 cubes.
+- Middle row: left, middle, right — all present? Wait, at 0:10, top middle is missing? Let’s look.
+
+Actually, at 0:10, the top layer:
+
+- Front row: left (green), middle (yellow) — right is missing.
+- Middle row: left (red), middle (blue), right (yellow) — all present? Wait, top middle is missing? No, at 0:10, the top center is missing? Let me re-examine.
+
+Perhaps it’s easier to count the total cubes in the final structure by visualizing.
+
+Since the removals are shown sequentially, and 5 cubes are removed, and the structure is 3x3x3 initially, then 27 - 5 = 22.
+
+But let’s make sure that no cube is removed twice or that we miscounted the removals.
+
+Looking at the frames:
+
+- 0:04: full cube.
+- 0:05: still full.
+- 0:06: one cube missing (top front right).
+- 0:07: another missing (top front center).
+- 0:08: another missing (top back right).
+- 0:09: another missing (middle front right).
+- 0:10: another missing (bottom front right).
+
+Yes, 5 cubes removed.
+
+Therefore, 27 - 5 = 22.
+
+We can also count the cubes in the final structure:
+
+Top layer (z=3):
+
+- Row 1 (front): left (green), middle (yellow) — right missing → 2
+- Row 2 (middle): left (red), middle (blue), right (yellow) — all present? Wait, at 0:10, top middle is missing? No, in 0:07, top front center is removed, which is row1, col2.
+
+In top layer:
+
+- (1,1): green — present
+- (1,2): yellow — removed (at 0:07)
+- (1,3): red — removed (at 0:06)
+- (2,1): red — present
+- (2,2): blue — present
+- (2,3): yellow — present? At 0:08, top back right is removed, which is (3,3) in top layer? Let's define coordinates.
+
+Let’s define the cube positions as (x,y,z) with x=1,2,3 from left to right, y=1,2,3 from front to back, z=1,2,3 from bottom to top.
+
+At 0:06: top front right (x=3,y=1,z=3) is removed.
+
+At 0:07: top front center (x=2,y=1,z=3) is removed.
+
+At 0:08: top back right (x=3,y=3,z=3) is removed.
+
+At 0:09: middle front right (x=3,y=1,z=2) is removed.
+
+At 0:10: bottom front right (x=3,y=1,z=1) is removed.
+
+So removed cubes are:
+
+1. (3,1,3)
+2. (2,1,3)
+3. (3,3,3)
+4. (3,1,2)
+5. (3,1,1)
+
+Now, total cubes initially: 3x3x3=27.
+
+Removed: 5.
+
+Left: 27 - 5 = 22.
+
+To confirm, let's count the remaining cubes.
+
+We can count by layers.
+
+Bottom layer (z=1):
+
+- All positions except (3,1,1) — which is removed.
+
+So: 3x3 = 9, minus 1 = 8 cubes.
+
+Middle layer (z=2):
+
+- All positions except (3,1,2) — removed.
+
+So 9 - 1 = 8 cubes.
+
+Top layer (z=3):
+
+- Removed: (2,1,3), (3,1,3), (3,3,3)
+
+So 9 - 3 = 6 cubes.
+
+Total: 8 + 8 + 6 = 22.
+
+Yes.
+
+Therefore, the number of cubes left is 22.
+
+\boxed{22}

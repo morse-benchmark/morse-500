@@ -1,0 +1,354 @@
+Okay, let's try to figure out this problem. The question is asking for the sum of the distance of all shifts that happened to the letter 'A' across all word moves. First, I need to understand what's happening in the video. Let's look at the sequence of words shown.
+
+Starting from the first word: MOUNTAIN (frame 3). Then it changes to A O M T U N N (frame 5), then N U I O T M N A (frame 7), then A N N O T M U (frame 8), then M I N U N O A T (frame 9), and finally T M I A U N N O (frame 11-13). Wait, let me list all the words in order as they appear:
+
+1. MOUNTAIN (frame 3)
+2. A O M T U N N (frame 5)
+3. N U I O T M N A (frame 7)
+4. A N N O T M U (frame 8)
+5. M I N U N O A T (frame 9)
+6. T M I A U N N O (frame 11)
+
+Wait, maybe the video shows a sequence of transformations where each frame is a permutation of the letters of "MOUNTAIN". Let's confirm the letters in MOUNTAIN: M, O, U, N, T, A, I, N. Wait, MOUNTAIN has 8 letters: M, O, U, N, T, A, I, N. Let's check the length of each word:
+
+- MOUNTAIN: 8 letters (M, O, U, N, T, A, I, N)
+- A O M T U N N: 7 letters? Wait, no, maybe it's a typo. Wait, frame 5 shows "A O M T U N N" but that's 7 letters. Wait, maybe it's "A O M T U N N" but MOUNTAIN has two Ns (positions 4 and 8). Let's count MOUNTAIN: M(1), O(2), U(3), N(4), T(5), A(6), I(7), N(8). So 8 letters, with N at 4 and 8.
+
+Now, looking at frame 5: "A O M T U N N" – that's 7 letters, but maybe it's a typo and should be 8. Wait, frame 6 is "A ONM TAN N" which might be "A O N M T A N N"? No, maybe the spaces are just separators. Let's check frame 7: "N U I O T M N A" which is 8 letters (N, U, I, O, T, M, N, A). That's 8 letters, so each word is 8 letters, with two Ns. So MOUNTAIN has letters [M, O, U, N, T, A, I, N].
+
+Let's list each frame's word as 8-letter strings:
+
+Frame 3: M O U N T A I N (positions 0-7 maybe, but let's index from 1 for simplicity)
+Wait, maybe better to index positions 1 to 8.
+
+1. MOUNTAIN: positions 1-8: [M, O, U, N, T, A, I, N] (A is at position 6)
+2. Frame 5: Let's see the text: "A O M T U N N" – wait, maybe it's "A O M T U N N" but that's 7, so maybe the 8th is missing. Wait frame 6: "A ONM TAN N" – maybe "A O N M T A N N"? No, frame 7 is "N U I O T M N A" which is 8 letters: N(1), U(2), I(3), O(4), T(5), M(6), N(7), A(8). So A is at position 8 here.
+
+Frame 8: "A N N O T M U" – 7 letters, but probably 8, so maybe "A N N O T M U" with a missing letter? Wait no, frame 9 is "M I N U N O A T" which is 8 letters: M, I, N, U, N, O, A, T (A at position 7).
+
+Frame 11: "T M I A U N N O" which is 8 letters: T, M, I, A, U, N, N, O (A at position 4).
+
+Wait, let's list all the words with their letters and positions of A:
+
+1. Original: MOUNTAIN → M, O, U, N, T, A, I, N (A at position 6)
+2. Next word: Let's check frame 5: "A O M T U N N" – maybe it's a typo and the correct word is "A O M T U N N" but missing one N? No, MOUNTAIN has two Ns, so all permutations should have two Ns. Let's check frame 5 again: the text is "A O M T U N N" but maybe it's "A O M T U N N" with 8 letters (maybe the last N is two Ns, so positions 1:A, 2:O, 3:M, 4:T, 5:U, 6:N, 7:N, 8:? No, that's 7 letters. Wait, frame 6: "A ONM TAN N" – maybe it's "A O N M T A N N" but that has two As, which can't be because MOUNTAIN has only one A. Ah, right! MOUNTAIN has exactly one A, so all the words must have exactly one A. So that's a key point. So each word is a permutation of M, O, U, N, T, A, I, N (with two Ns, one A, etc.)
+
+So let's list each word with 8 letters, each containing one A:
+
+- Frame 3: MOUNTAIN → [M, O, U, N, T, A, I, N] (A at index 5 if 0-based, 6 if 1-based; let's use 1-based for position)
+- Frame 5: The text is "A O M T U N N" – but that's 7 letters. Wait, maybe it's "A O M T U N N" but missing a letter? No, maybe the spaces are just for separation, so "AOMTUNN" is 7 letters, but that's impossible. Wait, frame 7: "N U I O T M N A" → N, U, I, O, T, M, N, A (8 letters, A at position 8)
+- Frame 8: "A N N O T M U" → A, N, N, O, T, M, U (7 letters) – no, must be 8. Wait frame 8's text is "A N N O T M U" but maybe it's "A N N O T M U " with an extra space, but no. Wait frame 9: "M I N U N O A T" → M, I, N, U, N, O, A, T (8 letters, A at position 7)
+- Frame 11: "T M I A U N N O" → T, M, I, A, U, N, N, O (8 letters, A at position 4)
+
+Let's check all the frames where the word is shown:
+
+- Frame 3: MOUNTAIN (8 letters, A at 6)
+- Frame 5: "A O M T U N N" → maybe it's "A O M T U N N" but with a typo, perhaps "A O M T U N N" is actually "A O M T U N N" but the correct 8-letter word is missing a letter. Wait, no, maybe the first transformation is from MOUNTAIN to a scrambled version. Let's look at frame 4: "M O U N T A I N" (same as MOUNTAIN), frame 5: "A O M T U N N" – maybe it's "A O M T U N N" but the last N is two Ns, so positions 1:A,2:O,3:M,4:T,5:U,6:N,7:N,8:? No, 8 letters. Wait, maybe the words are:
+
+1. MOUNTAIN → positions 1-8: [M, O, U, N, T, A, I, N] (A at 6)
+2. Next: frame 5 shows "A O M T U N N" but maybe it's "A O M T U N N" as 8 letters with a space error. Wait, frame 6: "A ONM TAN N" – maybe "A O N M T A N N" but that has two As, which is wrong. Wait, the problem says "all word moves", so each move is a shift (permutation) of the letters.
+
+Wait, let's list all the words that appear with A:
+
+- MOUNTAIN: A at position 6 (1-based)
+- Frame 7: N U I O T M N A → A at position 8
+- Frame 9: M I N U N O A T → A at position 7
+- Frame 11: T M I A U N N O → A at position 4
+
+What about frame 5 and 8? Frame 5: "A O M T U N N" – if it's 8 letters, maybe the last character is missing, but if A is the first letter, position 1. Let's check frame 5: the text is "A O M T U N N" which is 7 letters, but maybe it's a mistake and should be 8. Let's see frame 8: "A N N O T M U" – 7 letters, but if it's 8, maybe "A N N O T M U " (but no). Alternatively, maybe the sequence is:
+
+1. MOUNTAIN (A at 6)
+2. A O M T U N N (but this is 7 letters, so maybe it's a typo and should be A O M T U N N with an extra N? No, MOUNTAIN has two Ns, so the scrambled word must have two Ns. Let's count letters in MOUNTAIN: M(1), O(1), U(1), N(2), T(1), A(1), I(1) → total 8.
+
+Let's list all the scrambled words that are 8 letters:
+
+- Frame 7: "N U I O T M N A" → N, U, I, O, T, M, N, A (8 letters: two Ns, correct)
+- Frame 9: "M I N U N O A T" → M, I, N, U, N, O, A, T (8 letters: two Ns)
+- Frame 11: "T M I A U N N O" → T, M, I, A, U, N, N, O (8 letters: two Ns)
+- Frame 3: MOUNTAIN (original)
+- Frame 5: Maybe "A O M T U N N" is missing a letter, but let's check frame 8: "A N N O T M U" – 7 letters, so probably not. Wait frame 6: "A ONM TAN N" – maybe "A O N M T A N N" but that has two As, which is impossible. So maybe the words with A are:
+
+1. MOUNTAIN: A at 6
+2. Next word: Let's see frame 5 shows "A O M T U N N" but if it's 8 letters, maybe it's "A O M T U N N " with a space, but no. Alternatively, maybe the first scrambled word is "A O M T U N N" as 7 letters, but that can't be. Wait, maybe the video shows the following sequence:
+
+- Start: MOUNTAIN (A at 6)
+- Then: A O M T U N N (but this is 7 letters, maybe the correct 8-letter word is "A O M T U N N I" but no, I is already in MOUNTAIN. Wait, MOUNTAIN has letters M, O, U, N, T, A, I, N. So all permutations must have these 8 letters.
+
+Let's list all the words shown with 8 letters:
+
+- MOUNTAIN: M, O, U, N, T, A, I, N (A at 6)
+- NUIOTMNA (frame 7): N, U, I, O, T, M, N, A (A at 8)
+- ANN OT MU (frame 8): A, N, N, O, T, M, U – missing one letter, but maybe it's "A N N O T M U I" but the frame shows "A N N O T M U", so probably "A N N O T M U" is 7, which is wrong. Maybe the frame 8 text is "A N N O T M U" but the actual word is 8 letters with A at position 1 (if it's "A N N O T M U X", but X must be I, so "A N N O T M U I" – yes, that's 8 letters: A, N, N, O, T, M, U, I (A at 1)
+- MINUNOAT (frame 9): M, I, N, U, N, O, A, T (A at 7)
+- TMI AUNNO (frame 11): T, M, I, A, U, N, N, O (A at 4)
+
+Let's verify each:
+
+- MOUNTAIN: 8 letters, A at 6 (1-based)
+- Frame 7: NUIOTMNA → N(1), U(2), I(3), O(4), T(5), M(6), N(7), A(8) → A at 8
+- Frame 8: Let's assume it's "A N N O T M U I" (since MOUNTAIN has I), so A(1), N(2), N(3), O(4), T(5), M(6), U(7), I(8) → A at 1
+- Frame 9: MINUNOAT → M(1), I(2), N(3), U(4), N(5), O(6), A(7), T(8) → A at 7
+- Frame 11: TMI AUNNO → T(1), M(2), I(3), A(4), U(5), N(6), N(7), O(8) → A at 4
+
+Now, let's confirm the sequence of words. The problem says "all word moves", so each move is a transition from one word to the next. We need to track the position of A in each word and calculate the distance (absolute difference) between consecutive positions, then sum all those distances.
+
+First, list all the words in order as they appear in the video:
+
+1. MOUNTAIN (frame 3) → A at 6
+2. Frame 5: Let's see, frame 5 shows "A O M T U N N" – if it's "A O M T U N N" but missing I, but MOUNTAIN has I, so the correct word must include I. Wait frame 6: "A ONM TAN N" – maybe it's "A O N M T A N N" but that's two As, which is wrong. Maybe the order of the words is:
+
+- Frame 3: MOUNTAIN
+- Frame 5: A O M T U N N (but 7 letters, maybe a typo for "A O M T U N N I" → A at 1, 8 letters)
+- Frame 6: A ONM TAN N (maybe "A O N M T A N N" but no)
+- Frame 7: NUIOTMNA (A at 8)
+- Frame 8: A N N O T M U (A at 1, 8 letters with I at the end)
+- Frame 9: MINUNOAT (A at 7)
+- Frame 10: TMIAUNNO (no, frame 10 shows "TMIAUNNO" but frame 11 is "T M I A U N N O" which is TMIAUNNO, A at 4)
+
+Wait, let's list the frames with text:
+
+- Frame 1-2: Question
+- Frame 3: MOUNTAIN
+- Frame 4: MOUNTAIN (same)
+- Frame 5: A O M T U N N
+- Frame 6: A ONM TAN N
+- Frame 7: NUIOTMNA
+- Frame 8: A N N O T M U
+- Frame 9: MINUNOAT
+- Frame 10: M I A U N N O (but frame 10 text is "M I A U N N O" which is 7 letters)
+- Frame 11-13: T M I A U N N O (8 letters)
+
+This is confusing. Maybe the key is to list all the words where A appears, and note their positions.
+
+Let's look at the words that are 8 letters and have one A:
+
+1. MOUNTAIN: letters [M, O, U, N, T, A, I, N] → A at index 5 (0-based) or 6 (1-based). Let's use 1-based for simplicity (position 1 to 8).
+
+2. Frame 7: "N U I O T M N A" → positions 1:N, 2:U, 3:I, 4:O, 5:T, 6:M, 7:N, 8:A → A at 8.
+
+3. Frame 9: "M I N U N O A T" → 1:M, 2:I, 3:N, 4:U, 5:N, 6:O, 7:A, 8:T → A at 7.
+
+4. Frame 11: "T M I A U N N O" → 1:T, 2:M, 3:I, 4:A, 5:U, 6:N, 7:N, 8:O → A at 4.
+
+Now, what about frame 5: "A O M T U N N" – if it's 8 letters, the last character might be I, so "A O M T U N N I" → A at 1, N at 6,7, I at 8. But the text shows "A O M T U N N" (7 letters), but since MOUNTAIN has I, it must be there. So maybe frame 5's word is "A O M T U N N I" with A at 1.
+
+Frame 8: "A N N O T M U" – 7 letters, so adding I at the end: "A N N O T M U I" → A at 1.
+
+Wait, but the problem says "all word moves", so each move is a transition between consecutive words. Let's assume the sequence of words is:
+
+1. MOUNTAIN (A at 6)
+2. [Next word: let's say frame 5's word is "AOMTUNNI" (A at 1)]
+3. Frame 7: NUIOTMNA (A at 8)
+4. Frame 8: ANN... (A at 1)
+5. Frame 9: MINUNOAT (A at 7)
+6. Frame 11: TMI AUNNO (A at 4)
+
+But maybe the correct sequence is the order in which the words are displayed:
+
+- First word: MOUNTAIN (A at 6)
+- Then: A O M T U N N (assuming A at 1)
+- Then: N U I O T M N A (A at 8)
+- Then: A N N O T M U (A at 1)
+- Then: M I N U N O A T (A at 7)
+- Then: T M I A U N N O (A at 4)
+
+Let's check the number of letters in each:
+
+- MOUNTAIN: 8 (A at 6)
+- A O M T U N N: if it's 7, but must be 8, so maybe it's a typo and the word is "AOMTUNN" with a missing letter, but since A is first, let's assume position 1 for A here.
+- N U I O T M N A: 8 letters (A at 8)
+- A N N O T M U: 7 letters, but with 8, A at 1
+- M I N U N O A T: 8 (A at 7)
+- T M I A U N N O: 8 (A at 4)
+
+Now, let's list the positions of A in each consecutive word:
+
+1. MOUNTAIN: 6
+2. Next word (frame 5): Let's see the text "A O M T U N N" – if A is first, position 1
+3. Next (frame 7): N U I O T M N A → A at 8
+4. Next (frame 8): A N N O T M U → A at 1
+5. Next (frame 9): M I N U N O A T → A at 7
+6. Next (frame 11): T M I A U N N O → A at 4
+
+Now, the "word moves" are the transitions between each word, so we need to find the distance (absolute difference) of A's position between each consecutive pair.
+
+First, let's confirm the exact positions:
+
+- Word 1: MOUNTAIN → letters [M, O, U, N, T, A, I, N]. Positions 1-8: A is at 6.
+- Word 2: Let's check frame 5: the text is "A O M T U N N". If we count the characters: A (1), O (2), M (3), T (4), U (5), N (6), N (7) → that's 7, but it should be 8. The original has I, so I must be in position 8. So word 2: [A, O, M, T, U, N, N, I] → A at 1.
+- Word 3: Frame 7: "N U I O T M N A" → N(1), U(2), I(3), O(4), T(5), M(6), N(7), A(8) → A at 8.
+- Word 4: Frame 8: "A N N O T M U" → assuming I is at the end, [A, N, N, O, T, M, U, I] → A at 1.
+- Word 5: Frame 9: "M I N U N O A T" → M(1), I(2), N(3), U(4), N(5), O(6), A(7), T(8) → A at 7.
+- Word 6: Frame 11: "T M I A U N N O" → T(1), M(2), I(3), A(4), U(5), N(6), N(7), O(8) → A at 4.
+
+Now, list the A positions in order:
+
+1. 6 (MOUNTAIN)
+2. 1 (frame 5 word)
+3. 8 (frame 7 word)
+4. 1 (frame 8 word)
+5. 7 (frame 9 word)
+6. 4 (frame 11 word)
+
+Now, calculate the distance between each consecutive pair:
+
+- Between 6 and 1: |6 - 1| = 5
+- Between 1 and 8: |1 - 8| = 7
+- Between 8 and 1: |8 - 1| = 7
+- Between 1 and 7: |1 - 7| = 6
+- Between 7 and 4: |7 - 4| = 3
+
+Now, sum these distances: 5 + 7 + 7 + 6 + 3 = 28.
+
+Wait, but let's make sure we have all the moves. How many word moves are there? If there are N words, there are N-1 moves.
+
+Let's count the number of words displayed:
+
+- Frame 3: MOUNTAIN (1)
+- Frame 5: A O M T U N N (2)
+- Frame 7: N U I O T M N A (3)
+- Frame 8: A N N O T M U (4)
+- Frame 9: M I N U N O A T (5)
+- Frame 11: T M I A U N N O (6)
+
+So 6 words, hence 5 moves.
+
+Now, verify each word's A position again:
+
+1. MOUNTAIN: M, O, U, N, T, A, I, N → A is the 6th letter (1-based), correct.
+2. Frame 5: The text is "A O M T U N N". Let's count the letters: A (1), O (2), M (3), T (4), U (5), N (6), N (7). Wait, 7 letters, but MOUNTAIN has 8. The missing letter is I, so where is I? Maybe the frame 5 word is actually "A O M T U N I N" (swapped N and I), but the text shows "A O M T U N N", so maybe it's a typo and the correct position of A is 1.
+3. Frame 7: "N U I O T M N A" → 8 letters, A at 8, correct.
+4. Frame 8: "A N N O T M U" → 7 letters, missing I. If I is the 8th letter, A is at 1.
+5. Frame 9: "M I N U N O A T" → 8 letters, A at 7 (7th letter is A), correct.
+6. Frame 11: "T M I A U N N O" → 8 letters, A at 4 (4th letter), correct.
+
+Another way: let's list all the words with their A positions as per the video:
+
+- MOUNTAIN: A is at position 6 (since M(1), O(2), U(3), N(4), T(5), A(6), I(7), N(8))
+- Next word (frame 5): "A O M T U N N" – if we consider the letters as A (1), O (2), M (3), T (4), U (5), N (6), N (7), and the 8th letter must be I (since MOUNTAIN has I), so the word is A, O, M, T, U, N, N, I → A at 1.
+- Next (frame 7): "N U I O T M N A" → N(1), U(2), I(3), O(4), T(5), M(6), N(7), A(8) → A at 8.
+- Next (frame 8): "A N N O T M U" – A(1), N(2), N(3), O(4), T(5), M(6), U(7), I(8) (since I is missing) → A at 1.
+- Next (frame 9): "M I N U N O A T" → M(1), I(2), N(3), U(4), N(5), O(6), A(7), T(8) → A at 7.
+- Next (frame 11): "T M I A U N N O" → T(1), M(2), I(3), A(4), U(5), N(6), N(7), O(8) → A at 4.
+
+Now, the moves are between:
+
+1→2: 6 to 1 → distance 5
+
+2→3: 1 to 8 → distance 7
+
+3→4: 8 to 1 → distance 7
+
+4→5: 1 to 7 → distance 6
+
+5→6: 7 to 4 → distance 3
+
+Sum: 5+7=12, +7=19, +6=25, +3=28.
+
+Is there any other word? Let's check frame 10: "M I A U N N O" which is 7 letters, so maybe it's a typo for "M I A U N N O T" but no, frame 9 is MINUNOAT which is M,I,N,U,N,O,A,T. Frame 10 might be a transition, but the text is "M I A U N N O" which has A at position 3 (1-based: M(1), I(2), A(3), U(4), N(5), N(6), O(7)), but it's 7 letters, so probably not a valid word. The last valid word is frame 11 with A at 4.
+
+Another check: the problem says "across all word moves", so each time the word changes, we calculate the shift of A.
+
+Let's confirm the positions again with 0-based index (maybe the problem uses 0-based):
+
+- MOUNTAIN: A is at index 5 (0-based)
+- Frame 5 word: A at index 0
+- Frame 7 word: A at index 7
+- Frame 8 word: A at index 0
+- Frame 9 word: A at index 6
+- Frame 11 word: A at index 3
+
+Distances:
+
+5-0: 5
+
+0-7: 7
+
+7-0:7
+
+0-6:6
+
+6-3:3
+
+Sum is still 28.
+
+Yes, regardless of 1-based or 0-based, the absolute differences are the same.
+
+Now, is there a possibility that some words don't have A? No, because all permutations of MOUNTAIN must include A, so every word has exactly one A.
+
+Another check: let's list all the words and their A positions as shown in the video frames:
+
+- Frame 3: MOUNTAIN → A is the 6th character (1-based)
+- Frame 5: "A O M T U N N" → A is first character (1)
+- Frame 7: "N U I O T M N A" → A is last character (8)
+- Frame 8: "A N N O T M U" → A is first character (1)
+- Frame 9: "M I N U N O A T" → A is 7th character (7)
+- Frame 11: "T M I A U N N O" → A is 4th character (4)
+
+Yes, that's consistent.
+
+Now, the shifts are between consecutive frames where the word changes. The question is "sum of the distance of all shifts that happened to the letter 'A' across all word moves". So each word move is a shift from one word to the next, and for each move, the distance is the absolute difference in A's position.
+
+Number of moves: 5 (since 6 words).
+
+Calculations:
+
+1. MOUNTAIN (6) to frame 5 word (1): |6-1|=5
+
+2. Frame 5 (1) to frame 7 (8): |1-8|=7
+
+3. Frame 7 (8) to frame 8 (1): |8-1|=7
+
+4. Frame 8 (1) to frame 9 (7): |1-7|=6
+
+5. Frame 9 (7) to frame 11 (4): |7-4|=3
+
+Sum: 5+7+7+6+3=28.
+
+I think that's the answer.
+</think>
+
+To determine the **sum of the distance of all shifts that happened to the letter 'A' across all word moves**, we analyze the sequence of words shown in the video, tracking the position of the letter **'A'** in each.
+
+---
+
+### Step 1: Identify the Sequence of Words
+
+The video shows the following sequence of 8-letter permutations of the word **MOUNTAIN** (which contains exactly one 'A'):
+
+1. **MOUNTAIN** → A is at position **6** (1-based)
+2. **A O M T U N N I** → A is at position **1**
+3. **N U I O T M N A** → A is at position **8**
+4. **A N N O T M U I** → A is at position **1**
+5. **M I N U N O A T** → A is at position **7**
+6. **T M I A U N N O** → A is at position **4**
+
+(Note: Some frames may have missing letters or formatting issues, but since MOUNTAIN has 8 letters and only one 'A', all permutations must contain exactly one 'A'.)
+
+---
+
+### Step 2: Calculate Shift Distances Between Consecutive Words
+
+We compute the **absolute difference** between the positions of 'A' in consecutive words:
+
+- From **6 → 1**: $ |6 - 1| = 5 $
+- From **1 → 8**: $ |1 - 8| = 7 $
+- From **8 → 1**: $ |8 - 1| = 7 $
+- From **1 → 7**: $ |1 - 7| = 6 $
+- From **7 → 4**: $ |7 - 4| = 3 $
+
+---
+
+### Step 3: Sum the Distances
+
+$$
+5 + 7 + 7 + 6 + 3 = 28
+$$
+
+---
+
+### Final Answer
+
+$$
+\boxed{28}
+$$

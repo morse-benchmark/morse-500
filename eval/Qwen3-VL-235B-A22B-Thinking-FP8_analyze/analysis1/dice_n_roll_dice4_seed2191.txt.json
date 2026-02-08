@@ -1,0 +1,36 @@
+{
+  "question_name": "dice_n_roll_dice4_seed2191.txt",
+  "question": "After each roll, record the color on the top of each cube. How many times was green rolled in total? Answer with a single integer.",
+  "solution": "7",
+  "model_output": "To determine how many times **green** was rolled in total, we analyze the sequence of cube positions shown in the video. Each frame represents a new roll, and for each roll, we examine the top color of all four cubes.\n\n---\n\n### Step-by-Step Analysis\n\nWe count the number of times **green** appears on the top face of any cube across all rolls:\n\n1. **First roll (11.9s):**  \n   - Top colors: red, yellow, purple, red  \n   - Green count: **0**\n\n2. **Second roll (13.8s):**  \n   - Top colors: white, **green**, white, white  \n   - Green count: **1**\n\n3. **Third roll (15.7s):**  \n   - Top colors: white, yellow, red, red  \n   - Green count: **0**\n\n4. **Fourth roll (17.6s):**  \n   - Top colors: red, **green**, red, blue  \n   - Green count: **1**\n\n5. **Fifth roll (19.5s):**  \n   - Top colors: white, white, **green**, red  \n   - Green count: **1**\n\n6. **Sixth roll (21.4s):**  \n   - Top colors: blue, yellow, purple, **green**  \n   - Green count: **1**\n\n---\n\n### Total Count\n\nAdding up the occurrences:\n$$\n0 + 1 + 0 + 1 + 1 + 1 = \\boxed{4}\n$$\n\n---\n\n### Final Answer\n\n$$\n\\boxed{4}\n$$",
+  "gt_reasoning_trace": "**Question:** How many times was green rolled in total? Answer with a single integer.\n\nLet's solve this step by step.\n\n### Scene Description\n\nAt 0:00, Title appears: 'Remember the following color names'\nAt 0:03, Color legend displayed with 6 colors: blue, red, white, green, yellow, purple\nAt 0:06, Color legend fades out\nAt 0:06, Prompt appears: 'After each roll, record the color on the top of each cube'\nAt 0:09, Prompt fades out\nAt 0:10, Creating 4 cubes with random colors\nAt 0:10, All 4 cubes appear on screen\nAt 0:10, Roll 1 begins\nAt 0:11, Roll 1 completes\nAt 0:12, Roll 2 begins\nAt 0:13, Roll 2 completes\nAt 0:14, Roll 3 begins\nAt 0:15, Roll 3 completes\nAt 0:16, Roll 4 begins\nAt 0:17, Roll 4 completes\nAt 0:18, Roll 5 begins\nAt 0:19, Roll 5 completes\nAt 0:22, All objects fade out before question display\nAt 0:23, Question text appears on screen\nAt 0:28, Question remains on screen\n\n### Step 1: Understand the cube configuration\nThere are **4 cube(s)** shown in the video.\n\n**Cube 1** has the following colors on its faces:\n- IN (back): white\n- OUT (front): red\n- LEFT: white\n- RIGHT: blue\n- UP (top): red\n- DOWN (bottom): white\n\n**Cube 2** has the following colors on its faces:\n- IN (back): green\n- OUT (front): yellow\n- LEFT: green\n- RIGHT: green\n- UP (top): white\n- DOWN (bottom): white\n\n**Cube 3** has the following colors on its faces:\n- IN (back): red\n- OUT (front): red\n- LEFT: green\n- RIGHT: purple\n- UP (top): purple\n- DOWN (bottom): white\n\n**Cube 4** has the following colors on its faces:\n- IN (back): green\n- OUT (front): white\n- LEFT: red\n- RIGHT: blue\n- UP (top): green\n- DOWN (bottom): red\n\n### Step 2: Track rolls (5 total)\nAfter each roll, we record which color appears on top of each cube:\n\n**Roll 1:** Cube 1: blue, Cube 2: white, Cube 3: green, Cube 4: green\n**Roll 2:** Cube 1: white, Cube 2: green, Cube 3: red, Cube 4: white\n**Roll 3:** Cube 1: red, Cube 2: yellow, Cube 3: purple, Cube 4: blue\n**Roll 4:** Cube 1: red, Cube 2: green, Cube 3: green, Cube 4: white\n**Roll 5:** Cube 1: white, Cube 2: green, Cube 3: red, Cube 4: green\n\n### Step 3: Count total occurrences\n- **blue**: 2 time(s)\n- **green**: 7 time(s)\n- **purple**: 1 time(s)\n- **red**: 4 time(s)\n- **white**: 5 time(s)\n- **yellow**: 1 time(s)\n\n### Step 4: Count green occurrences\nThe color **green** was rolled **7** time(s) in total.\n\n### Final Answer\n**7**\n\n\\boxed{7}",
+  "is_correct": false,
+  "analysis_result": {
+    "has_error": true,
+    "primary_error_category": "TEMPORAL",
+    "errors": [
+      {
+        "category": "TEMPORAL",
+        "subcategory": "Event ordering",
+        "description": "The model incorrectly assumed there were 6 rolls instead of 5, misaligning the sequence of events and leading to an incorrect count of green occurrences.",
+        "evidence_quote": "Model trace: 'Sixth roll (21.4s): Top colors: blue, yellow, purple, green'",
+        "severity": "major"
+      },
+      {
+        "category": "REASONING",
+        "subcategory": "Counting",
+        "description": "Even within its incorrect 6-roll framework, the model failed to correctly count green occurrences, missing green appearances in rolls it did recognize.",
+        "evidence_quote": "Model trace: 'First roll: Green count: 0' — but ground truth shows Cube 3 and Cube 4 were green in Roll 1.",
+        "severity": "major"
+      },
+      {
+        "category": "PERCEPTION",
+        "subcategory": "Attribute error",
+        "description": "The model misidentified the top face colors of cubes in multiple rolls, particularly missing green faces that were clearly visible according to ground truth.",
+        "evidence_quote": "Model trace: 'First roll: Top colors: red, yellow, purple, red' — contradicts ground truth which lists Cube 3 and Cube 4 as green.",
+        "severity": "major"
+      }
+    ],
+    "analysis": "The model's reasoning collapsed due to a cascade of errors. It first miscounted the number of rolls (6 instead of 5), which invalidated the entire temporal framework. Then, within each roll, it misperceived the top face colors of the cubes — especially failing to detect green faces that were present. This led to an incorrect final count of 4 green occurrences instead of the correct 7. The core failure lies in misordering events (TEMPORAL) and misperceiving object attributes (PERCEPTION), both of which compounded into a reasoning (REASONING) failure in counting."
+  }
+}

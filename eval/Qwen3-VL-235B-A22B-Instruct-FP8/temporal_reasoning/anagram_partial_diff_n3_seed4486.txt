@@ -1,0 +1,292 @@
+We are given a word: **MOUNTAIN**
+
+We are to find the **difference in position** of the letter **'T'** between:
+- After **shuffle 3**
+- After **shuffle 0**
+
+And return the answer as a number.
+
+---
+
+First, we need to understand what “shuffle 0” and “shuffle 3” mean.
+
+From the video frames:
+
+- At 0:02, the word **MOUNTAIN** appears — this is likely **shuffle 0** (original).
+- Then at 0:05, we see **NTIUOMAN** — this is likely **shuffle 1**.
+- At 0:06, we see **UNOMNTAI** — likely **shuffle 2**.
+- At 0:08, we see **NTNUOMIA** — likely **shuffle 3**.
+
+So, we can assume the shuffles are applied sequentially, and we are to track the position of the letter **'T'** after each shuffle.
+
+Let’s index positions starting from **0** (leftmost is position 0).
+
+---
+
+### Step 1: Original word — shuffle 0: **M O U N T A I N**
+
+Positions:
+
+0: M  
+1: O  
+2: U  
+3: N  
+4: T  ← 'T' is at position **4**  
+5: A  
+6: I  
+7: N
+
+So, after **shuffle 0**, position of 'T' = **4**
+
+---
+
+### Step 2: After shuffle 3: **N T N U O M I A**
+
+From frame at 0:08: **NTNUOMIA**
+
+Wait — let’s check the exact string shown at 0:08:  
+It says: **N T N U O M I A** — that’s 8 letters.
+
+Let’s write it with indices:
+
+0: N  
+1: T  ← 'T' is at position **1**  
+2: N  
+3: U  
+4: O  
+5: M  
+6: I  
+7: A
+
+So, after **shuffle 3**, position of 'T' = **1**
+
+---
+
+### Step 3: Compute the difference
+
+We are asked: **difference in position of 'T' between after shuffle 3 and after shuffle 0**
+
+That is:  
+Position after shuffle 3 **minus** position after shuffle 0  
+→ 1 - 4 = **-3**
+
+But the question says: “difference in position” — which usually implies **absolute difference**, unless specified otherwise.
+
+However, the question says: “Return the answer as a number.” — and doesn’t specify absolute value.
+
+But let’s check the context.
+
+In the video, the word is being shuffled, and we are to compute the **difference** — it might be signed.
+
+But let’s look again at the question:
+
+> What is the difference in position of the letter 'T' between after shuffle 3 and after shuffle 0?
+
+This is ambiguous — it could mean:
+
+- (position after shuffle 3) - (position after shuffle 0) → 1 - 4 = -3  
+- or absolute difference → |1 - 4| = 3
+
+But in most mathematical contexts, “difference between A and B” means **A - B**, unless specified as “absolute difference”.
+
+However, in puzzles like this, sometimes they want the **magnitude**.
+
+But let’s look at the shuffles again to verify we have the correct positions.
+
+Wait — at 0:05, after shuffle 1: **NTIUOMAN**
+
+Let’s verify:
+
+Original: M O U N T A I N → positions 0-7
+
+Shuffle 1: N T I U O M A N
+
+Wait, the video at 0:05 says: **NTIUOMAN**
+
+Let’s write it:
+
+N T I U O M A N → that’s 8 letters.
+
+Positions:
+
+0: N  
+1: T ← T at 1  
+2: I  
+3: U  
+4: O  
+5: M  
+6: A  
+7: N
+
+So after shuffle 1, T is at position 1.
+
+Then at 0:06: **UNOMNTAI**
+
+U N O M N T A I
+
+Positions:
+
+0: U  
+1: N  
+2: O  
+3: M  
+4: N  
+5: T ← T at 5  
+6: A  
+7: I
+
+So after shuffle 2, T is at position 5.
+
+Then at 0:08: **NTNUOMIA**
+
+N T N U O M I A
+
+Positions:
+
+0: N  
+1: T ← T at 1  
+2: N  
+3: U  
+4: O  
+5: M  
+6: I  
+7: A
+
+So after shuffle 3, T is at position 1.
+
+So:
+
+- Shuffle 0: T at position 4  
+- Shuffle 3: T at position 1
+
+Difference = 1 - 4 = **-3**
+
+But perhaps the question means the **absolute difference**? Let’s see.
+
+The question says: “difference in position” — and in many contexts, especially when asking for “how much did it move”, they want the absolute value.
+
+But the instruction says: “Return the answer as a number.” — so it could be negative.
+
+However, looking at the video again — at 0:09, it shows **NTNUOMIA** and the question is still on screen.
+
+There’s no indication of absolute value.
+
+But let’s think: if we compute the **change in position**, it’s -3.
+
+But perhaps the problem expects the **magnitude**.
+
+Wait — let’s see if there’s a pattern or if we misread the shuffles.
+
+Another possibility: maybe “shuffle 0” means the word before any shuffle, and “shuffle 3” means after 3 shuffles — which we have.
+
+But perhaps the positions are 1-indexed?
+
+Let’s check.
+
+If positions are 1-indexed:
+
+Shuffle 0: M O U N T A I N → T is at position 5
+
+Shuffle 3: N T N U O M I A → T is at position 2
+
+Difference: 2 - 5 = -3 (same as before)
+
+Absolute difference: 3
+
+But the problem doesn’t specify indexing.
+
+In programming, 0-indexed is standard.
+
+In the video, the word is shown as a string, and positions are likely 0-indexed.
+
+But to be safe, let’s see what makes sense.
+
+The problem is likely expecting a positive number, as “difference” in position often implies distance.
+
+Moreover, in the context of the video, it might be a puzzle where the answer is positive.
+
+But let’s see the exact wording: “difference in position of the letter 'T' between after shuffle 3 and after shuffle 0”
+
+This is ambiguous.
+
+However, in mathematics, “difference between A and B” is often |A - B|, but sometimes A - B.
+
+But to resolve, let’s look at the shuffles again.
+
+From shuffle 0 to shuffle 3, T moved from position 4 to position 1 — that’s a change of -3.
+
+But if the question is “what is the difference”, and they want a number, perhaps they want the absolute value.
+
+But let’s see if there’s a standard.
+
+In many such puzzles, they ask for “how far did it move”, which is absolute.
+
+But here, it says “difference in position”, which is a bit vague.
+
+Perhaps we can compute both and see.
+
+But the video ends with the word **NTNUOMIA**, and the question is still there.
+
+Another thought: perhaps “shuffle 0” is not the original, but a specific shuffle.
+
+But the first frame shows the question, then at 0:02, MOUNTAIN appears — likely shuffle 0.
+
+Then at 0:05, NTIUOMAN — shuffle 1
+
+0:06, UNOMNTAI — shuffle 2
+
+0:08, NTNUOMIA — shuffle 3
+
+So our mapping is correct.
+
+Now, positions:
+
+Shuffle 0: T at 4
+
+Shuffle 3: T at 1
+
+Difference = 1 - 4 = -3
+
+But perhaps the question means |position after shuffle 3 - position after shuffle 0| = |1 - 4| = 3
+
+I think this is more likely what is expected, as "difference in position" in such contexts often means the distance moved, which is positive.
+
+Moreover, the answer is to be returned as a number, and 3 is a reasonable answer.
+
+If it were -3, it might be specified as "change in position" or "displacement".
+
+But "difference" can be ambiguous.
+
+However, in the context of the video, and since it's a puzzle, I think they want the absolute difference.
+
+Let’s confirm with the shuffles.
+
+From shuffle 0 to shuffle 3, T moved from index 4 to index 1 — that’s 3 positions to the left.
+
+So the difference in position is 3.
+
+I think the intended answer is **3**.
+
+To be thorough, let's see if there's any other interpretation.
+
+Perhaps "shuffle 0" means something else, but I think not.
+
+Another idea: maybe "shuffle 0" is the state after 0 shuffles, which is original, and "shuffle 3" is after 3 shuffles.
+
+Yes.
+
+So, final decision:
+
+- Position after shuffle 0: 4
+- Position after shuffle 3: 1
+- Difference: |4 - 1| = 3
+
+Or if signed, -3.
+
+But I think for this context, **3** is the expected answer.
+
+In many similar puzzles, they want the absolute difference.
+
+So I'll go with 3.
+
+**Final Answer: \boxed{3}**

@@ -1,0 +1,182 @@
+We are given a 3D structure made of small colored cubes, and we are asked: **How many cubes are missing from this figure?**
+
+---
+
+### Step 1: Understand the structure
+
+The structure rotates in 3D, and from the different angles, we can observe that it is **not a complete cube**. It appears to be a **3x3x3 cube** with some cubes missing.
+
+Why 3x3x3? Because the maximum extent in each dimension (length, width, height) is 3 units — we can see 3 cubes along each visible edge in the most complete parts.
+
+---
+
+### Step 2: Calculate total cubes in a full 3x3x3 cube
+
+A full 3x3x3 cube has:
+
+> 3 × 3 × 3 = **27 cubes**
+
+---
+
+### Step 3: Count the visible cubes in the structure
+
+We need to count how many cubes are **actually present** in the given structure.
+
+Since the structure rotates, we can analyze it from multiple angles to avoid double-counting or missing hidden cubes.
+
+Let’s mentally reconstruct the structure layer by layer (like slicing the cube horizontally).
+
+---
+
+### Step 4: Count cubes layer by layer
+
+We’ll imagine slicing the 3x3x3 cube into 3 horizontal layers (bottom, middle, top).
+
+---
+
+#### **Bottom Layer (Z = 1)**
+
+Looking at the bottom layer (closest to the ground), we can see:
+
+- Front row (closest to us): 3 cubes (left, center, right)
+- Middle row: 2 cubes (left and right — center missing)
+- Back row: 3 cubes (left, center, right)
+
+Wait — let’s be more precise.
+
+Actually, from the rotation, it’s clearer to count **all visible cubes** and **infer hidden ones** that are supported (i.e., if a cube is visible on top of another, the one below must exist).
+
+Alternatively, we can count **each cube that is present** by analyzing the structure carefully.
+
+Let’s try to count **all cubes** present in the structure by visual inspection.
+
+---
+
+### Step 5: Visual count of cubes
+
+From the rotating structure, we can see:
+
+- The structure is mostly complete, but there are **gaps**.
+
+Let’s count **by position** — imagine a 3x3x3 grid, and mark which positions have cubes.
+
+We’ll label positions as (x, y, z), where x, y, z ∈ {1, 2, 3}
+
+---
+
+#### **Front face (y=1)**
+
+From the front view, we can see:
+
+- Row 1 (bottom): x=1,2,3 → all present
+- Row 2 (middle): x=1,3 → x=2 missing
+- Row 3 (top): x=1,2,3 → all present
+
+So front face: 8 cubes
+
+But wait — this is only the front face. We need to consider depth.
+
+---
+
+#### **Middle layer (y=2)**
+
+From side views, we can see:
+
+- In the middle layer (y=2), we can see:
+
+  - Bottom row (z=1): x=1,3 → x=2 missing
+  - Middle row (z=2): x=1,2,3 → all present
+  - Top row (z=3): x=1,3 → x=2 missing
+
+So middle layer: 2 + 3 + 2 = 7 cubes
+
+---
+
+#### **Back face (y=3)**
+
+From back view:
+
+- Bottom row (z=1): x=1,2,3 → all present
+- Middle row (z=2): x=1,3 → x=2 missing
+- Top row (z=3): x=1,2,3 → all present
+
+So back face: 3 + 2 + 3 = 8 cubes
+
+---
+
+Wait — but we are double-counting if we just sum front, middle, back. Actually, we should count **each cube only once**.
+
+Better approach: **count all cubes by scanning each (x,y,z) position**.
+
+Let’s make a 3x3x3 grid and mark which cubes are present.
+
+---
+
+### Step 6: Grid-based counting
+
+We’ll go layer by layer (z=1, z=2, z=3), and for each z, go through x=1,2,3 and y=1,2,3.
+
+---
+
+#### **Layer z=1 (bottom layer)**
+
+From the bottom view and side views:
+
+- y=1 (front): x=1,2,3 → all present
+- y=2 (middle): x=1,3 → x=2 missing
+- y=3 (back): x=1,2,3 → all present
+
+So z=1: 3 + 2 + 3 = **8 cubes**
+
+---
+
+#### **Layer z=2 (middle layer)**
+
+- y=1: x=1,2,3 → all present
+- y=2: x=1,2,3 → all present
+- y=3: x=1,2,3 → all present
+
+Wait — is that true?
+
+From the rotation, in the middle layer (z=2), we can see:
+
+- In the front row (y=1), all 3 cubes are visible.
+- In the middle row (y=2), all 3 cubes are visible.
+- In the back row (y=3), all 3 cubes are visible.
+
+Yes — the middle layer appears **complete**.
+
+So z=2: 3 + 3 + 3 = **9 cubes**
+
+---
+
+#### **Layer z=3 (top layer)**
+
+- y=1: x=1,2,3 → all present
+- y=2: x=1,3 → x=2 missing
+- y=3: x=1,2,3 → all present
+
+So z=3: 3 + 2 + 3 = **8 cubes**
+
+---
+
+### Step 7: Total cubes present
+
+z=1: 8  
+z=2: 9  
+z=3: 8  
+Total = 8 + 9 + 8 = **25 cubes**
+
+---
+
+### Step 8: Calculate missing cubes
+
+Total in full 3x3x3 cube: 27  
+Cubes present: 25  
+So missing cubes = 27 - 25 = **2**
+
+---
+
+### ✅ Final Answer:
+
+\boxed{2}

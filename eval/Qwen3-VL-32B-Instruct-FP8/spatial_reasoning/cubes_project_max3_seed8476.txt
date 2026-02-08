@@ -1,0 +1,578 @@
+We are given a 3D structure made of colored cubes, and we are asked to find the **maximum number of visible square faces** that can be seen in a **parallel 2D projection**, **considering only the side faces**.
+
+---
+
+### Step 1: Understand the structure
+
+From frames 4–10, we see a structure made of small cubes. Let’s analyze the structure carefully.
+
+At frame 4, it looks like a 2x2x2 cube, but with some cubes missing or offset. However, as it rotates, we see:
+
+- At frame 5: Appears to be a 2x2x2 cube (8 cubes total), but some faces are missing or transparent? Not exactly — the colors suggest individual cubes.
+
+Actually, let’s count the cubes visible in the structure.
+
+Looking at frame 10 (the most stable view), we see:
+
+- A blue cube on the left, with a yellow cube stacked on top.
+- To the right of the blue cube, there is a green cube, with a pink cube stacked on top.
+- To the right of the green cube, there is a yellow cube at the bottom.
+
+Wait — let’s reconstruct the structure from frame 10:
+
+Positions (x, y, z) — let’s assume:
+
+- Bottom layer (z=0):
+  - (0,0,0): blue
+  - (1,0,0): green
+  - (2,0,0): yellow
+
+- Top layer (z=1):
+  - (0,1,0): yellow (on top of blue)
+  - (1,1,0): pink (on top of green)
+
+So total cubes: 5 cubes.
+
+Let’s list them:
+
+1. Blue cube at (0,0,0)
+2. Yellow cube at (0,1,0) — on top of blue
+3. Green cube at (1,0,0)
+4. Pink cube at (1,1,0) — on top of green
+5. Yellow cube at (2,0,0)
+
+So, 5 cubes total.
+
+---
+
+### Step 2: Understand the question
+
+> What is the maximum number of visible square faces that can be seen in a parallel 2D projection, considering only the side faces?
+
+Important: **“side faces”** — this likely means **not the top or bottom**, but **front, back, left, right, etc.** — i.e., the **faces perpendicular to the x, y, or z axes**, excluding top and bottom? Or does it mean **all faces except those facing directly toward or away from the viewer**?
+
+Actually, “side faces” is ambiguous, but in context, since it says “in a parallel 2D projection”, and “considering only the side faces”, it probably means **faces that are not the top or bottom** — i.e., **front, back, left, right, and possibly top/bottom?**
+
+Wait — let’s re-read:
+
+> “considering only the side faces”
+
+In 3D geometry, “side faces” often means **faces that are not the top or bottom** — i.e., the **vertical faces**.
+
+But in a cube, all faces are square. So perhaps “side faces” means **faces that are perpendicular to the viewing direction?** No — the question says “in a parallel 2D projection”, so we are projecting orthographically.
+
+Actually, I think “side faces” here means **faces that are not the top or bottom** — i.e., **front, back, left, right** — the vertical ones.
+
+But the question is asking for **visible square faces** — meaning, when we look at the 3D object from some angle, how many **faces** (of the cubes) are visible, **but only counting the “side” ones** — i.e., **excluding top and bottom faces**?
+
+Wait — that seems odd, because if you are projecting in 2D, you can see faces from different orientations.
+
+Perhaps “side faces” means **faces that are not facing directly up or down** — i.e., **not aligned with the vertical axis**? That doesn’t make sense.
+
+Alternatively, perhaps “side faces” is a misnomer, and they mean **all faces** — but the question says “considering only the side faces”.
+
+Let me check the exact wording again:
+
+> “What is the maximum number of visible square faces that can be seen in a parallel 2D projection, considering only the side faces?”
+
+I think the key is: **in a parallel 2D projection**, we can choose the viewing direction to maximize the number of visible faces, **but only count the “side” faces** — i.e., **faces that are not top or bottom**.
+
+But that would be strange — why exclude top and bottom?
+
+Alternatively, perhaps “side faces” means **faces that are not the front/back or left/right?** That doesn’t make sense.
+
+Wait — perhaps “side faces” here means **faces that are perpendicular to the sides** — i.e., **all faces except the top and bottom** — so vertical faces.
+
+But then, if we are projecting orthographically, and we can choose the viewing direction, we can maximize the number of **visible vertical faces**.
+
+But that still seems odd.
+
+Another interpretation: perhaps “side faces” is a translation issue, and they just mean **faces** — i.e., the question is: **how many square faces (of the cubes) are visible in a parallel 2D projection?**
+
+That would be the standard interpretation.
+
+But the phrase “considering only the side faces” suggests a restriction.
+
+Wait — perhaps “side faces” means **faces that are not facing the viewer directly** — i.e., **not the front face**? That doesn’t make sense.
+
+Alternatively, perhaps it’s a trick — in a 2D projection, you can only see **faces that are not occluded**, and “side faces” means **faces that are not the top or bottom** — i.e., we are to ignore top and bottom faces of the cubes.
+
+But why?
+
+Let me think differently.
+
+Perhaps “side faces” means **faces that are perpendicular to the sides of the object** — i.e., **not the top or bottom** — so vertical faces.
+
+But in a 2D projection, if we look from above, we see top faces, not side faces.
+
+So to maximize **side faces**, we should look from a direction that shows as many vertical faces as possible — i.e., from a direction that is not aligned with the top or bottom.
+
+In other words, we should look at the object from a **diagonal direction**, so that we see **three faces** of the object: front, side, and top? But top is excluded.
+
+Wait — if we exclude top and bottom, then we want to see as many **vertical faces** as possible.
+
+In a 3D object, if you look from a direction that is not aligned with any axis, you can see **three faces**: front, right, and top — but top is excluded.
+
+So if we exclude top and bottom, then we can only see **front and right** — two faces.
+
+But that’s for a single cube.
+
+We have 5 cubes.
+
+But the question is: **how many square faces (of the cubes) are visible**, **but only counting the “side” faces** — i.e., **vertical faces**.
+
+So for each cube, we have 4 vertical faces (front, back, left, right), and 2 horizontal (top, bottom).
+
+We are to count only the vertical faces that are visible in the 2D projection.
+
+And we can choose the viewing direction to maximize this number.
+
+So the problem reduces to: **choose a viewing direction (in parallel projection) such that the maximum number of vertical faces of the cubes are visible**.
+
+In parallel projection, faces are visible if they are not occluded and are facing the viewer.
+
+But since we are projecting orthographically, and we can choose the direction, we want to pick a direction that shows as many vertical faces as possible.
+
+But vertical faces are those perpendicular to the horizontal plane — i.e., facing north, south, east, west.
+
+So if we look from a direction that is **not horizontal**, say from above, we see top faces, not side faces.
+
+If we look from the side, we see front and back, and possibly top/bottom.
+
+But we are to count only side faces — vertical ones.
+
+So if we look from directly in front, we see the front faces of the cubes — which are vertical — so those count.
+
+Similarly, if we look from above, we see top faces — which are horizontal — so they don’t count.
+
+So to maximize visible side faces, we should look from a direction that is **not aligned with the vertical axis**, so that we can see multiple vertical faces.
+
+In fact, the optimal viewing direction is **diagonal**, such that we see **three faces** of the object: front, side, and top — but top is horizontal, so we don’t count it.
+
+So we can see **front and side** — two vertical faces.
+
+But for each cube, if it is visible from that direction, we may see 1 or 2 of its vertical faces.
+
+Wait — for a single cube, from a diagonal direction, you can see **three faces**: front, top, and side — but if we exclude top, then only front and side — two faces.
+
+But in our case, we have multiple cubes, and some may be occluded.
+
+So let’s go back to the structure.
+
+We have 5 cubes:
+
+- Cube A: blue at (0,0,0)
+- Cube B: yellow at (0,1,0) — on top of A
+- Cube C: green at (1,0,0)
+- Cube D: pink at (1,1,0) — on top of C
+- Cube E: yellow at (2,0,0)
+
+Let’s assign coordinates: x (left-right), y (front-back), z (up-down)
+
+So:
+
+- A: (0,0,0)
+- B: (0,1,0) — wait, if y is front-back, then (0,1,0) is behind (0,0,0)
+- C: (1,0,0)
+- D: (1,1,0) — behind C
+- E: (2,0,0)
+
+So the structure is:
+
+- In front row (y=0): A, C, E — at x=0,1,2, z=0
+- In back row (y=1): B, D — at x=0,1, z=0
+
+Wait — but B is at (0,1,0), which is behind A, and D is at (1,1,0), behind C.
+
+So the structure is 3 units wide (x=0,1,2), 2 units deep (y=0,1), and 1 unit high (z=0) — except B and D are at z=0, and A and C are at z=0, so all are at z=0? But B is on top of A — so if A is at (0,0,0), B should be at (0,0,1) — I think I messed up the coordinates.
+
+Let me redefine.
+
+Assume:
+
+- x: left to right
+- y: front to back (y=0 is front, y=1 is back)
+- z: bottom to top (z=0 is bottom, z=1 is top)
+
+From frame 10:
+
+- Blue cube: bottom front left — (0,0,0)
+- Yellow cube: on top of blue — (0,0,1)
+- Green cube: bottom front middle — (1,0,0)
+- Pink cube: on top of green — (1,0,1)
+- Yellow cube: bottom front right — (2,0,0)
+
+Wait — but in frame 10, the pink cube is on top of green, and green is at (1,0,0), so pink is at (1,0,1)
+
+And the yellow cube at (2,0,0) is at the bottom.
+
+So the structure is:
+
+- (0,0,0): blue
+- (0,0,1): yellow
+- (1,0,0): green
+- (1,0,1): pink
+- (2,0,0): yellow
+
+So all cubes are in the front row (y=0), and no cubes in the back row.
+
+So it's a 3x1x2 structure, but with the middle column having two cubes, and the left and right columns having one cube each.
+
+Specifically:
+
+- Column x=0: two cubes (z=0 and z=1)
+- Column x=1: two cubes (z=0 and z=1)
+- Column x=2: one cube (z=0)
+
+So total 5 cubes.
+
+Now, we want to find the maximum number of **visible square faces** in a **parallel 2D projection**, **considering only the side faces**.
+
+Assuming "side faces" means **vertical faces** — i.e., faces that are not top or bottom — so for each cube, the 4 vertical faces: front, back, left, right.
+
+But since the cubes are in the front row (y=0), and no cubes behind, the back faces of all cubes are not visible — because there is nothing behind them, but in terms of visibility, if we look from a direction, the back face might be visible if we are looking from behind.
+
+But the cubes are all at y=0, so if we look from the front (negative y), we see the front faces, and if we look from the back (positive y), we see the back faces.
+
+But since there are no cubes behind, the back faces are exposed, so they are visible if we look from the back.
+
+But in a 2D projection, we can choose the viewing direction.
+
+To maximize the number of visible vertical faces, we should choose a viewing direction that shows as many vertical faces as possible.
+
+In parallel projection, the maximum number of faces you can see from a single cube is 3: for example, front, top, and right.
+
+But we are to count only **side faces**, i.e., **vertical faces**, so top and bottom are excluded.
+
+So for a single cube, from any direction, you can see at most 2 vertical faces — for example, front and right — if you look from a diagonal direction.
+
+You cannot see 3 vertical faces of a single cube, because they are mutually perpendicular.
+
+So for each cube, maximum 2 vertical faces visible.
+
+But with multiple cubes, and occlusion, it's less.
+
+So let's try to find a viewing direction that maximizes the number of visible vertical faces.
+
+Let’s try looking from the direction (1,1,0) — i.e., from the front-right, at 45 degrees.
+
+From this direction, we can see:
+
+- The front faces of cubes with small x and small y — but since all cubes are at y=0, and we are looking from (1,1,0), which is in the x>0, y>0 direction, so we are looking from the front-right.
+
+The viewing direction is from the front-right, so we see the front and right faces.
+
+Let’s list the cubes:
+
+1. Cube A: (0,0,0) — blue
+   - Front face: visible (since we are looking from front-right)
+   - Right face: visible (since we are looking from right)
+   - Left face: not visible (occluded by nothing, but we are not looking from left)
+   - Back face: not visible (we are not looking from back)
+   - So 2 vertical faces visible: front and right.
+
+2. Cube B: (0,0,1) — yellow (on top of A)
+   - Front face: visible
+   - Right face: visible
+   - Left face: not visible
+   - Back face: not visible
+   - So 2 vertical faces.
+
+3. Cube C: (1,0,0) — green
+   - Front face: visible
+   - Right face: visible
+   - Left face: not visible (occluded by cube A? No, cube A is at x=0, this is x=1, so left face is exposed)
+     - But from viewing direction (1,1,0), which is front-right, we are looking at the front and right, so the left face is facing left, away from viewer, so not visible.
+   - Back face: not visible
+   - So 2 vertical faces.
+
+4. Cube D: (1,0,1) — pink (on top of C)
+   - Front face: visible
+   - Right face: visible
+   - Left face: not visible
+   - Back face: not visible
+   - So 2 vertical faces.
+
+5. Cube E: (2,0,0) — yellow
+   - Front face: visible
+   - Right face: visible
+   - Left face: not visible (occluded by cube C? Cube C is at x=1, this is x=2, so left face is exposed, but from front-right view, left face is not facing the viewer)
+   - Back face: not visible
+   - So 2 vertical faces.
+
+So total: 5 cubes × 2 = 10 vertical faces.
+
+Is that possible? Are there any occlusions?
+
+From the front-right view, cube A is at (0,0,0), cube B is directly above it, so B is not occluded by A — in fact, B is higher, so it might be visible.
+
+Similarly, cube C is at (1,0,0), cube D above it.
+
+Cube E is at (2,0,0), no cube above it.
+
+From the front-right view, since all cubes are in the same y=0 plane, and we are looking from (1,1,0), which is 45 degrees in x-y plane, the projection will show all cubes, and since they are not stacked in a way that occludes, each cube's front and right faces should be visible.
+
+But let's think about the right face of cube A: it is at x=0, so its right face is at x=1, which is the left face of cube C.
+
+But since cube C is at x=1, and we are looking from x>0, the right face of cube A is facing the viewer, and cube C is to the right, so it might not occlude it.
+
+In parallel projection, if we are looking from a direction, and the cubes are not overlapping in the projection, then all faces should be visible.
+
+In this case, since all cubes are in the same y=0 plane, and we are looking from (1,1,0), the projection onto the viewing plane will show the cubes side by side.
+
+Specifically, the x-coordinates are 0,1,2, so they are distinct.
+
+The z-coordinates: cubes A and B are at z=0 and z=1, so in projection, B is above A.
+
+Similarly for C and D.
+
+So in the 2D projection, we see:
+
+- At x=0: cube A (bottom) and cube B (top)
+- At x=1: cube C (bottom) and cube D (top)
+- At x=2: cube E (bottom)
+
+And since we are looking from front-right, we see the front and right faces.
+
+For each cube, the front face is visible, and the right face is visible.
+
+For cube A, right face is at x=1, and since cube C is at x=1, but cube C is to the right, and we are looking from the right, the right face of A is facing the viewer, and cube C is not in front of it in the viewing direction — because they are at different x, and we are projecting orthographically.
+
+In orthographic projection, two objects at different x-coordinates will not occlude each other if they are not in the same x-range.
+
+Since cube A is at x=0, its right face is at x=1, but the face is a plane at x=1, and cube C is at x=1, so they are at the same x, so in projection, they may overlap.
+
+Ah, here is the occlusion.
+
+The right face of cube A is at x=1, and cube C is at x=1, so in the viewing direction (1,1,0), the right face of A and the left face of C are at the same x, so they will overlap in projection.
+
+But since we are looking from the front-right, and the cubes are at the same y=0, the right face of A and the left face of C are coplanar in the x-direction, so in the 2D projection, they will be projected on top of each other.
+
+But since we are counting visible faces, and the right face of A is behind the left face of C? No, in 3D, cube A is at x=0, so its right face is at x=1, and cube C is at x=1, so cube C is to the right of cube A, so when we look from the front-right, cube C is in front of the right face of A? Let's think.
+
+Actually, in 3D, the right face of cube A is the face at x=1, y from 0 to 1, z from 0 to 1 (assuming unit cubes).
+
+Cube C is at x=1, y=0, z=0, so it occupies x=1 to 2, y=0 to 1, z=0 to 1.
+
+So the right face of cube A is at x=1, and cube C starts at x=1, so the right face of A is at the same x as the left face of C.
+
+In the viewing direction (1,1,0), which is along the vector (1,1,0), the projection is onto a plane perpendicular to this vector.
+
+The depth is along (1,1,0), so the projection will show the objects based on their position along this vector.
+
+For the right face of A and the left face of C, they are at the same x, same y, but different z? No, the right face of A is at x=1, y in [0,1], z in [0,1].
+
+The left face of C is at x=1, y in [0,1], z in [0,1].
+
+So they are identical in position — same x,y,z range.
+
+But that can't be, because cube A is at x=0 to 1, so its right face is at x=1.
+
+Cube C is at x=1 to 2, so its left face is at x=1.
+
+So the right face of A and the left face of C are coplanar — they are the same plane.
+
+In 3D, they are adjacent, sharing the plane x=1.
+
+In a 2D projection, when we look from a direction, this shared plane will be visible, but it is the boundary between two cubes.
+
+In terms of visible faces, the right face of A is not visible if it is occluded by cube C, but since they are adjacent, and we are looking from the side, it might be visible.
+
+Actually, in orthographic projection, if two cubes are adjacent, their shared face is not visible because it's internal.
+
+But in this case, the right face of A and the left face of C are two different faces, but they are coplanar and adjacent.
+
+When we project, the face of A at x=1 and the face of C at x=1 will be projected to the same line in the 2D image, but since they are on the same plane, and we are looking from the front-right, we might see both, but in reality, for the face to be visible, it must be facing the viewer.
+
+From the viewing direction (1,1,0), the normal to the right face of A is in the +x direction, and the viewing direction is (1,1,0), which has a component in +x, so the face is facing the viewer.
+
+Similarly for the left face of C, normal is -x, and viewing direction has +x component, so the dot product is negative, so the face is facing away from the viewer.
+
+So only the right face of A is facing the viewer, and the left face of C is facing away.
+
+So in the projection, we see the right face of A, and the left face of C is not visible.
+
+Similarly for other cubes.
+
+So for cube A: right face is visible.
+
+For cube C: left face is not visible, but its right face is visible.
+
+Similarly, for cube B: right face is visible.
+
+For cube D: right face is visible.
+
+For cube E: right face is visible.
+
+And front faces are all visible.
+
+So for each cube, 2 vertical faces are visible: front and right.
+
+And no occlusion because the right face of A is facing the viewer, and cube C is to the right, but its left face is not facing the viewer, so it doesn't occlude.
+
+Similarly for others.
+
+So total 5 cubes × 2 = 10.
+
+But is there any cube whose right face is occluded? For example, cube D is at (1,0,1), its right face is at x=2, and cube E is at x=2, so similarly, the right face of D and left face of E are at the same x=2.
+
+Right face of D: normal +x, viewing direction (1,1,0) has +x component, so facing viewer.
+
+Left face of E: normal -x, viewing direction has +x, so facing away.
+
+So again, only right face of D is visible, left face of E is not.
+
+So no occlusion.
+
+Thus, all 5 cubes have 2 vertical faces visible: front and right.
+
+Total: 10.
+
+But is this the maximum?
+
+Could we see more?
+
+For example, if we look from a different direction, say from the top, but then we see top faces, which are not side faces.
+
+Or from the front, we see only front faces — 5 faces.
+
+Or from the right, we see only right faces — 5 faces.
+
+Or from a direction that shows front, top, and right — but top is not counted.
+
+So 10 seems maximum.
+
+But let's confirm with the structure.
+
+Another way: in the 2D projection from front-right, we see:
+
+- For each cube, its front face is visible.
+- Its right face is visible.
+- No back or left faces are visible.
+- Top and bottom faces are not counted.
+
+So 2 per cube, 5 cubes, 10.
+
+And no occlusion, as explained.
+
+Therefore, the maximum number is 10.
+
+But let's double-check if for cube E, its right face is visible. Cube E is at (2,0,0), its right face is at x=3, and there is no cube to the right, so yes, visible.
+
+Similarly for others.
+
+So I think 10 is correct.
+
+But the question says "considering only the side faces" — and we interpreted as vertical faces.
+
+Perhaps "side faces" means something else.
+
+Another interpretation: perhaps "side faces" means the faces that are not the front or back — i.e., left and right — but that doesn't make sense.
+
+Or perhaps in the context, "side faces" means the faces that are perpendicular to the sides of the structure.
+
+But I think our interpretation is reasonable.
+
+Perhaps the question is asking for the number of faces visible in the 2D projection, and "side faces" is a red herring or misnomer.
+
+But the question explicitly says "considering only the side faces".
+
+In some contexts, "side faces" might mean the faces that are not the top or bottom, which is what we assumed.
+
+Perhaps in the structure, some faces are not square, but they are all cubes.
+
+Another thought: in the 2D projection, when we see a face, it might be partially occluded, but in this case, no.
+
+Perhaps for the cubes on top, their top faces are visible, but we are to ignore them.
+
+But we are not counting them.
+
+So I think 10 is correct.
+
+But let's see if we can see 3 vertical faces for any cube.
+
+For example, if we look from a direction that is not aligned, but for a single cube, you can't see 3 vertical faces because they are mutually perpendicular.
+
+The only way to see 3 faces is to include a top or bottom face.
+
+But we are excluding top and bottom.
+
+So maximum 2 per cube.
+
+And we have 5 cubes, all can show 2, so 10.
+
+Perhaps for cube A, its left face is visible if we look from left, but then we might not see the right faces.
+
+So 10 is maximum.
+
+Therefore, the answer is 10.
+
+But let's confirm with the initial structure.
+
+In frame 10, we see:
+
+- Blue cube: front and right visible? In the image, it's shown with front and right faces.
+
+Similarly for others.
+
+And in the rotation, we see different faces.
+
+But in the optimal view, 10.
+
+Perhaps the question is asking for the number of visible faces in the 2D image, and "side faces" means something else.
+
+Another interpretation: perhaps "side faces" means the faces that are not the front face — i.e., left, right, back, top, bottom — but that would be strange.
+
+Or perhaps in the context of the structure, "side faces" means the faces that are on the sides, not the front.
+
+But the question says "in a parallel 2D projection", so we can choose the viewing direction.
+
+To maximize, we should choose a direction that shows as many faces as possible, and "side faces" might mean all faces except the front face.
+
+But that would be unusual.
+
+Perhaps "side faces" is a translation for "faces", and it's just poorly worded.
+
+In many such problems, they ask for the maximum number of faces visible, and it's 3 for a cube, but here with multiple cubes.
+
+In this structure, if we look from a corner, we can see 3 faces of the object, but for each cube, it's different.
+
+But for our structure, from a diagonal view, we can see 3 faces of the object: front, right, and top — but top is not counted.
+
+So only 2.
+
+But for the cubes, we can see 2 each.
+
+Perhaps for the top cubes, their top faces are visible, but we are to ignore them.
+
+So I think 10 is correct.
+
+Perhaps the answer is 10.
+
+But let's see if there is any cube that has only 1 vertical face visible.
+
+For example, if a cube is completely occluded, but in this structure, no cube is occluded from the front-right view.
+
+Cube B is on top of A, and from front-right, B is visible, its front and right faces are visible.
+
+Similarly for D.
+
+Cube E is at the end, no occlusion.
+
+So all 5 have 2 vertical faces visible.
+
+Thus, maximum is 10.
+
+So the answer should be 10.
+
+But let's think again: in the 2D projection, when we see the right face of A and the front face of C, they are adjacent, but in the image, they are next to each other, not overlapping.
+
+Similarly for others.
+
+So no problem.
+
+Therefore, the maximum number is 10.
+
+**Final Answer**
+
+\boxed{10}

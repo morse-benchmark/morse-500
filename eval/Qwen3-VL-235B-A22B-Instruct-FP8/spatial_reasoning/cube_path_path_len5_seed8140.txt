@@ -1,0 +1,496 @@
+We are given a cube with colored faces and a path of squares it rolls over. The goal is to determine which color face will be on top when the cube reaches the red square.
+
+---
+
+**Step 1: Understand the initial orientation**
+
+At 0:08, the cube is shown with:
+- Top face: **red**
+- Front face: **yellow**
+- Right face: **purple**
+
+From the color legend (0:03), we know:
+- Blue, red, green, yellow on the left column
+- Orange, purple on the right
+
+So the cube has 6 faces: blue, red, green, yellow, orange, purple.
+
+We need to track how the cube rotates as it rolls along the path.
+
+---
+
+**Step 2: Trace the path and rotations**
+
+The cube starts on a black square. The path is shown at 0:14:
+
+The path is:
+- Start on black square (position 1)
+- Roll right to black square (position 2)
+- Roll right to black square (position 3)
+- Roll down to red square (position 4)
+
+So the cube rolls **right, right, then down**.
+
+We need to simulate the rotations.
+
+---
+
+**Initial orientation (at start):**
+
+Let’s assign directions:
+
+- Top: red
+- Front: yellow
+- Right: purple
+
+Therefore, by deduction:
+- Bottom: ? (opposite red → must be green? Wait — let’s not assume. We’ll track by rotation.)
+
+Actually, better to use a standard cube orientation and track face positions.
+
+Let’s define the cube’s faces relative to a coordinate system:
+
+Assume:
+- +Y is up
+- +Z is front
+- +X is right
+
+So initial state:
+
+- Top (Y+): red
+- Front (Z+): yellow
+- Right (X+): purple
+
+Then:
+
+- Bottom (Y-): ? (opposite red)
+- Back (Z-): ? (opposite yellow)
+- Left (X-): ? (opposite purple)
+
+We don’t know the opposites yet, but we can deduce them as we roll.
+
+---
+
+**Roll 1: Roll right (along +X direction)**
+
+When a cube rolls right, the right face becomes the bottom, the bottom becomes the left, the left becomes the top, and the top becomes the right.
+
+But let’s think physically:
+
+Rolling right means the cube rotates around the Y-axis? No — rolling right means rotating around the **front-back axis (Z-axis)**.
+
+Actually, rolling to the right (in the direction of +X) means the cube rotates around the **Y-axis**? Let’s clarify.
+
+Standard cube rolling:
+
+If you roll a cube to the right (so it moves in the +X direction), the rotation is around the **Z-axis** (front-back axis), and the cube rotates 90° clockwise when viewed from above.
+
+But perhaps simpler: think about which face comes down.
+
+When rolling right, the **right face** becomes the **bottom**, and the **top** becomes the **right**, **bottom** becomes **left**, **left** becomes **top**.
+
+Wait — let’s use a standard method.
+
+Let’s track the top face and front face as we roll.
+
+Initial:
+
+- Top: red
+- Front: yellow
+- Right: purple
+
+Roll right (first move):
+
+After rolling right, the cube moves to the next square to the right.
+
+The face that was on the **right** (purple) is now on the **bottom**.
+
+The face that was on the **top** (red) is now on the **right**.
+
+The face that was on the **bottom** is now on the **left**.
+
+The face that was on the **left** is now on the **top**.
+
+So new top face = old left face.
+
+But we don’t know what the left face is.
+
+We need to deduce the opposite faces.
+
+From the initial view:
+
+Top: red
+
+Front: yellow
+
+Right: purple
+
+So the three visible faces are red, yellow, purple.
+
+The three hidden faces are: bottom, back, left.
+
+We can deduce the opposite of red is not visible — so it’s one of green, blue, orange.
+
+But we have a color list: blue, red, green, yellow, orange, purple.
+
+So all six are used.
+
+Perhaps we can use the fact that when the cube rolls, we can track the top face.
+
+Alternative approach: simulate the rolls step by step, keeping track of top, front, right.
+
+Let’s define a state as (top, front, right)
+
+Initial state: (red, yellow, purple)
+
+---
+
+**Roll 1: Roll right**
+
+Rolling right means the cube rotates around the front-back axis (Z-axis) 90° clockwise (if looking from front).
+
+When rolling right:
+
+- The right face becomes the bottom
+- The bottom becomes the left
+- The left becomes the top
+- The top becomes the right
+
+So:
+
+New top = old left
+
+New right = old top
+
+New front = old front (unchanged)
+
+But we don’t know old left.
+
+We need to find what the left face is.
+
+From initial state, we have top=red, front=yellow, right=purple.
+
+The left face is opposite to right, so left = ? Not necessarily — in a cube, left and right are adjacent, not opposite.
+
+Opposite faces: top-bottom, front-back, left-right.
+
+So left and right are opposite? No — in a cube, left and right are adjacent to top and front.
+
+Actually, in a standard cube, each face has four adjacent faces and one opposite.
+
+So for the right face (purple), its opposite is the left face.
+
+Similarly, top (red) opposite is bottom, front (yellow) opposite is back.
+
+So if right is purple, then left is the opposite of purple.
+
+But we don’t know what color is opposite purple.
+
+Perhaps we can deduce from the rolling.
+
+Let’s assume we roll and see what happens.
+
+After rolling right, the new bottom is the old right (purple).
+
+The new top is the old left.
+
+But we don’t know old left.
+
+Perhaps we can use the fact that the cube has six unique colors, and we can track which face is where.
+
+Let’s list all faces:
+
+Let’s denote the cube’s faces:
+
+- T: top
+- B: bottom
+- F: front
+- K: back (I'll use K for back to avoid confusion)
+- R: right
+- L: left
+
+Initial: T=red, F=yellow, R=purple
+
+Then B, K, L are unknown, but must be blue, green, orange.
+
+Now, when we roll right, the cube rotates around the F-K axis (front-back) 90° clockwise (from the viewer's perspective).
+
+After rolling right:
+
+- The R face moves to B position
+- The B face moves to L position
+- The L face moves to T position
+- The T face moves to R position
+- F and K remain the same
+
+So new state:
+
+T_new = L_old
+
+F_new = F_old = yellow
+
+R_new = T_old = red
+
+B_new = R_old = purple
+
+L_new = B_old
+
+K_new = K_old
+
+So we have:
+
+New top = old left
+
+New right = red
+
+New front = yellow
+
+New bottom = purple
+
+We still don't know old left.
+
+But we can continue.
+
+Now, the cube is on the second black square.
+
+**Roll 2: Roll right again**
+
+Same rotation: around front-back axis, 90° clockwise.
+
+Current state before second roll:
+
+T = L_old (unknown)
+
+F = yellow
+
+R = red
+
+B = purple
+
+L = B_old (unknown)
+
+K = K_old (unknown)
+
+After rolling right:
+
+T_new = L_old (current left)
+
+F_new = F_old = yellow
+
+R_new = T_old = L_old (previous top)
+
+B_new = R_old = red
+
+L_new = B_old = purple
+
+K_new = K_old
+
+So now:
+
+Top = current left = B_old (from initial)
+
+Right = previous top = L_old
+
+Bottom = red
+
+Front = yellow
+
+Left = purple
+
+This is getting messy.
+
+Perhaps we can use a different approach.
+
+Let’s look at the video again.
+
+At 0:10, the cube is shown from a different angle: top is orange, front is blue, right is yellow? Wait, no.
+
+At 0:10, the cube is rotating, and we see:
+
+- At 0:10: top is orange, front is blue, right is yellow? Let's see.
+
+Actually, at 0:10, the cube is shown with:
+
+- Top: orange
+- Front: blue
+- Right: yellow
+
+But this is a different orientation — perhaps after some rotation.
+
+But in the initial position at 0:08, it's red top, yellow front, purple right.
+
+Then at 0:10, it's orange top, blue front, yellow right — this might be after a roll or just a different view.
+
+Perhaps the cube is rotating for display, not part of the path.
+
+The path starts at 0:14.
+
+At 0:14, the cube is on a black square, with top=red, front=yellow, right=purple — same as initial.
+
+Then it rolls to the right to another black square.
+
+At 0:15, after rolling right, the cube is shown with:
+
+- Top: ? Let's see the colors.
+
+At 0:15, the cube has:
+
+- Top: yellow? No, at 0:15, the top is still red? No, the cube has rolled, so the top should have changed.
+
+At 0:15, the cube is on the second square, and we see:
+
+- The face that was front (yellow) is now on the bottom? Let's look.
+
+Actually, at 0:15, the cube is shown from a slightly different angle, but the top face appears to be the same red? That can't be.
+
+Perhaps the video is not showing the top face clearly.
+
+At 0:16, after rolling again, the cube is on the third square, and at 0:17, it rolls down to the red square.
+
+At 0:17, when it rolls down, we can see the face that was front (yellow) is now on the bottom, and the top face is now green? Let's see.
+
+At 0:17, the cube is rolling down, and we see:
+
+- The face that was front (yellow) is now on the bottom (since it's rolling down, the front face becomes the bottom).
+
+- The top face becomes the front.
+
+- The bottom face becomes the back.
+
+- The back face becomes the top.
+
+So if before rolling down, the front was yellow, then after rolling down, the bottom is yellow, and the top is the old back.
+
+But we don't know the old back.
+
+This is difficult.
+
+Perhaps we can use the fact that the cube has to have consistent opposite faces.
+
+Let’s assume that the opposite of red is green, for example, but we don't know.
+
+Another idea: from the initial view, the three faces are red, yellow, purple.
+
+The three hidden faces are blue, green, orange.
+
+When the cube rolls right, the right face (purple) becomes the bottom.
+
+So bottom is purple.
+
+Then the top becomes the old left.
+
+When it rolls right again, the new right face becomes the bottom, which is the old top (red), so bottom is red.
+
+Then when it rolls down, the front face becomes the bottom.
+
+Before rolling down, what is the front face?
+
+After two rolls right, the front face is still yellow, because rolling right doesn't change the front face.
+
+So when it rolls down, the front face (yellow) becomes the bottom.
+
+So at the red square, the bottom face is yellow.
+
+Therefore, the top face is the opposite of yellow.
+
+What is the opposite of yellow?
+
+From the color list, we have blue, red, green, yellow, orange, purple.
+
+In a cube, each color has an opposite.
+
+From the initial orientation, red, yellow, purple are adjacent, so their opposites are the other three: blue, green, orange.
+
+But which is opposite which?
+
+Perhaps we can deduce from the rolling.
+
+After two rolls right, the cube has:
+
+- Bottom: red (from the second roll)
+
+- Top: ? 
+
+- Front: yellow
+
+- Back: ? 
+
+- Left: ? 
+
+- Right: ? 
+
+When it rolls down, the front (yellow) becomes the bottom, so bottom is yellow.
+
+Then the top becomes the old back.
+
+So we need to find what the back face is.
+
+From the initial state, back is opposite to front (yellow), so back is the opposite of yellow.
+
+Similarly, top is opposite to bottom, etc.
+
+So if we can find what color is opposite to yellow, that will be the top face when bottom is yellow.
+
+But we don't know the opposites.
+
+Perhaps from the video, when the cube is at the red square, we can see the top face.
+
+At 0:17, when the cube is rolling down to the red square, we can see the top face.
+
+At 0:17, the cube is shown with:
+
+- The face that was front (yellow) is now on the bottom (since it's rolling down).
+
+- The top face is now the face that was back.
+
+- From the view, the top face appears to be green.
+
+Let's look at the frame at 0:17.
+
+At 0:17, the cube is in mid-roll, but we can see the top face is green.
+
+Yes, at 0:17, the top face is green.
+
+And the bottom is yellow (since it's rolling down, front becomes bottom).
+
+So when the cube reaches the red square, the top face is green.
+
+Therefore, the answer is green.
+
+Let's verify with the path.
+
+Start: top=red, front=yellow, right=purple
+
+Roll 1 right: new top = old left, new right = old top = red, new bottom = old right = purple, front unchanged = yellow
+
+We don't know old left, but after roll 1, top is unknown, right is red, bottom is purple, front is yellow.
+
+Roll 2 right: new top = old left (which is now the left face after first roll), new right = old top (unknown), new bottom = old right = red, front = yellow
+
+After second roll, bottom is red, front is yellow, top is unknown.
+
+Roll down: rotate around left-right axis 90° forward.
+
+When rolling down, the front face becomes the bottom, the bottom becomes the back, the back becomes the top, the top becomes the front.
+
+So new bottom = old front = yellow
+
+New top = old back
+
+New front = old top
+
+New back = old bottom = red
+
+So top = old back
+
+What is old back? From initial, back is opposite to front (yellow), so back is the opposite of yellow.
+
+From the color list, and from the video at 0:17, we see the top face is green, so old back is green.
+
+Therefore, the top face when on the red square is green.
+
+So the answer is green.
+
+**Final Answer:**
+
+\boxed{green}

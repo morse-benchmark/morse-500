@@ -1,0 +1,29 @@
+{
+  "question_name": "dice_n_roll_dice6_seed2606.txt",
+  "question": "After each roll, record the color on the top of each cube. How many times was green rolled in total? Answer with a single integer.",
+  "solution": "5",
+  "model_output": "To determine how many times green was rolled, we analyze the sequence of cube rolls shown in the video. The key is to count the number of times the **top face** of any cube displays the color **green** during the rolling process.\n\n---\n\n### Step-by-Step Analysis:\n\n1. **Understand the Task**:  \n   - After each roll, record the color on the top of each cube.\n   - Count how many times **green** appears as the top color across all rolls.\n\n2. **Analyze the Video Frames**:  \n   - The video shows a series of cubes rolling one by one.\n   - Each frame represents a new roll or a position after a roll.\n   - We focus on identifying when the **top face** of a cube is **green**.\n\n3. **Count Green Appearances**:  \n   - By examining the sequence:\n     - In **Frame 13**, the **fourth cube** has green on top.\n     - In **Frame 15**, the **fifth cube** has green on top.\n     - In **Frame 17**, the **sixth cube** has green on top.\n   - These are the **only three instances** where green appears as the top color.\n\n---\n\n### Final Answer:\n\n$$\n\\boxed{3}\n$$",
+  "gt_reasoning_trace": "**Question:** How many times was green rolled in total? Answer with a single integer.\n\nLet's solve this step by step.\n\n### Scene Description\n\nAt 0:00, Title appears: 'Remember the following color names'\nAt 0:03, Color legend displayed with 6 colors: blue, red, white, green, yellow, purple\nAt 0:06, Color legend fades out\nAt 0:06, Prompt appears: 'After each roll, record the color on the top of each cube'\nAt 0:09, Prompt fades out\nAt 0:10, Creating 6 cubes with random colors\nAt 0:10, All 6 cubes appear on screen\nAt 0:10, Roll 1 begins\nAt 0:11, Roll 1 completes\nAt 0:12, Roll 2 begins\nAt 0:13, Roll 2 completes\nAt 0:14, Roll 3 begins\nAt 0:15, Roll 3 completes\nAt 0:16, Roll 4 begins\nAt 0:17, Roll 4 completes\nAt 0:18, Roll 5 begins\nAt 0:19, Roll 5 completes\nAt 0:22, All objects fade out before question display\nAt 0:23, Question text appears on screen\nAt 0:28, Question remains on screen\n\n### Step 1: Understand the cube configuration\nThere are **6 cube(s)** shown in the video.\n\n**Cube 1** has the following colors on its faces:\n- IN (back): blue\n- OUT (front): green\n- LEFT: white\n- RIGHT: yellow\n- UP (top): red\n- DOWN (bottom): red\n\n**Cube 2** has the following colors on its faces:\n- IN (back): purple\n- OUT (front): red\n- LEFT: purple\n- RIGHT: yellow\n- UP (top): blue\n- DOWN (bottom): yellow\n\n**Cube 3** has the following colors on its faces:\n- IN (back): yellow\n- OUT (front): yellow\n- LEFT: yellow\n- RIGHT: white\n- UP (top): yellow\n- DOWN (bottom): green\n\n**Cube 4** has the following colors on its faces:\n- IN (back): red\n- OUT (front): white\n- LEFT: yellow\n- RIGHT: green\n- UP (top): green\n- DOWN (bottom): red\n\n**Cube 5** has the following colors on its faces:\n- IN (back): green\n- OUT (front): purple\n- LEFT: blue\n- RIGHT: red\n- UP (top): blue\n- DOWN (bottom): white\n\n**Cube 6** has the following colors on its faces:\n- IN (back): yellow\n- OUT (front): red\n- LEFT: green\n- RIGHT: blue\n- UP (top): blue\n- DOWN (bottom): purple\n\n### Step 2: Track rolls (5 total)\nAfter each roll, we record which color appears on top of each cube:\n\n**Roll 1:** Cube 1: red, Cube 2: purple, Cube 3: green, Cube 4: yellow, Cube 5: green, Cube 6: blue\n**Roll 2:** Cube 1: blue, Cube 2: red, Cube 3: yellow, Cube 4: yellow, Cube 5: red, Cube 6: blue\n**Roll 3:** Cube 1: white, Cube 2: yellow, Cube 3: yellow, Cube 4: white, Cube 5: green, Cube 6: green\n**Roll 4:** Cube 1: red, Cube 2: purple, Cube 3: white, Cube 4: yellow, Cube 5: white, Cube 6: blue\n**Roll 5:** Cube 1: red, Cube 2: purple, Cube 3: yellow, Cube 4: green, Cube 5: white, Cube 6: blue\n\n### Step 3: Count total occurrences\n- **blue**: 5 time(s)\n- **green**: 5 time(s)\n- **purple**: 3 time(s)\n- **red**: 5 time(s)\n- **white**: 5 time(s)\n- **yellow**: 7 time(s)\n\n### Step 4: Count green occurrences\nThe color **green** was rolled **5** time(s) in total.\n\n### Final Answer\n**5**\n\n\\boxed{5}",
+  "is_correct": false,
+  "analysis_result": {
+    "has_error": true,
+    "primary_error_category": "TEMPORAL",
+    "errors": [
+      {
+        "category": "TEMPORAL",
+        "subcategory": "Event ordering",
+        "description": "Model incorrectly identified only 3 frames where green appeared on top, missing two additional rolls (Roll 1 and Roll 3) where green was on top of Cube 3 and Cube 5 respectively, indicating a failure to track the full sequence of 5 rolls.",
+        "evidence_quote": "Model trace: 'In Frame 13, the fourth cube has green on top. In Frame 15, the fifth cube has green on top. In Frame 17, the sixth cube has green on top.' — This omits green appearances in Roll 1 (Cube 3) and Roll 3 (Cube 5).",
+        "severity": "major"
+      },
+      {
+        "category": "REASONING",
+        "subcategory": "Counting",
+        "description": "Model correctly identified some green top-face instances but failed to sum all occurrences across all 5 rolls, leading to an undercount of 2.",
+        "evidence_quote": "Model trace: 'These are the only three instances where green appears as the top color.' — Contradicts ground truth which counts 5 total green top-face appearances.",
+        "severity": "major"
+      }
+    ],
+    "analysis": "The model failed to track the full temporal sequence of 5 rolls, incorrectly limiting its analysis to only 3 frames. It missed green top-face appearances in Roll 1 (Cube 3) and Roll 3 (Cube 5), leading to an undercount. This indicates a breakdown in event sequencing and cumulative counting across time, resulting in the wrong final answer of 3 instead of the correct 5."
+  }
+}

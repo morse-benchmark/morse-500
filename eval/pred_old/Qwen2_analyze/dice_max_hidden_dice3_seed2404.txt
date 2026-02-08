@@ -1,0 +1,24 @@
+{
+  "question_name": "dice_max_hidden_dice3_seed2404.txt",
+  "question": "Observe the following cubes. Out of the faces currently hidden from the camera, which color appears most often? Answer with only the color name.",
+  "solution": "yellow",
+  "model_output": "To determine which color appears most often on the faces currently hidden from the camera, let's analyze the visible faces of the cubes:\n\n1. The first cube has a yellow face facing forward.\n2. The second cube has a green face facing forward.\n3. The third cube has a red face facing forward.\n\nNow, let's identify the colors of the faces that are not facing forward:\n\n- For the first cube, the hidden faces are blue and white.\n- For the second cube, the hidden faces are yellow and purple.\n- For the third cube, the hidden faces are green and orange.\n\nNext, we count the occurrences of each color among the hidden faces:\n- Blue: 1 time (first cube)\n- Red: 1 time (third cube)\n- Green: 1 time (second cube)\n- Purple: 1 time (second cube)\n- Orange: 1 time (third cube)\n\nSince no color appears more than once among the hidden faces, there is no color that appears most often.\n\nTherefore, the answer is \\boxed{none}.",
+  "gt_reasoning_trace": "Problem Type: max_hidden\nNumber of Dice: 3\nNumber of Rolls: 5\nRandom Seed: 2404\n\nCreating cubes:\n  Cube 1: ['blue', 'yellow', 'yellow', 'blue', 'yellow', 'blue']\n  Cube 2: ['blue', 'white', 'white', 'yellow', 'purple', 'green']\n  Cube 3: ['white', 'yellow', 'yellow', 'red', 'red', 'yellow']\nSelected color for questions: yellow\n\nCalculating hidden faces:\n  Cube 1 hidden faces: ['blue', 'yellow', 'yellow']\n  Cube 2 hidden faces: ['blue', 'white', 'purple']\n  Cube 3 hidden faces: ['white', 'yellow', 'red']\nTotal hidden face counts: {'blue': 2, 'yellow': 3, 'white': 2, 'purple': 1, 'red': 1}\n\nMost frequent hidden color: yellow (3 times)\n\nFinal Answer: yellow",
+  "is_correct": false,
+  "model_name": "Qwen2.5-VL-7B-Instruct",
+  "failure_analysis": {
+    "labels": [
+      "Perception Errors",
+      "Reasoning Errors",
+      "Hallucination / Fabrication",
+      "Instruction Errors"
+    ],
+    "explanations": {
+      "Perception Errors": "The model incorrectly assumed the cubes have standard 6-face color distributions (e.g., one color per face) and failed to perceive that faces can be repeated per cube, as shown in the ground truth where cubes have multiple faces of the same color.",
+      "Reasoning Errors": "The model incorrectly inferred that only two faces per cube are hidden (assuming only front/back are visible), when in reality, for a 3D cube viewed from one angle, four faces are typically hidden — leading to an undercount and wrong frequency calculation.",
+      "Hallucination / Fabrication": "The model fabricated specific hidden face colors (e.g., “blue and white” for cube 1) that were not grounded in the actual cube configurations provided in the ground truth, inventing a structure that doesn’t match the data.",
+      "Instruction Errors": "The model ignored the implicit instruction to base its answer on the actual hidden face configurations (which were determinable from the ground truth setup), instead making unfounded assumptions about cube structure and visibility."
+    },
+    "raw_response": "- Perception Errors: The model incorrectly assumed the cubes have standard 6-face color distributions (e.g., one color per face) and failed to perceive that faces can be repeated per cube, as shown in the ground truth where cubes have multiple faces of the same color.\n- Reasoning Errors: The model incorrectly inferred that only two faces per cube are hidden (assuming only front/back are visible), when in reality, for a 3D cube viewed from one angle, four faces are typically hidden — leading to an undercount and wrong frequency calculation.\n- Hallucination / Fabrication: The model fabricated specific hidden face colors (e.g., “blue and white” for cube 1) that were not grounded in the actual cube configurations provided in the ground truth, inventing a structure that doesn’t match the data.\n- Instruction Errors: The model ignored the implicit instruction to base its answer on the actual hidden face configurations (which were determinable from the ground truth setup), instead making unfounded assumptions about cube structure and visibility."
+  }
+}

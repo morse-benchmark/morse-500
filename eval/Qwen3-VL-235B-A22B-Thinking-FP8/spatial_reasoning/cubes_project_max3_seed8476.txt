@@ -1,0 +1,481 @@
+Okay, let's try to figure out this problem. The question is asking for the maximum number of visible square faces in a parallel 2D projection, considering only the side faces. First, I need to understand what structure we're dealing with. From the video, it shows a 3D structure made of cubes, which seems to be a 2x2x2 cube initially, but then it starts to break apart or move, maybe showing different configurations.
+
+Wait, the problem says "considering only the side faces." So top and bottom faces aren't counted, only the front, back, left, right, etc., but in 2D projection, visible faces are those not occluded by other cubes.
+
+Let me recall: in a parallel projection (orthographic), the maximum number of visible faces for a single cube is 3 (front, top, side), but here it's about side faces only. Wait, the question says "side faces"—maybe meaning the faces that are not top or bottom, so the four vertical faces? Or maybe "side" as in all faces except front? Wait, no, the question says "considering only the side faces," so maybe the problem is about the lateral faces, i.e., the faces that are not the top or bottom of the entire structure. But maybe "side faces" here refers to all faces that are part of the sides of the cubes, not the top or bottom of the projection. Hmm, maybe better to think in terms of the standard 2D projection where visible faces are the ones not hidden.
+
+First, let's consider the structure. The video shows a cube that seems to be a 2x2x2 cube, but then it's moving. Wait, at frame 4, it's a 3x3x1? No, frame 4 shows a structure with multiple cubes. Let's check the frames:
+
+Frame 4: a 3x1x2 structure? Wait, frame 5: a cube with colors, maybe 2x2x2. Frame 6: the cube is rotating, frame 7: it starts to separate into two parts, frame 8: two separate blocks, frame 9: more separation, frame 10: three separate cubes? Wait, no, frame 10 shows a structure with three cubes in a line? Let's count the cubes.
+
+Looking at frame 5: the initial cube is a 2x2x2 cube (8 small cubes), since it's a larger cube made of smaller ones. Then as it rotates (frames 5-8), it's a single 2x2x2 cube. Then in frame 9, it starts to break into parts. Frame 10: there are three cubes? Wait, no, frame 10 shows a structure that looks like a 2x2x1 base with one cube on top of one of them, but no—wait, the colors are blue, yellow, pink, green. Let's count the number of small cubes.
+
+In frame 5: the structure is a 2x2x2 cube, so 8 small cubes. As it rotates, we can see different faces. When it breaks apart (frames 8-10), maybe it's rearranged to maximize visible faces.
+
+The key is: what's the maximum number of visible square faces in a parallel 2D projection, considering only the side faces. So "side faces" probably means the faces that are not the top or bottom in the projection, but in 2D, it's about which faces are visible from a particular viewpoint.
+
+In orthographic projection, the number of visible faces depends on the arrangement of the cubes. For a single cube, you can see up to 3 faces (front, top, side), but if we're only considering "side faces," maybe the vertical faces (left, right, front, back) but not top/bottom. Wait, the problem says "considering only the side faces," so maybe top and bottom are excluded. So for each cube, the side faces are the four lateral faces (front, back, left, right), and top/bottom are not counted.
+
+We need to arrange the cubes such that when viewed from a certain angle, the maximum number of these side faces are visible (not occluded by other cubes).
+
+Let's consider the standard problem: maximum visible faces in a 2D projection for a polycube. The classic problem for a 3D shape made of cubes, the maximum number of visible squares in orthographic projection is the number of cubes times 3 minus the occlusions, but here it's only side faces.
+
+Wait, let's take a simple example. A single cube: in 2D projection, you can see 1 face (if viewed directly), but to maximize, you view from a corner, seeing 3 faces. But if we're only considering side faces (excluding top/bottom), then if the cube is oriented so that top/bottom are not visible, the visible side faces would be 3? Wait, no—if "side faces" means the four vertical faces (assuming the cube is axis-aligned), then top and bottom are horizontal. So in a projection where the view is not along the vertical axis, the visible side faces would be the ones on the front, left, right, etc.
+
+Wait, maybe "side faces" here refers to all faces that are not the front/back in the projection, but the problem is a bit ambiguous. However, the key is the standard problem: for a polycube, what's the maximum number of visible faces in a parallel projection, where each face is a square, and we count only the side faces (probably meaning all faces except maybe top and bottom of the entire structure, but more likely, the problem is using "side faces" to mean the faces that are part of the sides of the cubes, i.e., all faces except those that would be top or bottom in the projection).
+
+But let's recall that in the video, the structure is a 2x2x2 cube initially, but then it's moving. Maybe the structure is a 3-cube L-shape or something else. Wait, in frame 10, the structure looks like 3 cubes: one blue-yellow, one green-pink, and one yellow. Wait, counting the small cubes: frame 5 has 8 (2x2x2), but maybe the structure is different. Wait, no, the problem says "the following structure," so the structure shown in the video is the one we need to consider.
+
+Wait, let's watch the video again:
+
+- Frame 0-2: text "Observe the following structure"
+- Frame 3: blank
+- Frame 4: a 3D structure with multiple colored squares, looks like a 2x2x2 cube (8 small cubes)
+- Frame 5: same cube, rotated
+- Frame 6: rotated more
+- Frame 7: starts to separate into two parts (the right side breaks off)
+- Frame 8: two separate blocks: left block is 2x2x1 (4 cubes), right block is 1x1x1 (1 cube)? No, frame 8: left part is a 2x1x2 (4 cubes), right part is a 1x1x1 cube.
+- Frame 9: the right part moves down, now there are two blocks: left is 2x1x2, right is a 2-cube vertical stack (green on pink)
+- Frame 10: left block is 2x1x2 (4 cubes), right block is 2 cubes (green on pink), and a yellow cube at the bottom right.
+
+Wait, counting the number of small cubes: in frame 5, it's 8 (2x2x2). In frame 10, it's 4 (left) + 2 (middle) + 1 (right) = 7? No, maybe it's 8 cubes total. Let's count the colored faces: blue, yellow, pink, green. Each color is on multiple cubes.
+
+But maybe the key is that the structure is a 2x2x2 cube, but when rotated, how many side faces are visible. Wait, no—the question is asking for the maximum number, so it's about the optimal arrangement of the cubes (the structure shown might be a 2x2x2, but maybe the problem is general, but no, the structure is specific).
+
+Wait, the problem says: "What is the maximum number of visible square faces that can be seen in a parallel 2D projection, considering only the side faces?"
+
+First, define "side faces": in 3D, a cube has 6 faces. If "side faces" are the 4 lateral faces (excluding top and bottom), then for each cube, we consider those 4. In a 2D projection, a face is visible if no other cube is in front of it along the projection direction.
+
+To maximize visible side faces, we need to arrange the cubes such that as many of their lateral faces are exposed to the viewer without being occluded.
+
+Let's consider a simple case:
+
+- 1 cube: maximum visible side faces = 3 (if viewed from a corner, you see 3 faces; but if "side faces" exclude top/bottom, then maybe 2? Wait, no—if the cube is axis-aligned, and the view is along a direction where the top/bottom are not visible (i.e., the view is horizontal), then you can see up to 2 side faces (front and left, for example). But in orthographic projection, the maximum visible faces for a single cube is 3 (all three visible when viewed from a corner), which includes top, front, side. If we exclude top/bottom, then the visible side faces would be 2 (front and side) if viewed from a corner, or 1 if viewed straight on.
+
+But the problem says "considering only the side faces", so maybe top and bottom are not counted. So for each cube, the side faces are the 4 vertical faces (assuming the structure is standing on a base, so top/bottom are horizontal). Then, in a 2D projection, the visible side faces are the ones that are not occluded and are vertical.
+
+Wait, maybe "side faces" here refers to all faces except the front/back in the projection, but that's unclear. Alternatively, in the problem statement, it's "visible square faces", and "considering only the side faces"—so maybe the top and bottom faces of the entire structure are not counted, only the sides.
+
+Let's think of the standard maximum visible faces for a polycube. For a 2x2x2 cube, the maximum number of visible faces in orthographic projection is 12 (each of the 3 directions has 4 visible faces: 2x2=4 per direction, 3 directions=12). But that's all faces (top, front, side).
+
+If we're only considering side faces, maybe meaning the faces that are not top or bottom, so front, back, left, right. In the 2x2x2 cube, when viewed from a corner, the top and bottom faces might not be visible (depending on the angle), but actually, in orthographic projection, the visible faces are the ones on the "front" layer in each direction.
+
+Wait, let's take a 2x2x2 cube. The number of visible faces when viewed from a direction that shows three faces (e.g., front-top-right) would be:
+
+- Front face: 4 squares (2x2)
+- Top face: 4 squares
+- Right face: 4 squares
+
+Total 12. But if we only count side faces (excluding top and bottom), then front and right would be side faces, top is not. So 4 + 4 = 8.
+
+But maybe the structure is not 2x2x2. Let's look at the video frames:
+
+Frame 4: the structure is a 3D shape with multiple colored faces. It has blue, yellow, pink, green. Let's count the number of small cubes:
+
+- In frame 5, the cube is a 2x2x2, so 8 cubes. Each face of the big cube has 4 small faces.
+
+When it rotates (frames 5-7), we can see different faces. Then, in frames 8-10, the structure breaks into parts. Frame 8: two separate blocks. Let's count the cubes here:
+
+- Left block: seems to be 3 cubes (blue, yellow, and another blue)
+- Right block: 2 cubes (green and pink)
+
+Frame 9: left block is 2 cubes (blue and yellow stacked), middle block is 2 cubes (green on pink), right block is 1 cube (yellow). Total 5 cubes?
+
+Frame 10: left is 2x2 (4 cubes), middle is 2 (green-pink), right is 1 (yellow). Total 7 cubes? But the initial frame 4 shows 8 cubes (2x2x2), so maybe it's 8.
+
+Wait, maybe the structure is a 3x3x1? No, the video shows a 3D structure.
+
+Alternatively, the problem is not about the specific structure shown, but the structure is a polycube, and we need to find the maximum possible for such a structure. Wait, the problem says "the following structure", so it's the structure in the video.
+
+Let's try to count the number of small cubes in the video:
+
+- Frame 4: the structure has a front face with blue (top), yellow (bottom left), pink (bottom right), and maybe green on the side. It's a cube, so likely 8 small cubes (2x2x2).
+
+When it rotates (frame 5), we see a blue face with yellow on top, pink on the right, etc. Frame 6: more rotation, showing a blue face with yellow and green.
+
+Frame 7: the structure starts to separate; the rightmost part moves away. So now it's two parts: left part is 2x2x1 (4 cubes), right part is 1x1x1 (1 cube). But 4+1=5, which is less than 8, so maybe it's 7 cubes.
+
+Frame 8: left part is 2x1x2 (4 cubes), right part is 1x1x1 (1 cube). Total 5.
+
+Frame 9: left part is 2 cubes (stacked), middle part is 2 cubes (stacked), right part is 1 cube. Total 5.
+
+Frame 10: left part is 2x2 (4 cubes), middle part is 2 cubes, right part is 1 cube. Total 7.
+
+Wait, maybe the structure is 7 cubes. But how does that help?
+
+The key is to find, for the structure shown, the maximum number of visible side faces in a 2D projection.
+
+But maybe the structure is a 2x2x2 cube with one cube removed, making 7 cubes. But the problem says "the following structure", so we need to determine its configuration.
+
+Alternatively, maybe the structure is a "staircase" or a shape that can show many faces.
+
+Let's think of the maximum possible for a polycube. For a single cube, max visible side faces (if side means 4 faces) is 3 (but 2 if top/bottom are excluded). For two cubes side by side, you can see 2 (front) + 2 (side) = 4 visible side faces (if they are in a line, viewed from the side, you see 2 side faces, but viewed from a corner, you see 3 faces per cube, but overlapping).
+
+Wait, no. Let's use the standard method: in orthographic projection, the number of visible faces is equal to the number of cubes times the number of visible faces per cube minus overlaps, but it's better to think in terms of the projection's x, y, z coordinates.
+
+For a polycube, the number of visible faces in the front direction (positive z) is the number of cubes with no cube in front of them (i.e., for each (x,y), the highest z). Similarly for top (positive y) and right (positive x).
+
+The total visible faces are the sum of visible faces in the three positive directions (front, top, right) plus the three negative directions (back, bottom, left), but in orthographic projection, you can only see one direction per axis, so usually the positive directions.
+
+But the problem says "parallel 2D projection", which is orthographic, so the view is along a direction, and visible faces are those whose normal has a positive dot product with the view direction, and not occluded.
+
+To maximize visible faces, the view direction should be such that it's not aligned with any axis, so it can see three faces per cube (but overlapping).
+
+However, the problem specifies "considering only the side faces". Let's assume "side faces" means the faces that are not the top or bottom of the entire structure, i.e., the vertical faces (left, right, front, back). So top and bottom (horizontal faces) are excluded.
+
+In a 2D projection, the visible vertical faces would be those that are on the "sides" of the structure when viewed from a certain angle.
+
+Let's consider a simple structure: a 2x1x1 (two cubes side by side). When viewed from a corner (45 degrees), you can see 2 front faces, 2 right faces, and 1 top face (but top is excluded). So visible side faces: 2 (front) + 2 (right) = 4? Wait, no—each cube has front and right faces visible, but the right cube's left face is occluded by the left cube. So for two cubes in a line along the x-axis:
+
+- View direction: (1,1,1) (normalized), so we see the front (z), right (x), and top (y) faces.
+
+- Front faces: both cubes have front faces visible (2)
+- Right faces: only the rightmost cube has a right face visible (1)
+- Top faces: both have top faces visible (2), but we exclude top, so 0.
+
+Total side faces (front and right): 2 + 1 = 3.
+
+But maybe the problem counts all vertical faces (regardless of direction), so front, back, left, right are all side faces, top and bottom are not.
+
+In orthographic projection, you can only see two of the vertical faces (e.g., front and right) if viewing from a corner, because the back and left are hidden.
+
+For a 2x2x2 cube:
+
+- Number of visible vertical faces (front, right, back, left) in a corner view: front has 4 faces, right has 4 faces, back and left are hidden. So 8.
+
+But if the structure is not a solid cube, but has protrusions, we can get more.
+
+Wait, the maximum number of visible square faces in a 2D projection for a polycube is known to be 3n - 2k, but maybe for n cubes, the maximum is 2n + something.
+
+Wait, for n cubes, the maximum number of visible faces in orthographic projection (all faces) is 2n + 2, but no—actually, for a 1x1xn line, the maximum visible faces is 2n + 2 (n front, n back? No, in a line along the x-axis, viewed from (1,1,0), you see n front faces, n top faces, and 1 right face, total n + n + 1 = 2n + 1).
+
+But we need only side faces, which I think are the non-top/bottom faces, so front/back/left/right.
+
+Let's take an example:
+
+- 1 cube: max visible side faces = 3 (if viewed from a corner, you see front, right, and top; but top is excluded, so front and right = 2? Or if the view is horizontal, you see front and right = 2).
+
+Wait, maybe the problem defines "side faces" as all faces that are not the front face in the projection. No, the problem says "considering only the side faces", so it's a subset of all faces.
+
+Let's look for similar problems. In some puzzles, the maximum number of visible faces for a 2x2x2 cube is 12 (4 per face, 3 faces visible), but if we exclude top and bottom, it's 8 (4 front, 4 side).
+
+But the video shows the structure breaking into parts, which suggests that a non-convex structure can have more visible faces. For example, if you have a cube with a cube attached to its side, then from a certain angle, you can see the front face of the main cube, the side face of the main cube, and the front and side face of the attached cube.
+
+Wait, let's consider the structure in frame 10: it looks like there are 4 cubes in a 2x2 base, then one cube on top of one of them, and another cube sticking out. Wait, no, frame 10 shows a structure with blue, yellow, green, pink, and another yellow cube. Let's count the visible faces in a potential projection.
+
+Alternatively, think of the maximum possible. For a polycube with n cubes, the maximum number of visible side faces (assuming side faces are 4 per cube, but top/bottom excluded) in orthographic projection is 2n + 2 or something.
+
+Wait, let's take n=8 (2x2x2 cube). If it's solid, the visible side faces (front and right) would be 4 + 4 = 8.
+
+If we have a structure where each cube is placed such that it doesn't occlude others, like a "staircase" in 3D. For example, a 3x3x1 layer with height 1, but that's 2D.
+
+Wait, another approach: in a parallel projection, the visible faces are those that are on the "silhouette" of the structure. For side faces (non-top/bottom), the silhouette in the horizontal plane.
+
+Suppose the structure is arranged such that in the x and z directions, it's as "spread out" as possible. For example, a structure where each cube is at a unique (x,z) position, so in the y-direction (height), they can be at different heights.
+
+For each (x,z) position, the highest cube will have its top face visible, but we're not counting top faces. The side faces (front/back/left/right) for each cube: the front face is visible if there's no cube behind it in the z-direction, left face visible if no cube to the left in x-direction, etc.
+
+But in a 2D projection, the visible faces are those whose projection is not covered by another cube.
+
+Let's consider a structure where cubes are placed at (1,1,1), (1,2,2), (2,1,2), (2,2,1). This is a 2x2x2 cube with some cubes higher, but maybe a different arrangement.
+
+Wait, maybe the structure shown in the video is a 3-cube L-shape, but no, the initial structure is a cube.
+
+Wait, the problem says "Answer with a single integer." Let's think of common problems.
+
+In a 2x2x2 cube, when viewed from a corner, you can see 3 faces of the big cube, each with 4 small faces, so 12 total. If "side faces" means all faces except top and bottom, then the top face of the big cube has 4 small top faces, which we exclude. So the visible faces would be front (4) and side (4), total 8.
+
+But the video shows the structure breaking into parts, which allows more visible faces. For example, if you have two separate 2x2x1 blocks, viewed from a corner, you might see 4 (front of first block) + 4 (front of second block) + 2 (side of first) + 2 (side of second) = 12, but they might overlap.
+
+Wait, no—when cubes are separated, their faces don't occlude each other, so if two cubes are side by side with a gap, you can see both front faces and both side faces.
+
+For example, two cubes separated along the x-axis: viewed from (1,0,1) direction, you can see the front face of both (2 faces) and the right face of the right cube (1 face), total 3. If they are separated along the z-axis (depth), viewed from the side, you can see the side face of both (2 faces) and the front face of the front cube (1 face), total 3.
+
+If they are separated in both x and z, like a diagonal, then you can see both front and both side faces, total 4.
+
+For n cubes arranged in a "diagonal" in x and z, each at (i,i,1), then in a corner view, each cube has its front and side face visible, so 2n visible side faces.
+
+The structure in the video: let's count the number of cubes. Frame 5: 8 cubes (2x2x2). When it breaks apart (frame 10), it's 7 cubes? No, maybe it's 8.
+
+If the structure is a 3D "cross" or something, but the maximum visible side faces would be when the structure is as "spread out" as possible.
+
+Wait, another angle: the problem says "considering only the side faces". Maybe "side faces" refers to the faces that are not the top or bottom of the individual cubes, i.e., the 4 vertical faces per cube. In a 2D projection, the number of visible vertical faces is equal to the number of "edges" in the projection.
+
+For a single cube, visible vertical faces: 2 (if viewed from a corner, you see front and side; top and bottom are horizontal, so not counted).
+
+For two cubes stacked vertically: visible vertical faces = 4 (each cube has front and side visible, no occlusion).
+
+For two cubes side by side horizontally: visible vertical faces = 3 (front of both, side of one).
+
+For two cubes diagonally (one in front and to the side of the other): visible vertical faces = 4 (front of both, side of both).
+
+Ah, yes—if cube B is at (x+1, y, z+1) relative to cube A at (x,y,z), then when viewed from (1,1,1), both have their front (z) and side (x) faces visible, so 2 per cube, total 4.
+
+Extending this, if we have n cubes each at (i, j, k) where i, j, k are distinct in a way that no two cubes are aligned in the view direction, then each cube contributes 2 visible side faces.
+
+What's the maximum number for the structure shown? Let's look at frame 10: it shows 4 cubes in a 2x2 base (blue and yellow), then a green cube on top of the pink cube, and a yellow cube to the right. Wait, maybe there are 5 cubes.
+
+But the initial structure is 8, so maybe the structure is 8 cubes arranged to maximize visible faces.
+
+Wait, the classic problem for the maximum number of visible faces in a 2D projection of a polycube is that for n cubes, the maximum is 2n + 2, but I'm not sure.
+
+Wait, let's take n=8.
+
+If the 8 cubes are arranged in a 2x2x2 cube, the maximum visible faces (all faces) is 12 (4+4+4).
+
+If we exclude top and bottom, it's 8 (4+4).
+
+If the 8 cubes are arranged in a "staircase" where each cube is offset, like a 3D spiral, then the visible side faces could be higher.
+
+For example, a structure where each layer is a 1x1 cube, with 8 layers, but that's a tower. Visible side faces: 4 per layer, but only the outer ones. For a tower of 8 cubes, visible side faces = 4 (all four sides are visible, each with 8 faces), but in 2D projection, you can only see two sides (e.g., front and right), so 8 + 8 = 16.
+
+Ah! That's a key point. In a tall tower (1x1xn), when viewed from a corner, you can see the front face (n squares) and the right face (n squares), so total 2n visible side faces (assuming top/bottom are excluded).
+
+For n=8, that's 16. But is the structure in the video a tower? No, it's a 2x2x2 cube initially.
+
+But the video shows the structure breaking into parts, which might allow more visible faces.
+
+Wait, the structure in frame 10 has cubes that are spread out. Let's count the number of visible side faces in the final frame (frame 10).
+
+Frame 10: The structure has:
+
+- Left part: a 2x2 base (4 cubes), but maybe it's a 2x1x2 (2 cubes in height, 2 in depth).
+- Middle part: two cubes stacked vertically (green on pink).
+- Right part: one yellow cube.
+
+Total cubes: 4 + 2 + 1 = 7.
+
+If we view this from a corner where we can see the front and right sides:
+
+- Left part: 2 (front) x 2 (height) = 4 front faces, 2 (depth) x 2 (height) = 4 right faces.
+- Middle part: 1 (front) x 2 (height) = 2 front faces, 1 (depth) x 2 (height) = 2 right faces.
+- Right part: 1 front face, 1 right face.
+
+But we need to check for occlusion. If the left part is in front of the middle part, then the middle part's front faces might be occluded. If they are spread out in depth, then no occlusion.
+
+Assume the structure is arranged so that no cube is directly in front of another (i.e., all cubes have unique (x,z) coordinates), then each cube's front and right faces are visible.
+
+For 7 cubes, that would be 2*7 = 14 visible side faces.
+
+But what's the maximum for the structure shown? Let's count the number of cubes in the video.
+
+In frame 4, the structure is a cube with 6 faces, each face having 4 small squares (2x2), so it's a 2x2x2 cube (8 cubes).
+
+When it rotates (frames 5-7), it's still 8 cubes.
+
+In frame 8, it's two separate parts: left part has 6 small faces visible (2x3), right part has 3 small faces visible (1x3), so total cubes: left part is 2x2x1.5? No, better to count the number of small cubes by the number of colored faces.
+
+Blue appears on 4 faces: likely 4 cubes have blue faces.
+
+Yellow appears on 4 faces: 4 cubes.
+
+Pink: 4 faces.
+
+Green: 4 faces.
+
+Total 16 faces, but each cube has 6 faces, so 8 cubes have 48 faces, but only 16 are visible in one view, which matches 2x2x2 (each big face has 4 small faces).
+
+So the structure is 8 cubes (2x2x2).
+
+Now, when it breaks into parts (frames 8-10), it's the same 8 cubes but rearranged. The question is about the maximum number of visible side faces in any parallel projection of this structure.
+
+For a 2x2x2 cube, the maximum visible side faces (if side faces are front and side) is 8 (4 front, 4 side).
+
+But if the structure is rearranged into a non-convex shape, like having some cubes sticking out, then more faces are visible.
+
+For example, take the 2x2x2 cube and move one cube to the side. Now you have 7 cubes in a 2x2x2 with one missing, and one cube next to it. The total cubes are still 8.
+
+In this case, the visible front faces would be 4 (from the main block) + 1 (from the separated cube) = 5.
+
+Visible side faces (right) would be 4 (from the main block) + 1 (from the separated cube) = 5.
+
+Total side faces: 5 + 5 = 10.
+
+If we move two cubes out, we can get 4 + 2 = 6 front, 4 + 2 = 6 side, total 12.
+
+For 8 cubes, if arranged in a straight line along the x-axis (1x1x8), but that's a tower. Wait, no—1x8x1 (along z-axis), viewed from a corner, front faces: 8, right faces: 1 (only the last cube), total 9.
+
+No, better to arrange them in a 2D grid in the x-z plane, each at a different (x,z) position, so 8 cubes at (1,1), (1,2), ..., (2,4) in x-z, all at y=1.
+
+In this case, when viewed from a corner (view direction with positive x and z components), each cube has its front (z) face and right (x) face visible.
+
+Number of front faces: for each x, the number of z positions. If it's 2x4 grid, front faces = 4 (since for each x=1 and 2, z=1-4, so 4 front faces for x=1, 4 for x=2? No, front face is the face with maximum z, so for each (x,y), the cube with highest z has its front face visible.
+
+In a 2x4 grid (x=1-2, z=1-4, y=1), the front faces are the cubes at z=4 (2 cubes), so 2 front faces.
+
+Right faces are the cubes at x=2 (4 cubes), so 4 right faces.
+
+Total side faces: 2 + 4 = 6. That's worse.
+
+Ah, right, the visible faces in a direction are the number of "projections" in that direction. For the x-direction (right face), the number of visible faces is the number of distinct (y,z) coordinates. For the z-direction (front face), it's the number of distinct (x,y) coordinates.
+
+So for a set of cubes, the number of visible faces in the front direction (z) is the number of (x,y) positions with at least one cube.
+
+Similarly, visible faces in the right direction (x) is the number of (y,z) positions.
+
+If we want to maximize the sum of these two (assuming side faces are front and right), we need to maximize the number of distinct (x,y) and (y,z) positions.
+
+For 8 cubes, to maximize distinct (x,y) and (y,z):
+
+Let y be constant (all cubes at the same height), then (x,y) positions = number of x positions, (y,z) positions = number of z positions.
+
+If we have 8 cubes in a 1x8 grid (x=1-8, z=1, y=1), then (x,y) = 8, (y,z) = 1, sum=9.
+
+If in a 2x4 grid (x=1-2, z=1-4, y=1), (x,y)=2, (y,z)=4, sum=6.
+
+If in a 3D arrangement where y varies, e.g., for each cube, (x,y,z) are all unique.
+
+For 8 cubes, the maximum number of distinct (x,y) is 8 (if all have unique x,y), and distinct (y,z) is 8 (unique y,z). But since there are 8 cubes, the number of distinct (x,y) is ≤8, same for (y,z).
+
+The sum of distinct (x,y) and (y,z) is maximized when the overlap is minimized. By the principle of inclusion, the minimum overlap is 0, so maximum sum is 8 + 8 = 16.
+
+Is this possible? Yes, if we arrange the cubes such that each (x,y) pair is unique and each (y,z) pair is unique. This is equivalent to a 3D grid where x, y, z are all different for each cube, like a permutation.
+
+For example, for 8 cubes, let's use y as a coordinate from 1 to 8, but we only have 8 cubes, so y can be 1-2 (since 2x2x2=8).
+
+Let's take a 2x2x2 grid: (x,y,z) where x,y,z ∈ {1,2}.
+
+Distinct (x,y) pairs: 4 (all combinations).
+
+Distinct (y,z) pairs: 4.
+
+Sum: 4 + 4 = 8.
+
+If we rearrange the 8 cubes into a structure where each has a unique (x,y) and unique (y,z):
+
+Let's have cubes at:
+
+(1,1,1), (1,2,2), (2,1,2), (2,2,1), (3,1,3), (3,2,4), (4,1,4), (4,2,3) – but this is more than 8 and not relevant.
+
+Wait, with 8 cubes, the maximum number of distinct (x,y) is 8 (if all x,y are different), which requires x and y to have at least 8 positions, but we can have x from 1-4, y from 1-2, so 4*2=8 (x,y) pairs.
+
+Similarly, (y,z) can be 8 pairs with z from 1-4.
+
+So if we have:
+
+Cubes at (1,1,1), (1,2,2), (2,1,2), (2,2,1), (3,1,3), (3,2,4), (4,1,4), (4,2,3)
+
+Now, distinct (x,y) pairs: 8 (each x=1-4, y=1-2).
+
+Distinct (y,z) pairs: for y=1, z=1,2,3,4 (4 pairs); for y=2, z=2,1,4,3 (4 pairs), total 8.
+
+So visible front faces (z-direction) = 8 (number of distinct (x,y)).
+
+Visible right faces (x-direction) = 8 (number of distinct (y,z)).
+
+Total visible side faces (front + right) = 16.
+
+Is this possible with 8 cubes? Yes, as long as no two cubes share the same (x,y) or same (y,z) in a way that causes occlusion.
+
+In orthographic projection, the number of visible faces in the front direction is exactly the number of distinct (x,y) positions, because each (x,y) has at most one visible face (the one with highest z).
+
+Similarly, visible faces in the right direction is the number of distinct (y,z) positions (highest x).
+
+So to maximize the sum, we need to maximize the number of distinct (x,y) and (y,z) for the given number of cubes.
+
+For n cubes, the maximum sum is n + n = 2n, achieved when all (x,y) are distinct and all (y,z) are distinct, which is possible by choosing z as a function of x,y such that (y,z) are distinct.
+
+For n=8, this sum is 16.
+
+Now, does the structure in the video allow this? The video shows the structure breaking into parts, which suggests it's not a solid cube, so it's a polycube where cubes are not all adjacent, allowing more visible faces.
+
+The initial structure is 8 cubes, and when it moves, it becomes a non-convex structure where cubes are spread out, so it's possible to have a configuration where 16 side faces are visible.
+
+But let's verify with smaller n:
+
+- n=1: 2 visible side faces (front and right), which is 2*1=2. Correct.
+- n=2: if arranged so (x,y) are (1,1) and (2,2), then (x,y) distinct=2, (y,z) distinct=2 (z=1 and 2), so visible front=2, visible right=2, total 4=2*2. Correct.
+
+Yes, this seems to hold.
+
+Now, the problem says "considering only the side faces". If "side faces" includes both front/back and left/right, but in 2D projection, you can only see two of the four (e.g., front and right), so the maximum is the sum of the two visible directions.
+
+The problem says "visible square faces", so it's the total number of square faces visible from a single projection direction.
+
+In the best case, for a polycube with n cubes, the maximum number of visible side faces (assuming side faces are the two directions perpendicular to the view's vertical axis) is 2n.
+
+For n=8, that's 16.
+
+But let's check the video: in frame 10, how many cubes are there?
+
+- Frame 4: 8 cubes (2x2x2)
+- Frames 5-7: still 8
+- Frames 8-10: the structure is reconfigured but still 8 cubes (since it's the same structure moving, not adding/removing)
+
+Yes, the structure has 8 cubes.
+
+Now, can 8 cubes have 16 visible side faces?
+
+Yes, if they are arranged such that no two cubes are in the same (x,y) or (y,z) position, meaning each cube is in a unique "column" and "row" in the projection.
+
+For example, if you have 8 cubes each at a different height (y), but since we're considering side faces (not top/bottom), height doesn't affect the side faces' visibility.
+
+Wait, no—if the cubes are at different heights (y), then in the (x,z) plane, they can be spread out so that in the front view (z), the height doesn't occlude the front faces, because front faces are on the z-axis.
+
+Actually, in orthographic projection, the y-coordinate (height) doesn't affect the visibility of front/back/left/right faces; only the x and z coordinates matter for front/back/left/right visibility.
+
+So if all cubes are at the same height (y=1), then the visibility of front/back/left/right faces depends only on x and z.
+
+In this case, the number of visible front faces (z-direction) is the number of distinct x positions (since y is constant), and visible right faces (x-direction) is the number of distinct z positions.
+
+To maximize, set x and z to be all distinct. For 8 cubes, x=1-8, z=1-8, so visible front faces=8, visible right faces=8, total 16.
+
+Yes, this is possible by placing 8 cubes in a diagonal line in the x-z plane (x=z), so each has unique x and z. When viewed from a corner, you can see all 8 front faces and all 8 right faces, totaling 16.
+
+The structure in the video is moving from a solid cube to a spread-out structure, which is exactly the configuration that maximizes visible faces.
+
+Therefore, the maximum number is 16.
+</think>
+
+To determine the **maximum number of visible square faces** that can be seen in a **parallel 2D projection**, considering **only the side faces**, we must interpret the problem carefully and apply geometric reasoning based on how projections work.
+
+---
+
+### 🧠 Understanding the Problem
+
+- The structure is made up of **cubes**, and the video shows a **polycube** (a 3D shape formed by connecting unit cubes).
+- The question asks for the **maximum number of visible square faces** in a **parallel 2D projection**, but **only considering side faces**.
+- This implies:
+  - We are **not counting top or bottom faces**.
+  - Only **front, back, left, and right** faces are considered as "side faces".
+  - In a **parallel (orthographic) projection**, only those faces not occluded by other cubes are visible from a given viewpoint.
+  - To **maximize visibility**, we want to arrange the cubes such that **as many side faces as possible are exposed** without being blocked.
+
+---
+
+### 🔍 Key Insight
+
+In a **parallel 2D projection**, the **number of visible side faces** depends on the **arrangement** of the cubes in 3D space. For a set of **n unit cubes**, the **maximum number of visible side faces** occurs when:
+
+- Each cube is placed such that it has **no other cube directly in front of it** in either the **x-direction** (left/right) or **z-direction** (front/back).
+- That is, each cube contributes **two visible side faces**: one from the **front** and one from the **right** (or any two orthogonal directions), assuming the view is chosen appropriately.
+
+This configuration is possible if all cubes are arranged so that:
+- No two cubes share the same **(x, y)** position (so no occlusion along the z-axis),
+- And no two cubes share the same **(y, z)** position (so no occlusion along the x-axis).
+
+This ensures that **each cube contributes two visible side faces**, resulting in a total of **2n** visible side faces.
+
+---
+
+### 🧱 Applying to the Given Structure
+
+From the video:
+- The structure starts as a **2×2×2 cube**, which contains **8 unit cubes**.
+- As the structure moves and breaks apart, it becomes a **non-convex polycube** with **8 cubes** still present (no cubes are added or removed).
+- The movement suggests that the cubes are rearranged to **maximize visibility** of side faces.
+
+Thus, the structure consists of **8 unit cubes**.
+
+Using the above principle:
+- Maximum visible side faces = **2 × number of cubes** = **2 × 8 = 16**
+
+This maximum is achievable when the cubes are arranged in a way that **no two cubes block each other’s side faces**—for example, placing them in a **diagonal grid** in the x-z plane at the same height (y = constant), ensuring each cube has unique (x, z) coordinates.
+
+---
+
+### ✅ Final Answer
+
+$$
+\boxed{16}
+$$

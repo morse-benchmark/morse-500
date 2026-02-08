@@ -1,0 +1,595 @@
+We are given a cube with colored faces and a path it rolls along. The goal is to determine which color face will be on top when the cube reaches the red square at the end of the path.
+
+---
+
+### Step 1: Understand the initial orientation
+
+From the video, at 0:07–0:08, the cube is shown with:
+
+- **Top face**: Orange
+- **Front face**: Purple
+- **Right face**: Yellow
+
+We can deduce the rest of the faces using the color mapping given earlier:
+
+> Remember the following color names:
+> - Blue → light blue square
+> - Red → red square
+> - Green → green square
+> - Yellow → yellow square
+> - Orange → orange square
+> - Purple → purple square
+
+So the cube has 6 faces, each with a unique color: blue, red, green, yellow, orange, purple.
+
+At the start (0:08), we see:
+
+- Top: Orange
+- Front: Purple
+- Right: Yellow
+
+Therefore, we can assign the remaining faces by elimination and spatial reasoning.
+
+Let’s assign directions:
+
+- Let’s say the cube is oriented such that:
+  - **+Y** is up → Orange
+  - **+Z** is front → Purple
+  - **+X** is right → Yellow
+
+Then:
+
+- Bottom (−Y) = ? → Not Orange
+- Back (−Z) = ? → Not Purple
+- Left (−X) = ? → Not Yellow
+
+We need to figure out which colors are opposite which.
+
+But we don’t need to know all opposites — we just need to simulate the rolling.
+
+---
+
+### Step 2: Trace the path
+
+The cube rolls along a path of squares. The path is shown from 0:14 onward.
+
+Let’s number the squares in the path:
+
+1. **Starting square** (cube is placed on it at 0:14) — this is a **black square**.
+2. Then it rolls to the **right** onto another black square.
+3. Then **forward** (away from viewer) onto a black square.
+4. Then **left** onto a black square.
+5. Then **forward** onto the **red square** (target).
+
+So the cube makes 4 rolls:
+
+- Roll 1: Right
+- Roll 2: Forward
+- Roll 3: Left
+- Roll 4: Forward
+
+We need to simulate the cube’s orientation after each roll.
+
+---
+
+### Step 3: Simulate each roll
+
+We’ll track the top, front, and right faces after each roll.
+
+Initial state (at 0:08, before rolling):
+
+- Top: Orange
+- Front: Purple
+- Right: Yellow
+
+We’ll use a standard cube rotation model.
+
+---
+
+#### Roll 1: Roll to the **right**
+
+When you roll a cube to the right, the right face becomes the bottom, the bottom becomes the left, the left becomes the top, and the top becomes the right.
+
+But more precisely:
+
+- New Top = Old Left
+- New Right = Old Top
+- New Bottom = Old Right
+- New Left = Old Bottom
+- Front and Back remain the same (for a right roll)
+
+But we don’t know the left or bottom yet.
+
+Alternative approach: Use a coordinate system.
+
+Let’s define the cube’s faces as:
+
+- Top (T)
+- Bottom (B)
+- Front (F)
+- Back (K)
+- Left (L)
+- Right (R)
+
+Initial:
+
+- T = Orange
+- F = Purple
+- R = Yellow
+
+We need to find L, B, K.
+
+Since all 6 colors are used, and we have:
+
+Used: Orange, Purple, Yellow
+
+Remaining: Blue, Red, Green
+
+We don’t know which is which yet, but we can assign variables and track.
+
+Actually, we can simulate the rolls without knowing the initial left/bottom by keeping track of which face goes where.
+
+Let’s use a standard method: represent the cube state as [Top, Front, Right], and update on each roll.
+
+---
+
+#### Roll 1: Roll right
+
+Rolling right → the cube rotates around the front-back axis, so:
+
+- New Top = Old Left
+- New Right = Old Top
+- New Bottom = Old Right
+- New Left = Old Bottom
+- Front and Back unchanged
+
+But we don’t know Left or Bottom.
+
+We need to assign the missing colors.
+
+Wait — perhaps we can deduce from the first roll animation.
+
+At 0:16, after rolling right, the cube is shown with:
+
+- Top: ? (not visible clearly, but we see the front is now Green? Wait, no — let’s look carefully.
+
+Actually, the video doesn’t show the colors clearly after each roll — it’s abstract.
+
+So we must simulate based on the initial orientation and the path.
+
+Alternative idea: Use the fact that after rolling, the face that was on the side becomes the bottom, etc.
+
+Let’s assign the initial unknown faces.
+
+Assume the cube is oriented as:
+
+- Top: Orange
+- Front: Purple
+- Right: Yellow
+
+Then, by standard cube geometry, the opposite faces are:
+
+- Top ↔ Bottom
+- Front ↔ Back
+- Left ↔ Right
+
+So:
+
+- Bottom = ? (opposite Orange)
+- Back = ? (opposite Purple)
+- Left = ? (opposite Yellow)
+
+But we don’t know which colors are opposite.
+
+However, we can simulate the rolls without knowing opposites — we just need to track which face moves to which position.
+
+Let’s denote the cube’s faces as:
+
+- T: Top
+- B: Bottom
+- F: Front
+- K: Back
+- L: Left
+- R: Right
+
+Initial:
+
+T = Orange  
+F = Purple  
+R = Yellow  
+
+We don’t know L, B, K — but they are Blue, Red, Green in some order.
+
+Now, when we roll the cube, we can update the faces.
+
+---
+
+#### Roll 1: Roll to the right
+
+Rolling right means the cube rotates 90° around the front-back axis, clockwise when viewed from front.
+
+So:
+
+- New T = Old L
+- New R = Old T
+- New B = Old R
+- New L = Old B
+- F and K unchanged
+
+So after Roll 1:
+
+T = L (unknown)  
+R = Orange  
+B = Yellow  
+L = B (unknown)  
+F = Purple  
+K = ? (unchanged)
+
+We still don’t know L and B.
+
+But we can continue.
+
+---
+
+#### Roll 2: Roll forward
+
+Rolling forward means rotating around the left-right axis, so the front face becomes the bottom, bottom becomes back, back becomes top, top becomes front.
+
+So:
+
+- New T = Old K
+- New F = Old T
+- New B = Old F
+- New K = Old B
+- L and R unchanged
+
+After Roll 2:
+
+T = K (unknown)  
+F = T (which was L from before)  
+B = F (Purple)  
+K = B (Yellow)  
+L = L (from after roll 1, which was old B)  
+R = Orange
+
+This is getting messy.
+
+Perhaps there’s a better way.
+
+---
+
+### Step 4: Use the path and count the rolls
+
+The path has 4 moves:
+
+1. Right
+2. Forward
+3. Left
+4. Forward
+
+We can think of this as a sequence of rotations.
+
+Let’s assign initial face positions:
+
+Let’s assume the cube is on a grid, and we track which face is up after each roll.
+
+Start: Top = Orange
+
+Roll 1: Roll right → the right face (Yellow) becomes the bottom, so the top becomes the left face.
+
+But we don’t know the left face.
+
+Wait — perhaps we can use the fact that after rolling, the face that was on the side is now on the bottom, and the face that was on the bottom is now on the other side.
+
+But without knowing the initial left and bottom, we’re stuck.
+
+Unless... we can deduce from the final position.
+
+Another idea: simulate with a physical cube or use a standard method.
+
+I recall that in such puzzles, you can track the top face by considering the net of the cube or the sequence of rolls.
+
+Let’s try to assign the missing faces based on common cube color arrangements, but that might not be reliable.
+
+Perhaps the video intends for us to notice that after the sequence of rolls, the top face is determined by the parity or the net displacement.
+
+Let’s count the number of rolls in each direction.
+
+The path is: right, forward, left, forward.
+
+Net displacement: 0 in left-right, 2 forward.
+
+But that doesn't help for orientation.
+
+Let’s try to simulate with assumed initial left and bottom.
+
+Suppose that the initial left face is Blue, bottom is Green, back is Red. (arbitrary assignment, but we can test).
+
+Initial:
+
+T: Orange  
+F: Purple  
+R: Yellow  
+L: Blue  
+B: Green  
+K: Red
+
+Now simulate rolls.
+
+---
+
+#### Roll 1: Roll right
+
+- New T = Old L = Blue
+- New R = Old T = Orange
+- New B = Old R = Yellow
+- New L = Old B = Green
+- F = Purple (unchanged)
+- K = Red (unchanged)
+
+State after Roll 1:
+
+T: Blue  
+F: Purple  
+R: Orange  
+L: Green  
+B: Yellow  
+K: Red
+
+---
+
+#### Roll 2: Roll forward
+
+Rolling forward: around left-right axis.
+
+- New T = Old K = Red
+- New F = Old T = Blue
+- New B = Old F = Purple
+- New K = Old B = Yellow
+- L = Green (unchanged)
+- R = Orange (unchanged)
+
+State after Roll 2:
+
+T: Red  
+F: Blue  
+R: Orange  
+L: Green  
+B: Purple  
+K: Yellow
+
+---
+
+#### Roll 3: Roll left
+
+Rolling left: opposite of rolling right, so rotate around front-back axis counterclockwise.
+
+- New T = Old R = Orange
+- New L = Old T = Red
+- New B = Old L = Green
+- New R = Old B = Purple
+- F = Blue (unchanged)
+- K = Yellow (unchanged)
+
+State after Roll 3:
+
+T: Orange  
+F: Blue  
+R: Purple  
+L: Red  
+B: Green  
+K: Yellow
+
+---
+
+#### Roll 4: Roll forward
+
+Again, rolling forward: around left-right axis.
+
+- New T = Old K = Yellow
+- New F = Old T = Orange
+- New B = Old F = Blue
+- New K = Old B = Green
+- L = Red (unchanged)
+- R = Purple (unchanged)
+
+State after Roll 4:
+
+T: Yellow  
+F: Orange  
+R: Purple  
+L: Red  
+B: Blue  
+K: Green
+
+---
+
+So when the cube reaches the red square, the top face is **Yellow**.
+
+But is this correct? We assumed initial left=Blue, bottom=Green, back=Red.
+
+What if we assumed different initial assignments?
+
+Let’s try a different assignment.
+
+Suppose initial:
+
+T: Orange  
+F: Purple  
+R: Yellow  
+L: Green  
+B: Blue  
+K: Red
+
+Roll 1: Roll right
+
+- T = L = Green
+- R = T = Orange
+- B = R = Yellow
+- L = B = Blue
+- F = Purple
+- K = Red
+
+State 1:
+
+T: Green  
+F: Purple  
+R: Orange  
+L: Blue  
+B: Yellow  
+K: Red
+
+Roll 2: Roll forward
+
+- T = K = Red
+- F = T = Green
+- B = F = Purple
+- K = B = Yellow
+- L = Blue
+- R = Orange
+
+State 2:
+
+T: Red  
+F: Green  
+R: Orange  
+L: Blue  
+B: Purple  
+K: Yellow
+
+Roll 3: Roll left
+
+- T = R = Orange
+- L = T = Red
+- B = L = Blue
+- R = B = Purple
+- F = Green
+- K = Yellow
+
+State 3:
+
+T: Orange  
+F: Green  
+R: Purple  
+L: Red  
+B: Blue  
+K: Yellow
+
+Roll 4: Roll forward
+
+- T = K = Yellow
+- F = T = Orange
+- B = F = Green
+- K = B = Blue
+- L = Red
+- R = Purple
+
+State 4:
+
+T: Yellow  
+F: Orange  
+R: Purple  
+L: Red  
+B: Green  
+K: Blue
+
+Again, top face is **Yellow**.
+
+Interesting! Same result.
+
+Let’s try one more assignment.
+
+Initial:
+
+T: Orange  
+F: Purple  
+R: Yellow  
+L: Red  
+B: Green  
+K: Blue
+
+Roll 1: Roll right
+
+- T = L = Red
+- R = T = Orange
+- B = R = Yellow
+- L = B = Green
+- F = Purple
+- K = Blue
+
+State 1:
+
+T: Red  
+F: Purple  
+R: Orange  
+L: Green  
+B: Yellow  
+K: Blue
+
+Roll 2: Roll forward
+
+- T = K = Blue
+- F = T = Red
+- B = F = Purple
+- K = B = Yellow
+- L = Green
+- R = Orange
+
+State 2:
+
+T: Blue  
+F: Red  
+R: Orange  
+L: Green  
+B: Purple  
+K: Yellow
+
+Roll 3: Roll left
+
+- T = R = Orange
+- L = T = Blue
+- B = L = Green
+- R = B = Purple
+- F = Red
+- K = Yellow
+
+State 3:
+
+T: Orange  
+F: Red  
+R: Purple  
+L: Blue  
+B: Green  
+K: Yellow
+
+Roll 4: Roll forward
+
+- T = K = Yellow
+- F = T = Orange
+- B = F = Red
+- K = B = Green
+- L = Blue
+- R = Purple
+
+State 4:
+
+T: Yellow  
+F: Orange  
+R: Purple  
+L: Blue  
+B: Red  
+K: Green
+
+Again, top face is **Yellow**.
+
+So regardless of the initial assignment of the unknown faces, after this sequence of rolls, the top face is always **Yellow**.
+
+This suggests that the final top face is determined solely by the sequence of rolls and the initial top, front, and right faces, and is invariant to the assignment of the other faces.
+
+Therefore, the answer is **yellow**.
+
+---
+
+### Final Answer:
+
+\boxed{yellow}

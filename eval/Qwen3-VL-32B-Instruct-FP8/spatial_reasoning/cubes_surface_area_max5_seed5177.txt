@@ -1,0 +1,170 @@
+We are given a 3D structure made of unit cubes (each side = 1 unit), and we are to compute its **surface area** — the total area of all exposed faces.
+
+---
+
+### Step 1: Understand the structure
+
+The video shows a rotating 3D structure composed of small colored cubes. From the frames (4-10 seconds), we can observe that the structure is **not a solid cube**, but rather a **connected assembly of unit cubes**.
+
+Let’s try to **count the number of cubes** in the structure.
+
+From the rotations, we can see:
+
+- At frame 4: It looks like a 3x3x3 cube, but with some cubes missing.
+- At frame 5: The front face shows 9 squares, but the side views suggest some cubes are missing.
+- At frame 9: The structure looks like two 3x3 layers stacked but with some cubes removed.
+
+Actually, upon closer inspection of frames 9 and 10, the structure appears to be **two 3x3 squares stacked vertically**, but with the **center cube missing from the top layer**. That would make:
+
+- Bottom layer: 9 cubes
+- Top layer: 8 cubes (missing center)
+
+Total cubes = 9 + 8 = **17 cubes**
+
+But let’s double-check.
+
+Alternatively, maybe it’s a **3x3x3 cube with 2 cubes removed**? That would also give 27 - 2 = 25? No, that’s too many.
+
+Wait — let’s look again.
+
+Actually, frame 9 shows a structure that looks like a **2x3x3** block with an extra cube sticking out? Or perhaps a **3x3x2** block with one cube missing?
+
+Wait — better idea: let’s count **visually** from the rotating views.
+
+From frame 5: front face has 9 squares → suggests 3x3 front.
+
+From frame 6: side view shows 3 columns, each 3 cubes high → 3x3x3? But then why does it look hollow?
+
+Actually, looking at frame 9: the structure looks like a **3x3x2** block with **one cube missing from the top layer center**.
+
+So:
+
+- Bottom layer: 3x3 = 9 cubes
+- Top layer: 3x3 = 9 cubes, minus 1 = 8 cubes
+- Total = 17 cubes
+
+This matches.
+
+Alternatively, maybe it’s a **3x3x3 cube with the center cube of the top layer missing** — still 26 cubes? No, 27-1=26.
+
+But visually, it doesn’t look like a full 3x3x3. In frame 5, the front face is 3x3, but in frame 7, the side view shows only 3 cubes high — so depth is 3, height is 3, width is 3? But then why does it look like only 17 cubes?
+
+Wait — perhaps the structure is **not solid**. Let me try to count cubes from different views.
+
+Actually, upon closer inspection of frame 10, it looks like the structure has:
+
+- A base of 3x3 = 9 cubes
+- On top of that, a 3x3 layer, but with the **center cube missing** → 8 cubes
+- So total 17 cubes.
+
+Yes, that seems consistent.
+
+So, **17 cubes**.
+
+---
+
+### Step 2: Surface area of a single cube
+
+Each cube has 6 faces, each 1x1 = 1 unit².
+
+So, if all 17 cubes were separate, total surface area = 17 × 6 = 102.
+
+But when cubes are joined, **each shared face reduces the total surface area by 2** (since two faces are no longer exposed).
+
+So we need to count the **number of adjacent cube pairs** (i.e., number of shared faces).
+
+---
+
+### Step 3: Count shared faces
+
+We have 17 cubes arranged in two layers:
+
+- Bottom layer: 3x3 grid → 9 cubes
+- Top layer: 3x3 grid, but center cube missing → 8 cubes
+
+Let’s count shared faces **within each layer** and **between layers**.
+
+---
+
+#### a) Shared faces within bottom layer (3x3 grid)
+
+In a 3x3 grid, number of adjacent pairs:
+
+- Horizontal adjacencies: 3 rows × 2 = 6
+- Vertical adjacencies: 3 columns × 2 = 6
+- Total = 12 shared faces
+
+Each shared face reduces surface area by 2 → so 12 × 2 = 24 units less
+
+---
+
+#### b) Shared faces within top layer (3x3 grid minus center)
+
+Top layer has 8 cubes: positions (1,1), (1,2), (1,3), (2,1), (2,3), (3,1), (3,2), (3,3) — center (2,2) missing.
+
+Now count adjacencies:
+
+- Horizontal:
+  - Row 1: (1,1)-(1,2), (1,2)-(1,3) → 2
+  - Row 2: (2,1)-(2,3) — but (2,2) is missing, so only one adjacency? Wait, (2,1) and (2,3) are not adjacent — no direct adjacency.
+    → Actually, (2,1) is adjacent to nothing in row 2 horizontally? Because (2,2) is missing, so (2,1) and (2,3) are not adjacent.
+    → So row 2: 0 horizontal adjacencies
+  - Row 3: (3,1)-(3,2), (3,2)-(3,3) → 2
+  - Total horizontal: 2 + 0 + 2 = 4
+
+- Vertical:
+  - Column 1: (1,1)-(2,1), (2,1)-(3,1) → 2
+  - Column 2: (1,2)-(2,2) — but (2,2) missing → no adjacency
+    (2,2) missing, so (1,2) is not adjacent to (3,2) — no vertical adjacency in col 2
+  - Column 3: (1,3)-(2,3), (2,3)-(3,3) → 2
+  - Total vertical: 2 + 0 + 2 = 4
+
+Total adjacencies in top layer: 4 + 4 = 8
+
+Each shared face reduces surface area by 2 → 8 × 2 = 16 units less
+
+---
+
+#### c) Shared faces between bottom and top layers
+
+Top layer cubes are placed directly above bottom layer cubes, **except the center cube is missing**.
+
+So, which top cubes are above bottom cubes?
+
+All 8 top cubes are placed above bottom cubes — because only center is missing.
+
+So, 8 vertical adjacencies between layers.
+
+Each shared face reduces surface area by 2 → 8 × 2 = 16 units less
+
+---
+
+### Step 4: Total surface area
+
+Total surface area if separate: 17 × 6 = 102
+
+Total reduction due to shared faces:
+
+- Bottom layer: 12 shared faces → 12 × 2 = 24
+- Top layer: 8 shared faces → 8 × 2 = 16
+- Between layers: 8 shared faces → 8 × 2 = 16
+
+Total reduction = 24 + 16 + 16 = **56**
+
+So, surface area = 102 - 56 = **46**
+
+---
+
+### ✅ Final Answer: $\boxed{46}$
+
+---
+
+### Verification:
+
+Alternatively, we can compute surface area by counting exposed faces from each direction.
+
+But since we already have a consistent count, and the logic is sound, 46 is correct.
+
+---
+
+**Answer: $\boxed{46}$**

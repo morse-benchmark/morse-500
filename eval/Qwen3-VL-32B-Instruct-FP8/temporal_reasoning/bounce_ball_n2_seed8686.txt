@@ -1,0 +1,395 @@
+We are given a visual simulation of a ball moving between two vertical walls, bouncing back and forth. The question asks for the **total travel time** of the ball, in seconds, rounded to **1 decimal place**.
+
+---
+
+### Step 1: Understand the motion
+
+From the frames:
+
+- At **0.0 seconds**: Ball is on the left, far from the right wall.
+- At **1.0 seconds**: Ball moves right, reaches the right wall.
+- At **2.0 seconds**: Ball bounces off the right wall and moves left.
+- At **3.0 seconds**: Ball reaches the left wall.
+- At **4.0 seconds**: Ball bounces off the left wall and moves right.
+- At **5.0 seconds**: Ball reaches the right wall again.
+- At **6.0 seconds**: Ball bounces off the right wall and moves left.
+- At **7.0 seconds**: Ball reaches the left wall again.
+- At **8.0 seconds**: Ball bounces off the left wall and moves right.
+- At **9.0 seconds**: Ball reaches the right wall again.
+- At **10.0 seconds**: Ball bounces off the right wall and moves left.
+
+So, from 0.0 to 10.0 seconds, the ball has completed **5 full back-and-forth trips**? Let’s count the bounces:
+
+Actually, let’s count the **segments** (i.e., time between bounces):
+
+- From 0.0 to 1.0: rightward → hits right wall → 1st bounce
+- 1.0 to 3.0: leftward → hits left wall → 2nd bounce
+- 3.0 to 5.0: rightward → hits right wall → 3rd bounce
+- 5.0 to 7.0: leftward → hits left wall → 4th bounce
+- 7.0 to 9.0: rightward → hits right wall → 5th bounce
+- 9.0 to 10.0: leftward → still moving left, hasn’t hit wall yet
+
+Wait — at 10.0 seconds, the ball is moving left but hasn’t reached the left wall yet. So the motion ends at 10.0 seconds, and the ball is **midway** through its 6th segment.
+
+But the question is: **What was the total travel time of the ball?**
+
+The video shows the ball moving from 0.0 to 10.0 seconds. So the total time shown is **10.0 seconds**.
+
+But perhaps we need to compute based on the **distance** and **speed**? However, no distances or speeds are given numerically.
+
+Wait — perhaps the frames are **equally spaced in time**, and we are to assume that the ball moves at **constant speed** between walls.
+
+Let’s assume the ball moves at constant speed and the distance between walls is constant.
+
+From 0.0 to 1.0: ball travels from left to right wall → 1 segment.
+
+From 1.0 to 3.0: ball travels from right to left wall → 2 seconds → same distance → so speed is constant.
+
+So the time to go from one wall to the other is **2 seconds**? Wait — from 0.0 to 1.0 is 1 second to reach right wall. Then from 1.0 to 3.0 is 2 seconds to reach left wall? That’s inconsistent.
+
+Wait — let’s re-examine the timestamps:
+
+- At 0.0: ball at left
+- At 1.0: ball at right wall → so it took **1 second** to go from left to right
+- At 3.0: ball at left wall → so it took **2 seconds** to go from right to left? That would mean **different speeds** — which contradicts the assumption of constant speed.
+
+But that can’t be — unless the ball is not moving at constant speed, or the frames are not equally spaced in time.
+
+Wait — perhaps the timestamps are **frame numbers**, not actual time? But the video says “Answer in seconds”, so likely the timestamps are **actual time in seconds**.
+
+But then the motion is inconsistent: 1 second to go from left to right, then 2 seconds to go from right to left — unless the ball is slowing down? But the problem doesn’t suggest that.
+
+Alternatively, maybe the ball **bounces instantly** and the time is measured from bounce to bounce.
+
+Wait — let’s look again:
+
+- 0.0: ball at left wall? Or near left wall? The video says “ball is on the left”, but not necessarily touching the wall.
+
+Actually, at 0.0: ball is near left, not touching wall.
+
+At 1.0: ball touches right wall → so it took 1 second to go from left to right.
+
+At 3.0: ball touches left wall → so it took 2 seconds to go from right to left.
+
+At 5.0: ball touches right wall → 2 seconds from left to right.
+
+At 7.0: ball touches left wall → 2 seconds from right to left.
+
+At 9.0: ball touches right wall → 2 seconds from left to right.
+
+At 10.0: ball is moving left, halfway? Or not yet at left wall.
+
+Wait — from 9.0 to 10.0: ball is moving left, but hasn’t reached left wall yet.
+
+So from 9.0 to 10.0, it has traveled for 1 second, but hasn’t reached the wall — so the distance from right to left is more than 1 second of travel? But previously, from 1.0 to 3.0, it took 2 seconds to go from right to left.
+
+This is inconsistent.
+
+Wait — perhaps the ball is moving at constant speed, and the distance between walls is constant, so time to go from one wall to the other should be the same.
+
+But in the video:
+
+- 0.0 → 1.0: 1 second to go from left to right
+- 1.0 → 3.0: 2 seconds to go from right to left → that’s double the time → impossible if speed is constant.
+
+Unless the ball is **not** starting from rest or something? But that doesn’t make sense.
+
+Wait — maybe the ball is moving at constant speed, but the initial position is **not** at the wall.
+
+At 0.0: ball is near left, but not at wall.
+
+At 1.0: ball reaches right wall.
+
+So distance from initial position to right wall = d1
+
+At 1.0: ball bounces, moves left.
+
+At 3.0: ball reaches left wall.
+
+So distance from right wall to left wall = d2
+
+But if the walls are fixed, d1 + d2 should be constant? But the ball is moving from left to right in 1 second, then from right to left in 2 seconds — so if speed is constant, then d1 = v*1, d2 = v*2 → so d2 = 2*d1 → meaning the left wall is farther from the right wall than the initial position was from the right wall? That doesn’t make sense unless the ball started near the right wall.
+
+Wait — perhaps the ball starts at the left wall? But at 0.0, it’s a dot on the left, not touching the wall.
+
+Alternatively, maybe the ball is moving at constant speed, and the walls are symmetric.
+
+Let’s assume the ball moves at constant speed v, and the distance between walls is D.
+
+Then time to go from one wall to the other should be D/v.
+
+But in the video:
+
+- From 0.0 to 1.0: ball moves from left to right → time = 1 second → so D/v = 1 → v = D
+
+- From 1.0 to 3.0: ball moves from right to left → time = 2 seconds → so D/v = 2 → v = D/2
+
+Contradiction.
+
+So the only logical conclusion is that the **ball is not moving at constant speed**, or the **timestamps are not actual time**, or the **walls are not fixed**.
+
+But the video seems to show a simple bouncing ball — likely intended to be constant speed.
+
+Perhaps the ball starts at the left wall, and the first segment is from left to right in 1 second, then from right to left in 2 seconds — but that would require slowing down.
+
+But that’s not typical for such problems.
+
+Wait — perhaps the **time between frames is not 1 second**, but the frames are shown at 1-second intervals, and the ball's motion is continuous.
+
+But the problem is: we are to find the total travel time of the ball.
+
+Looking at the video, the ball is shown moving from 0.0 to 10.0 seconds. So the total time shown is 10.0 seconds.
+
+And the ball is moving the entire time — no pauses.
+
+So the total travel time is **10.0 seconds**.
+
+But that seems too straightforward.
+
+Perhaps the question is asking for the time from the first bounce to the last bounce? But the ball doesn't bounce at 0.0 — it starts moving.
+
+Or perhaps from when it first hits a wall to when it last hits a wall? But at 0.0 it hasn't hit a wall yet.
+
+Let’s list the bounce times:
+
+- First bounce: at 1.0 (hits right wall)
+- Second bounce: at 3.0 (hits left wall)
+- Third bounce: at 5.0 (hits right wall)
+- Fourth bounce: at 7.0 (hits left wall)
+- Fifth bounce: at 9.0 (hits right wall)
+
+At 10.0, it is moving left, not yet bounced.
+
+So the last bounce is at 9.0.
+
+So if the question is from first bounce to last bounce, it’s 9.0 - 1.0 = 8.0 seconds.
+
+But the question says "total travel time of the ball", which likely means from start to end.
+
+And the ball starts at 0.0 and ends at 10.0.
+
+So total travel time = 10.0 seconds.
+
+But let’s see the instruction: "Answer in seconds (rounded to 1 decimal place)"
+
+10.0 is already to 1 decimal place.
+
+But perhaps the ball is not moving the entire time? No, it is.
+
+Another possibility: perhaps the ball is moving at constant speed, and the distance between walls is D, and we need to find the time.
+
+But we don't have D or v.
+
+Unless we can infer from the motion.
+
+From 0.0 to 1.0: ball travels from left to right — let’s say distance D.
+
+From 1.0 to 3.0: ball travels from right to left — distance D — but takes 2 seconds.
+
+So speed is not constant.
+
+Unless the ball is accelerating? But no indication.
+
+Perhaps the ball is moving at constant speed, but the initial position is not at the wall.
+
+Let’s assume the ball starts at position x=0 at time t=0, and the right wall is at x=D.
+
+At t=1.0, it reaches x=D.
+
+Then it bounces and moves left with speed v.
+
+At t=3.0, it reaches x=0 (left wall).
+
+So from t=1.0 to t=3.0, it travels from x=D to x=0, distance D, in 2 seconds, so speed = D/2.
+
+From t=0 to t=1.0, it travels from x=0 to x=D, distance D, in 1 second, so speed = D/1 = D.
+
+So speed changes from D to D/2 — not constant.
+
+This is impossible for a ball bouncing with no external forces.
+
+So likely, the ball is moving at constant speed, and the initial position is not at x=0.
+
+Let’s assume the ball starts at x = -a at t=0, and the left wall is at x=0, right wall at x=D.
+
+At t=1.0, it reaches x=D.
+
+So distance = D + a, time = 1.0, so speed v = (D + a)/1 = D + a.
+
+Then it bounces and moves left.
+
+At t=3.0, it reaches x=0 (left wall).
+
+From x=D to x=0, distance D, time = 3.0 - 1.0 = 2.0 seconds, so speed v = D/2.
+
+So D + a = D/2 → a = -D/2.
+
+Negative distance? That doesn't make sense.
+
+Perhaps the left wall is at x=0, right wall at x=D.
+
+Ball starts at x=0 at t=0? But at t=0, it's not at the wall — it's near left, but not touching.
+
+Perhaps the ball starts at x=0 at t=0, and the left wall is at x=0, so it's at the wall.
+
+Then at t=1.0, it reaches x=D.
+
+Then at t=3.0, it reaches x=0.
+
+So from 0 to 1: x=0 to x=D, time 1s, speed v = D.
+
+From 1 to 3: x=D to x=0, time 2s, speed v = D/2.
+
+Again, speed changes.
+
+This is not possible.
+
+Unless the ball is not moving at constant speed — perhaps it's under gravity or something, but the video doesn't suggest that.
+
+Perhaps the time is not linear — but the frames are at 1-second intervals, so time is linear.
+
+Another idea: perhaps the ball is moving at constant speed, and the walls are not at the ends of the screen.
+
+But the video shows the ball bouncing between two vertical lines, so likely the walls are at those lines.
+
+Perhaps the ball starts at the left wall, and the first segment is from left to right in 1 second, then from right to left in 2 seconds — but that would mean it's slowing down, which is not typical.
+
+Perhaps the ball is moving at constant speed, and the distance between walls is such that the time to go from one wall to the other is constant, and the initial position is not at the wall.
+
+Let’s assume the ball moves at constant speed v.
+
+Let the left wall be at x=0, right wall at x=D.
+
+Ball starts at x=0 at t=0? But at t=0, it's a dot on the left, not necessarily at wall.
+
+Assume ball starts at x = s at t=0.
+
+At t=1.0, it reaches x=D.
+
+So D - s = v * 1.0  => D - s = v  (1)
+
+Then it bounces and moves left.
+
+At t=3.0, it reaches x=0.
+
+So from x=D to x=0, distance D, time 2.0 seconds, so v = D / 2.0  (2)
+
+From (2): v = D/2
+
+From (1): D - s = D/2 => s = D/2
+
+So the ball starts at x = D/2 at t=0.
+
+Then at t=1.0, it reaches x=D (right wall).
+
+Then at t=3.0, it reaches x=0 (left wall).
+
+Then at t=5.0, it reaches x=D again.
+
+From t=3.0 to t=5.0: from x=0 to x=D, distance D, time 2.0 seconds, speed v = D/2 — consistent.
+
+From t=5.0 to t=7.0: from x=D to x=0, distance D, time 2.0 seconds, speed v = D/2 — consistent.
+
+From t=7.0 to t=9.0: from x=0 to x=D, distance D, time 2.0 seconds — consistent.
+
+From t=9.0 to t=10.0: from x=D to x= something.
+
+At t=9.0, ball is at x=D (right wall).
+
+At t=10.0, ball is moving left, and has been moving for 1.0 second at speed v = D/2, so it has traveled distance (D/2)*1.0 = D/2 to the left.
+
+So at t=10.0, ball is at x = D - D/2 = D/2.
+
+So it has traveled from x=D to x=D/2 in 1.0 second.
+
+Now, the total travel time of the ball is from t=0.0 to t=10.0, which is 10.0 seconds.
+
+And the ball is moving the entire time at constant speed v = D/2.
+
+So total travel time = 10.0 seconds.
+
+The question is "What was the total travel time of the ball?" — and since it's moving from 0.0 to 10.0, the answer should be 10.0 seconds.
+
+Perhaps they want the time from first bounce to last bounce, but the question says "total travel time", which should include the entire motion shown.
+
+Moreover, the ball is moving from start to end.
+
+So I think the answer is 10.0 seconds.
+
+But let's see if there's a trick.
+
+Perhaps "travel time" means the time it was in motion, which is 10.0 seconds.
+
+Or perhaps they want the time between bounces or something, but the question doesn't specify.
+
+Given that, and the instruction to answer in seconds rounded to 1 decimal place, and 10.0 is already that, I think the answer is 10.0.
+
+But let's see the video again: at 0.0, ball is shown, and at 10.0, ball is shown moving — so yes, 10.0 seconds of motion.
+
+Perhaps the ball is not moving at t=0 or t=10, but the frames are at those times, and it's in motion.
+
+So I think it's 10.0.
+
+But why would they ask if it's that straightforward? Perhaps I missed something.
+
+Another interpretation: perhaps the ball is moving at constant speed, and we need to find the total time based on the number of bounces or something.
+
+But we have the time directly.
+
+Perhaps the "total travel time" means the sum of the times between bounces, but that would be from first bounce to last bounce.
+
+First bounce at t=1.0, last bounce at t=9.0, so 8.0 seconds.
+
+But the ball was moving before the first bounce and after the last bounce.
+
+At t=0.0 to t=1.0: ball is moving from start to first bounce.
+
+At t=9.0 to t=10.0: ball is moving from last bounce to end.
+
+So total travel time should include that.
+
+Perhaps the question is from when it starts to when it stops, but it doesn't stop.
+
+I think 10.0 is correct.
+
+Perhaps the ball is moving at constant speed, and we can calculate the total distance, but we don't have distance, so we can't find time without distance.
+
+But we have time directly from the video.
+
+The video shows the time from 0.0 to 10.0 seconds, so the total time is 10.0 seconds.
+
+I think I'm overcomplicating.
+
+The answer should be 10.0 seconds.
+
+So \boxed{10.0}
+
+But let's see the frames again.
+
+At 0.0: ball on left.
+
+At 1.0: ball at right wall.
+
+At 2.0: ball moving left, not at wall.
+
+At 3.0: ball at left wall.
+
+At 4.0: ball moving right.
+
+At 5.0: ball at right wall.
+
+At 6.0: ball moving left.
+
+At 7.0: ball at left wall.
+
+At 8.0: ball moving right.
+
+At 9.0: ball at right wall.
+
+At 10.0: ball moving left, not at wall.
+
+So the ball is in motion from 0.0 to 10.0.
+
+Total time = 10.0 seconds.
+
+Answer: \boxed{10.0}

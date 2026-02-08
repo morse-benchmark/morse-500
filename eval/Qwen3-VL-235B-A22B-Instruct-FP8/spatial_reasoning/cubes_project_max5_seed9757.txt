@@ -1,0 +1,737 @@
+We are shown a 3D structure made of small colored cubes, arranged in a way that resembles a 3x3x3 cube but with some cubes missing — specifically, it looks like the center cube of each face and the very center cube of the 3x3x3 are removed. But actually, looking closely at the animation (especially 0:07–0:10), it appears that the structure is a 3x3x3 cube with the **center cube of the entire structure removed**, and possibly some others — but let’s be precise.
+
+Actually, from the rotation, we can see that the structure is **not** a full 3x3x3 cube. It appears to be a 3x3x3 cube **minus the very center cube**. That is, it has 26 small cubes.
+
+But the question is not about counting cubes — it’s about:
+
+> “What is the maximum number of visible square faces that can be seen in a parallel 2D projection, considering only the side faces? Answer with a single integer.”
+
+---
+
+### Step 1: Understand the question
+
+- “Visible square faces” — each small cube has 6 faces, but we are only counting **visible** ones in a 2D projection.
+- “Parallel 2D projection” — this means orthographic projection (no perspective), so we’re looking at the object from a fixed direction, and we see all faces that are not occluded by other cubes in that view.
+- “Considering only the side faces” — this is ambiguous. Does it mean we ignore the top and bottom? Or does it mean we consider only the faces that are on the sides of the small cubes (i.e., not front/back/top/bottom in global coordinate)? But that doesn’t make sense.
+
+Actually, re-reading: “considering only the side faces” — likely means **we are to consider only the faces that are on the sides of the entire structure**, i.e., **not the front/back/top/bottom in the global view?** That doesn’t fit.
+
+Alternatively, perhaps “side faces” here means **the faces of the small cubes that are exposed and visible from the side** — but that’s vague.
+
+Wait — let’s look at the exact wording:
+
+> “...visible square faces that can be seen in a parallel 2D projection, considering only the side faces”
+
+This is likely a misphrasing. In 3D puzzles like this, when they say “side faces”, they often mean **the faces that are not on the top or bottom** — i.e., **lateral faces**.
+
+But in the context of a 2D projection, “side faces” might mean **faces that are visible from the side view** — but that doesn’t help.
+
+Another interpretation: perhaps “considering only the side faces” means **we are to ignore the front and back faces in the projection?** That doesn’t make sense.
+
+Let me think differently.
+
+Perhaps “side faces” here is meant to contrast with “top and bottom” — i.e., we are to count only the **vertical faces** (left, right, front, back) and **not** the horizontal ones (top and bottom).
+
+That is a common interpretation in such problems.
+
+So, we are to count, in a single 2D orthographic view, the maximum number of **vertical** (i.e., not top/bottom) square faces that are visible.
+
+But in a 2D projection, from one viewpoint, you can see at most 3 faces of a cube: front, top, and side. But here, since we’re told to consider “only the side faces”, perhaps we are to ignore the top and bottom faces entirely — i.e., only count the **lateral** (vertical) faces that are visible.
+
+Alternatively, perhaps “side faces” means the faces that are on the sides of the small cubes — but that’s all faces.
+
+I think the intended meaning is:
+
+> In a parallel 2D projection (orthographic), from a single viewpoint, what is the maximum number of **exposed square faces** (of the small cubes) that are visible, **but only counting the faces that are vertical** (i.e., not horizontal — so excluding top and bottom faces of each small cube).
+
+That is, for each small cube, we only count its front, back, left, right faces — not top and bottom.
+
+And we want the maximum number visible from any single viewpoint.
+
+---
+
+### Step 2: Analyze the structure
+
+From the animation, the structure is a 3x3x3 cube with the **center cube removed**. So it has 26 small cubes.
+
+Each small cube has 6 faces, but many are hidden.
+
+In a 3x3x3 cube with center removed, the structure is like a hollow cube with walls 1 cube thick, but with the very center missing — so it’s not fully hollow; it’s a 3x3x3 with only the center cube gone.
+
+So, the structure has:
+
+- All 8 corner cubes
+- All 12 edge cubes (middle of each edge)
+- All 6 face-center cubes (middle of each face)
+- Minus the very center cube → so 8 + 12 + 6 = 26 cubes.
+
+Now, we want to find, from a single orthographic view, the maximum number of **vertical** (non-horizontal) faces that are visible.
+
+In orthographic projection, from a viewpoint, you can see up to 3 faces of the entire object: front, top, and side. But since we are to count only **vertical** faces, we ignore the top and bottom faces of the small cubes.
+
+So, in a given view, we can see:
+
+- The front face of the object: which consists of 3x3 = 9 small faces, but since the center cube is missing, the center face is not there — so 8 small faces visible on the front.
+- Also, we can see the side face (say, right side) of the object: 3x3 = 9 small faces, but again, the center cube is missing, so the center of the right face is missing — so 8 small faces.
+- And we can see the top face — but we are to ignore top and bottom faces, so we don’t count those.
+
+Wait — but the “side faces” of the small cubes on the front face are vertical — yes, the front face of each small cube is vertical if we assume the cube is oriented with faces parallel to coordinate planes.
+
+Actually, in standard orientation:
+
+- Front/back faces are vertical (say, in yz-plane)
+- Left/right faces are vertical (in xz-plane)
+- Top/bottom are horizontal (in xy-plane)
+
+So, in a 2D orthographic projection, if we look at the object from a direction that is not aligned with the axes (e.g., isometric view), we can see three faces: front, top, and right.
+
+But the question says “parallel 2D projection” — which typically means orthographic, and we can choose the viewpoint to maximize the number of visible vertical faces.
+
+To maximize visible vertical faces, we should choose a viewpoint where we can see two vertical faces of the object — for example, front and right side.
+
+In such a view, we can see:
+
+- The front face of the object: 3x3 grid, but center cube missing → so 8 small square faces visible (all vertical, since front face is vertical).
+- The right face of the object: similarly, 3x3 grid, center missing → 8 small square faces visible (all vertical, since right face is vertical).
+
+But are there any overlapping or hidden faces?
+
+In orthographic projection, from a viewpoint that sees both front and right, the front face is fully visible, and the right face is also fully visible, except that the edge where they meet is shared, but since we are counting faces of small cubes, and each small cube’s face is distinct, we need to see if any face is occluded.
+
+Actually, in orthographic projection, when you look at a cube from a corner, you see three faces, and no face is occluded — all are visible.
+
+Similarly, for this structure, since it’s mostly solid except the center missing, from a viewpoint that sees front and right, the front face has 8 visible small faces (since center is missing), and the right face has 8 visible small faces.
+
+But is there any overlap? No, because they are on different planes.
+
+Moreover, the small cubes on the edge between front and right — their front and right faces are both visible, and we count both.
+
+So total visible vertical faces = 8 (front) + 8 (right) = 16.
+
+But is that the maximum?
+
+What if we choose a viewpoint that sees front, right, and top? But we are to ignore top and bottom faces, so we don’t count the top faces.
+
+So, even if we see the top, we ignore those faces.
+
+So, maximum is still 16.
+
+But let’s verify with the structure.
+
+In the 3x3x3 with center removed:
+
+- Front face: positions (1,1,1), (1,1,2), (1,1,3), (1,2,1), (1,2,3), (1,3,1), (1,3,2), (1,3,3) — that’s 8 cubes, each showing one front face.
+
+- Right face: positions (1,1,3), (1,2,3), (1,3,3), (2,1,3), (2,2,3), (2,3,3), (3,1,3), (3,2,3), (3,3,3) — but (2,2,3) is the center of the right face, which is present? Wait, no.
+
+The center cube of the entire 3x3x3 is (2,2,2). The center of the right face is (2,2,3) — which is not the center of the cube, so it should be present.
+
+In a 3x3x3 cube, the cubes are at positions (i,j,k) for i,j,k = 1,2,3.
+
+The center cube is (2,2,2).
+
+The center of the front face (say, k=1) is (2,2,1) — which is present.
+
+The center of the right face (i=3) is (3,2,2) — which is present.
+
+Only (2,2,2) is missing.
+
+So, for the front face (k=1): all 9 positions are present except that (2,2,2) is not on this face — (2,2,2) is at k=2, so for k=1, all 9 cubes are present? No.
+
+The front face consists of cubes with k=1: (i,j,1) for i=1,2,3; j=1,2,3. All these are present, since only (2,2,2) is missing.
+
+Similarly for the right face (i=3): (3,j,k) for j=1,2,3; k=1,2,3. All are present, since (2,2,2) is not on this face.
+
+So, both front and right faces have 9 small cubes each, each showing one face.
+
+But in the animation, when it rotates, it looks like the center of each face is missing — but that might be an illusion.
+
+Looking back at the video:
+
+At 0:05, it looks like a full 3x3x3.
+
+At 0:07, when it rotates, we can see that the center of the front face is missing — but that would mean (2,2,1) is missing, which is not the center of the cube.
+
+Perhaps the structure is different.
+
+At 0:08, we see a view where the center of the visible face is missing, and also the center of the side is missing.
+
+At 0:10, it looks like a 3x3x3 with the center cube and the centers of all faces removed? But that would be 8 corners + 12 edges = 20 cubes.
+
+Let's count the cubes from the animation.
+
+At 0:05: full cube.
+
+At 0:06: rotating, still looks full.
+
+At 0:07: we see that the center of the front face is missing — so (2,2,1) is missing.
+
+At 0:08: we see the right side, and the center of the right face is missing — (3,2,2) is missing? But (3,2,2) is on the right face.
+
+Actually, from 0:07 to 0:10, it appears that the structure has the center cube of each face removed, and the very center cube removed.
+
+So, it's a 3x3x3 with all 7 cubes removed: the 6 face-centers and the very center.
+
+That would leave only the 8 corner cubes and the 12 edge cubes — 20 cubes.
+
+Let me verify with the animation.
+
+At 0:07: front face has 8 small faces visible (center missing).
+
+At 0:08: right face has 8 small faces visible (center missing).
+
+At 0:09: top face has 8 small faces visible (center missing).
+
+And at 0:10, it looks like a frame.
+
+So, yes, the structure is a 3x3x3 cube with the 7 central cubes removed: the 6 face-centers and the very center.
+
+So, only the 8 corners and 12 edges are present — 20 cubes.
+
+Now, each of these cubes has some faces exposed.
+
+But for the question, we need to find, in a single 2D orthographic projection, the maximum number of visible **vertical** square faces.
+
+Vertical faces are those that are not top or bottom — so for each small cube, we consider its front, back, left, right faces, but not top and bottom.
+
+In a 2D projection from a viewpoint that sees two vertical faces of the object, say front and right, we can see:
+
+- The front face of the object: which consists of the front faces of the small cubes on the front layer.
+
+The front layer (k=1) has cubes at (i,j,1) for i=1,2,3; j=1,2,3.
+
+But in our structure, the center of the front face is missing, so (2,2,1) is not there.
+
+Also, the edge cubes are present.
+
+So, for the front face, the visible small faces are:
+
+- Corners: (1,1,1), (1,3,1), (3,1,1), (3,3,1) — each has a front face visible.
+
+- Edge centers: (1,2,1), (2,1,1), (2,3,1), (3,2,1) — each has a front face visible.
+
+- Center: (2,2,1) — missing.
+
+So, 8 small front faces visible.
+
+Similarly, for the right face (i=3): cubes at (3,j,k) for j=1,2,3; k=1,2,3.
+
+Missing: (3,2,2) — the center of the right face.
+
+So, visible small right faces:
+
+- Corners: (3,1,1), (3,1,3), (3,3,1), (3,3,3)
+
+- Edge centers: (3,1,2), (3,2,1), (3,2,3), (3,3,2) — but (3,2,2) is missing, so (3,2,1) and (3,2,3) are present.
+
+List:
+
+- (3,1,1), (3,1,2), (3,1,3) — all present (since only (3,2,2) is missing on this face)
+
+- (3,2,1), (3,2,3) — present
+
+- (3,3,1), (3,3,2), (3,3,3) — all present
+
+- (3,2,2) — missing
+
+So, 8 small right faces visible.
+
+Now, are there any faces that are counted twice? No, because they are on different planes.
+
+Moreover, in the orthographic projection from a viewpoint that sees both front and right, all these 8 + 8 = 16 faces are visible and distinct.
+
+But is there a viewpoint where we can see more?
+
+For example, if we look from a direction that sees front, right, and also some other faces, but since we are only counting vertical faces, and top/bottom are ignored, we can't get more than two vertical faces in one view.
+
+In orthographic projection, from a single viewpoint, you can see at most three faces of a cube, but one of them is usually top or bottom, which we are to ignore.
+
+So, maximum is two vertical faces.
+
+Thus, 16.
+
+But let's confirm if all 16 are indeed visible and not occluded.
+
+For example, the cube at (3,1,1): it has a front face and a right face. In the view, both are visible, and we count both.
+
+Similarly for others.
+
+No occlusion because the structure is such that from this viewpoint, all these faces are exposed.
+
+Moreover, since the center cubes are missing, there might be some additional faces visible from the holes, but in orthographic projection, from the front-right view, the holes are not visible because they are inside.
+
+For example, the hole at (2,2,2) is not visible from the front-right view; it's hidden.
+
+Similarly, the missing face-centers are on the surface, so their absence is visible, but we are counting the faces that are present and visible.
+
+So, total visible vertical faces = 8 (front) + 8 (right) = 16.
+
+But is there a way to see more than 16?
+
+Suppose we choose a viewpoint where we see the front and the left side — same thing, 8+8=16.
+
+Or front and back — but in orthographic projection, you can't see both front and back at the same time.
+
+So, 16 seems maximum.
+
+But let's think: are there any small cubes whose side faces are visible from this view that are not on the front or right face of the object?
+
+For example, a cube that is on the back, but its right face is visible — but in the front-right view, the back cubes are hidden.
+
+So, no.
+
+Thus, the maximum is 16.
+
+But let's double-check with the actual structure.
+
+The structure has 20 cubes: 8 corners and 12 edges.
+
+Each corner cube has 3 faces exposed, but in our case, since the face-centers are missing, for a corner cube, say (1,1,1), it has front, left, and bottom faces exposed — but we are to count only vertical faces, so front and left (assuming bottom is horizontal).
+
+Similarly, an edge cube, say (1,2,1) — this is on the front edge, middle of top edge? Let's define.
+
+Assume:
+
+- i: left to right
+
+- j: front to back
+
+- k: bottom to top
+
+So, cube (1,2,1): i=1 (left), j=2 (middle front-back), k=1 (bottom).
+
+This cube is on the front face (j=1? Wait, if j=1 is front, then j=2 is middle.
+
+Actually, in standard, if we say front face is j=1, then (1,2,1) is not on front face.
+
+Perhaps better to define:
+
+Let’s say the front face is k=1 (z=1), right face is i=3 (x=3), top face is j=3 (y=3).
+
+But to avoid confusion, let's use the following:
+
+- The cube has coordinates (x,y,z) with x=1,2,3; y=1,2,3; z=1,2,3.
+
+- The front face is z=1.
+
+- The right face is x=3.
+
+- The top face is y=3.
+
+The missing cubes are: (2,2,2) — center, and (2,2,1), (2,2,3), (2,1,2), (2,3,2), (1,2,2), (3,2,2) — the face-centers.
+
+So, present cubes are all except these 7.
+
+Now, for a viewpoint that sees the front (z=1) and right (x=3) faces.
+
+In this view, we can see:
+
+- All cubes with z=1 and x<3: their front faces.
+
+- All cubes with x=3 and z<3: their right faces.
+
+- Also, cubes with x=3 and z=1: their front and right faces.
+
+Now, list the visible vertical faces.
+
+First, front faces (z=1 plane):
+
+Cubes with z=1: (x,y,1) for x=1,2,3; y=1,2,3.
+
+Missing: (2,2,1) — so present: 8 cubes.
+
+Each has a front face visible.
+
+Similarly, right faces (x=3 plane):
+
+Cubes with x=3: (3,y,z) for y=1,2,3; z=1,2,3.
+
+Missing: (3,2,2) — so present: 8 cubes.
+
+Each has a right face visible.
+
+Now, are there any other vertical faces visible? For example, the left faces of some cubes? But from this viewpoint, the left faces are not visible.
+
+Similarly, back faces are not visible.
+
+So, only these 16.
+
+Moreover, no overlap in counting, since each face is unique.
+
+Thus, the maximum number is 16.
+
+But the question says "considering only the side faces" — and in this context, "side faces" likely means the vertical faces, as opposed to top and bottom.
+
+So, I think 16 is the answer.
+
+But let's see if we can get more by choosing a different viewpoint.
+
+Suppose we look from a direction where we see the front and the top, but we ignore top faces, so we only count front faces — 8, which is less.
+
+Or if we look from a direction that sees the front and the back — impossible in orthographic.
+
+Or if we look from a direction that sees the right and the left — also impossible.
+
+So, 16 is maximum.
+
+Perhaps "side faces" means something else, but I think this is reasonable.
+
+Another interpretation: perhaps "side faces" means the faces that are on the sides of the small cubes, i.e., not the face that is front in the projection, but that doesn't make sense.
+
+Or perhaps it means only the faces that are perpendicular to the viewing direction, but that would be only one face.
+
+I think my interpretation is correct.
+
+So, the answer should be 16.
+
+But let's confirm with a smaller case or logic.
+
+Total number of vertical faces exposed in the entire structure.
+
+But the question is for a single 2D projection, so we need the maximum visible from one view.
+
+In the structure, each small cube has some vertical faces exposed.
+
+For example, a corner cube like (1,1,1): it has front, left, and bottom faces exposed. Vertical faces: front and left — 2.
+
+An edge cube like (1,2,1): this is on the front edge, middle in y. It has front, left, and bottom faces exposed? Let's see.
+
+Cube (1,2,1): neighbors: (1,1,1), (1,3,1), (1,2,2), (2,2,1) — but (2,2,1) is missing, and (1,2,2) is present? (1,2,2) is on the left face, middle in y and z.
+
+Assuming (1,2,2) is present (since only face-centers and center are missing, and (1,2,2) is not a face-center; face-centers are (2,2,1), (2,2,3), etc.).
+
+(1,2,2): x=1,y=2,z=2 — this is on the left face, and it's not the center of any face; the center of left face is (1,2,2)? If left face is x=1, then center is (1,2,2), which is a face-center, so it is missing.
+
+Oh! I think I made a mistake.
+
+In a 3x3x3 cube, the face-centers are:
+
+- Front: (2,2,1) if z=1 is front
+
+- Back: (2,2,3)
+
+- Left: (1,2,2)
+
+- Right: (3,2,2)
+
+- Bottom: (2,1,2)
+
+- Top: (2,3,2)
+
+- Center: (2,2,2)
+
+So, all these 7 are missing.
+
+Therefore, for cube (1,2,1): this is on the front face, left edge.
+
+Its neighbors: (1,1,1), (1,3,1), (1,2,2), (2,2,1)
+
+But (1,2,2) is missing (left face center), and (2,2,1) is missing (front face center).
+
+So, cube (1,2,1) has no neighbor on the right (x=2) or above (z=2), so its right face and top face are exposed.
+
+Also, it has front face exposed (since it's on front), and left face exposed (since it's on left edge).
+
+So, exposed faces: front, left, right, top — but top is horizontal, so for vertical faces: front, left, right — 3 vertical faces.
+
+Similarly, for a corner cube (1,1,1): neighbors: (1,2,1), (2,1,1), (1,1,2)
+
+(1,2,1) is present, (2,1,1) is present (since (2,1,1) is not a face-center; face-centers are at (2,2,1), etc.), (1,1,2) is present.
+
+So, all neighbors are present, so only three faces exposed: front, left, bottom — vertical: front and left — 2.
+
+But in our earlier count for the projection, we only counted the front face for (1,2,1), but in reality, from the front-right view, we might see its right face as well.
+
+In the orthographic projection from front-right, for cube (1,2,1), which is on the front face and left edge, its front face is visible, and its right face is also visible if it's not occluded.
+
+Since it's on the left, and we are looking from front-right, its right face might be visible.
+
+In fact, for cube (1,2,1), from a front-right view, we can see its front face and its right face, because it's on the edge.
+
+Similarly for other cubes.
+
+So, in the front-right view, for the front face, we see the front faces of the 8 cubes on z=1.
+
+For the right face, we see the right faces of the 8 cubes on x=3.
+
+Additionally, for some cubes on the front face that are not on the right face, we might see their side faces if they are exposed.
+
+For example, cube (1,2,1): it has a right face exposed, and from the front-right view, since it's on the left, its right face is facing somewhat towards us, so it might be visible.
+
+In orthographic projection, from a direction that is 45 degrees between front and right, the right face of a cube on the front-left might be visible.
+
+In fact, in isometric view, you can see three faces, but for a cube on the corner, you see three faces.
+
+For cube (1,2,1), which is on the front face, middle in y, left in x.
+
+From a front-right view, its front face is fully visible, and its right face is also visible because there is no cube to its right (since (2,2,1) is missing), so the right face is exposed and visible.
+
+Similarly, its left face might not be visible from this view.
+
+So, for cube (1,2,1), in this view, we can see its front face and its right face.
+
+Similarly for other edge cubes on the front face.
+
+Let's list all cubes whose vertical faces are visible from the front-right view.
+
+First, cubes on the front face (z=1): there are 8 cubes (since (2,2,1) missing).
+
+For each, their front face is visible.
+
+Additionally, for cubes that have exposed right faces and are not occluded, their right faces may be visible.
+
+For example, cube (1,2,1): has exposed right face, and since no cube to its right, and from the view, it should be visible.
+
+Similarly, cube (1,1,1): has exposed right face? Its right neighbor is (2,1,1), which is present, so its right face is not exposed — it is adjacent to (2,1,1), so not exposed.
+
+Cube (1,1,1): neighbors: (1,2,1), (2,1,1), (1,1,2) — all present, so only front, left, bottom exposed — right face is not exposed.
+
+Similarly, cube (1,3,1): same thing.
+
+Cube (2,1,1): neighbors: (1,1,1), (3,1,1), (2,1,2), (2,2,1) — (2,2,1) is missing, so its front face is exposed, and its right face is exposed if no cube to the right, but (3,1,1) is present, so right face is not exposed.
+
+For cube (2,1,1), its right face is adjacent to (3,1,1), so not exposed.
+
+Only if the cube to the right is missing, then the right face is exposed.
+
+For cube (1,2,1): to its right is (2,2,1), which is missing, so right face is exposed.
+
+Similarly, cube (3,2,1): to its right is nothing, since x=3 is the right edge, so right face is exposed, but it's on the right face, so we already count its right face when we consider the right face of the object.
+
+Let's systematize.
+
+From the front-right view, the visible vertical faces are:
+
+1. All front faces of cubes on z=1: 8 faces.
+
+2. All right faces of cubes on x=3: 8 faces.
+
+3. Additionally, for cubes on z=1 and x<3, if their right face is exposed and visible, we may see it.
+
+For example, cube (1,2,1): on z=1, x=1, y=2. Its right face is exposed (since (2,2,1) missing), and from the front-right view, since it's on the left, but the right face is facing the right, and we are looking from right, so it should be visible.
+
+In orthographic projection, from a direction with dx>0, dy=0, dz>0 (looking from front-right), the right face of a cube at (1,2,1) might be visible if it's not occluded.
+
+Since there is no cube at (2,2,1), and the cube at (1,2,1) is there, its right face is visible from this view.
+
+Similarly, cube (2,2,1) is missing, so no issue.
+
+Also, cube (1,1,1): its right face is not exposed, as (2,1,1) is present.
+
+Cube (1,3,1): same.
+
+Cube (2,1,1): its right face is not exposed, as (3,1,1) is present.
+
+Cube (2,3,1): same.
+
+Cube (3,1,1): on the right face, so its right face is already counted in the right face of the object.
+
+So, only for cube (1,2,1) and perhaps (3,2,1), but (3,2,1) is on the right face, so its right face is counted.
+
+For cube (1,2,1), we can see its front face and its right face.
+
+Similarly, is there cube (3,2,1)? It is on the right face, so its right face is counted, and its front face is also counted if we consider the front face, but (3,2,1) is on both front and right faces, so its front face is counted in the front face list, and its right face in the right face list.
+
+For cube (1,2,1), it is not on the right face, so its right face is not in the right face list.
+
+So, in the front-right view, we can see:
+
+- Front face of (1,2,1)
+
+- Right face of (1,2,1)
+
+Similarly, is there any other cube on the front face whose right face is exposed and visible?
+
+Cube (2,2,1) is missing.
+
+Cube (1,2,1) is one.
+
+What about cube (3,2,1)? It is on the right face, so its right face is already counted.
+
+Cube (1,1,1): right face not exposed.
+
+So only (1,2,1) has an additional right face visible.
+
+Similarly, by symmetry, on the front face, cube (3,2,1) is on the right, so no additional.
+
+But cube (1,2,1) is at x=1, so left side.
+
+Also, cube (2,2,1) is missing, so no.
+
+Another cube: what about cube (1,2,2)? But this is not on the front face; it's at z=2.
+
+From the front-right view, we may see some faces of cubes not on the front or right face.
+
+For example, cube (1,2,2): this is on the left face, and it is missing, since (1,2,2) is a face-center.
+
+So not present.
+
+Cube (2,1,2): bottom face center, missing.
+
+So, only the 8 on front and 8 on right, plus for cube (1,2,1), its right face is additionally visible.
+
+So total 8 + 8 + 1 = 17.
+
+Is that correct?
+
+Cube (1,2,1): its right face is visible from the front-right view.
+
+Similarly, is there a cube on the front face at (3,2,1)? But (3,2,1) is on the right face, so its right face is already counted.
+
+What about cube (2,2,1)? Missing.
+
+So only one additional face.
+
+But let's think: in the front face, the cubes are at positions:
+
+- (1,1,1), (1,2,1), (1,3,1)
+
+- (2,1,1), (2,3,1)  (since (2,2,1) missing)
+
+- (3,1,1), (3,2,1), (3,3,1)
+
+For each, their front face is visible.
+
+For their right faces:
+
+- (1,1,1): right face adjacent to (2,1,1) — present, so not exposed.
+
+- (1,2,1): right face adjacent to (2,2,1) — missing, so exposed, and visible from front-right view.
+
+- (1,3,1): right face adjacent to (2,3,1) — present, so not exposed.
+
+- (2,1,1): right face adjacent to (3,1,1) — present, not exposed.
+
+- (2,3,1): right face adjacent to (3,3,1) — present, not exposed.
+
+- (3,1,1): on right face, right face already counted.
+
+- (3,2,1): on right face, right face already counted.
+
+- (3,3,1): on right face, right face already counted.
+
+So only (1,2,1) has an additional right face visible.
+
+Similarly, is there a cube whose left face is visible? From this view, left faces are not visible.
+
+So, total visible vertical faces = 8 (front) + 8 (right) + 1 (right face of (1,2,1)) = 17.
+
+But is the right face of (1,2,1) already included in the right face count? No, because it's not on the right face of the object; it's on the front face.
+
+So, yes, additional.
+
+Moreover, in the orthographic projection, from the front-right view, the right face of (1,2,1) is visible as a separate face.
+
+So, 17.
+
+But let's see if there are more.
+
+What about cube (1,2,3)? But that's on the back, not visible.
+
+Or cube (2,2,2) missing.
+
+So, only one additional.
+
+But by symmetry, if we consider the left side, but in this view, we are not seeing the left side.
+
+Perhaps for cube (3,2,1), but it's already counted.
+
+Another cube: what about cube (2,1,1)? Its right face is not exposed.
+
+So, only 17.
+
+But let's confirm with the animation or logic.
+
+Perhaps in the structure, when you look from front-right, you can see the right face of the left-edge cubes if they are exposed.
+
+Yes.
+
+So, maximum is 17.
+
+But is there a viewpoint where we can see more?
+
+For example, if we look from a direction that sees front, right, and also the top, but we ignore top faces, so no gain.
+
+Or if we look from a direction that sees the front and the left, then we might see additional left faces.
+
+For example, from front-left view, we can see front faces and left faces.
+
+For the front face: 8 faces.
+
+For the left face: cubes with x=1: (1,y,z) for y=1,2,3; z=1,2,3.
+
+Missing: (1,2,2) — so 8 cubes, each with left face visible.
+
+Additionally, for cube (2,2,1): missing.
+
+For cube (1,2,1): its left face is exposed (since no cube at x=0), and from front-left view, it should be visible.
+
+But in this view, for cube (1,2,1), its left face is already counted in the left face of the object, since it's on the left face.
+
+Cubes on x=1 have their left face visible, and we count them in the 8 for left face.
+
+For cube (1,2,1), it is on both front and left faces, so its front face is counted in front, its left face in left.
+
+No additional.
+
+For cube (2,2,1): missing.
+
+So in front-left view, we have 8 (front) + 8 (left) = 16, and no additional, because the edge cubes are already included.
+
+Whereas in front-right view, we have 8 + 8 + 1 = 17, because (1,2,1) is not on the right face, so its right face is extra.
+
+Similarly, if we look from a direction that sees the right and the back, but back may not give more.
+
+So, 17 seems possible.
+
+But is the right face of (1,2,1) really visible in the front-right view?
+
+In orthographic projection, from a direction with positive x and positive z, the right face of a cube at (1,2,1) is facing the positive x-direction, and since we are looking from positive x and positive z, we should be able to see it, as long as it's not occluded.
+
+And since there is no cube at (2,2,1), and the cube at (1,2,1) is there, its right face is exposed and visible.
+
+Moreover, in the 2D projection, it will appear as a square face.
+
+So, yes.
+
+Therefore, the maximum is 17.
+
+But let's see if there are more such cubes.
+
+For example, on the front face, is there a cube at (1,2,1) only.
+
+What about on the right face, but we already have those.
+
+Or on other layers.
+
+For example, cube (1,2,2) is missing.
+
+Cube (1,2,3): on the back face, not visible from front-right view.
+
+So, only one additional face.
+
+Thus, 17.
+
+Perhaps for cube (3,2,1), but it's on the right face, so its right face is already counted.
+
+So, I think 17 is the answer.
+
+But let's box it.
+
+So, the maximum number is \boxed{17}.
+
+To confirm, in the structure, from a front-right isometric view, you can see:
+
+- The 8 front faces of the front layer.
+
+- The 8 right faces of the right layer.
+
+- Plus the right face of the cube at (1,2,1), which is on the front layer, left side, and since the cube to its right is missing, its right face is visible.
+
+And no other additional faces.
+
+So, 17.
+
+I think that's correct. 
+
+So, the answer is \boxed{17}.

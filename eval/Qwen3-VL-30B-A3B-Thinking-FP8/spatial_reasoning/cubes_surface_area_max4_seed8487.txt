@@ -1,0 +1,2923 @@
+Got it, let's try to figure out the surface area of this structure. First, I need to visualize the 3D shape made of small cubes. Each small cube has side length 1, so each face of a small cube is 1x1 = 1 unit².
+
+First, let's count how many small cubes there are. Looking at the video, when the structure is shown, it's a 3D shape. Let's try to count the cubes. Let's consider layers or front/back, left/right, top/bottom.
+
+Wait, the structure in the video: when it's rotating, we can see different views. Let's break it down.
+
+First, let's find the number of cubes. Let's count:
+
+- Front layer (closest to us): Let's see. From the front view, how many cubes? Let's assume the structure is a combination. Wait, maybe it's a 3x2x2? No, wait, let's count properly.
+
+Alternatively, think about the surface area by counting all the exposed faces.
+
+Surface area is the total number of small faces that are on the outside of the structure.
+
+Each small cube has 6 faces, but when cubes are adjacent, those faces are hidden (internal).
+
+So, surface area = (number of small cubes * 6) - (number of adjacent faces * 2), because each adjacent pair shares two faces (one from each cube).
+
+But maybe it's easier to count the exposed faces directly by looking at all six directions (front, back, left, right, top, bottom).
+
+Let's do that.
+
+First, let's find the dimensions of the bounding box. Let's see the structure:
+
+- Width (left to right): How many cubes? Let's look at the front view. When the structure is rotating, the width seems to be 3 cubes (since in some views, it's 3 cubes wide).
+
+- Depth (front to back): How many? Maybe 2 cubes deep.
+
+- Height (top to bottom): How many? Maybe 2 cubes tall.
+
+Wait, let's count the cubes:
+
+Let's list the positions:
+
+Assume coordinates (x, y, z), where x is left-right, y is front-back, z is up-down.
+
+Let's count:
+
+For z=1 (bottom layer):
+
+- x=1, y=1, z=1: cube
+
+- x=1, y=2, z=1: cube
+
+- x=2, y=1, z=1: cube
+
+- x=2, y=2, z=1: cube
+
+- x=3, y=1, z=1: cube
+
+Wait, no, maybe not. Let's look at the video frames.
+
+Frame 5: The structure is a 3D shape. Let's count the cubes by looking at the rotation.
+
+At frame 10, the structure is more visible. Let's count:
+
+- Bottom layer (z=1):
+
+  - Front row (y=1): x=1,2,3 (3 cubes)
+
+  - Back row (y=2): x=1,2 (2 cubes)
+
+- Top layer (z=2):
+
+  - Back row (y=2): x=2,3 (2 cubes)
+
+Wait, maybe that's it. Let's check:
+
+Total cubes: bottom layer: 3 (front) + 2 (back) = 5; top layer: 2 (back) = 2; total 7 cubes.
+
+Let's verify:
+
+- Front view (looking at y=1, z=1 and z=2):
+
+  - z=1, y=1: x=1,2,3 (3 cubes)
+
+  - z=2, y=1: x=2,3 (2 cubes) [since top layer is only on the back part]
+
+- Back view (y=2):
+
+  - z=1, y=2: x=1,2 (2 cubes)
+
+  - z=2, y=2: x=2,3 (2 cubes)
+
+Yes, that's 3+2+2+2=9? Wait, no, maybe better to count:
+
+Let's list all cubes:
+
+1. (1,1,1)
+
+2. (2,1,1)
+
+3. (3,1,1)
+
+4. (1,2,1)
+
+5. (2,2,1)
+
+6. (2,2,2)
+
+7. (3,2,2)
+
+Wait, that's 7 cubes. Let's check if that makes sense.
+
+Now, let's count the exposed faces.
+
+Front view (y=1, looking towards decreasing y):
+
+- z=1: x=1,2,3 (3 faces)
+
+- z=2: x=2,3 (2 faces)
+
+Total front: 3 + 2 = 5
+
+Back view (y=2, looking towards increasing y):
+
+- z=1: x=1,2 (2 faces)
+
+- z=2: x=2,3 (2 faces)
+
+Total back: 2 + 2 = 4
+
+Left view (x=1, looking towards decreasing x):
+
+- z=1: y=1,2 (2 faces)
+
+- z=2: y=2 (1 face)
+
+Total left: 2 + 1 = 3
+
+Right view (x=3, looking towards increasing x):
+
+- z=1: y=1 (1 face)
+
+- z=2: y=2 (1 face)
+
+Total right: 1 + 1 = 2
+
+Top view (z=2, looking towards decreasing z):
+
+- x=2,3 (y=1 and y=2)
+
+Wait, top view is z=2:
+
+- x=2, y=1: is there a cube? (2,1,2) – yes, because in front view, z=2 has x=2,3, y=1 (since y=1 is front).
+
+- x=3, y=1: (3,1,2) – yes
+
+- x=2, y=2: (2,2,2) – yes
+
+- x=3, y=2: (3,2,2) – yes
+
+So top view: 4 faces (since all x=2,3 and y=1,2 in z=2 are present? Wait no, (2,1,2) is present, (3,1,2) is present, (2,2,2), (3,2,2) – yes, that's 4 faces.
+
+Wait, no, top view is looking down on z=2, so each cube at z=2 has a top face exposed.
+
+How many cubes are at z=2? 6,7: (2,2,2), (3,2,2), (2,1,2), (3,1,2)? Wait, earlier we listed 7 cubes:
+
+1. (1,1,1)
+
+2. (2,1,1)
+
+3. (3,1,1)
+
+4. (1,2,1)
+
+5. (2,2,1)
+
+6. (2,2,2)
+
+7. (3,2,2)
+
+Wait, (2,1,2) – is that present? Let's check frame 10: when the structure is rotated, is there a cube at (2,1,2)?
+
+Looking at frame 10: the structure has a part on the top left front. Let's see:
+
+In the video, when it's at frame 10, the front face (y=1) has:
+
+- Bottom layer (z=1): x=1,2,3 (red and blue cubes)
+
+- Top layer (z=2): x=2,3 (blue and red cubes), so (2,1,2) and (3,1,2) are present.
+
+Ah, I missed that. So cube 6: (2,1,2) and cube 7: (3,1,2), and then (2,2,2), (3,2,2) as top layer back.
+
+So correct count:
+
+Bottom layer (z=1):
+
+- y=1 (front): x=1,2,3 (3 cubes)
+
+- y=2 (back): x=1,2 (2 cubes)
+
+Total bottom: 5
+
+Top layer (z=2):
+
+- y=1 (front): x=2,3 (2 cubes)
+
+- y=2 (back): x=2,3 (2 cubes)
+
+Total top: 4
+
+Total cubes: 5 + 4 = 9
+
+Yes, that makes more sense. Let's check:
+
+Frame 3: the structure is a 3x2x2? 3x2x2 would be 12, but no. Wait, frame 4 shows a 3x2x2 cube? No, frame 4: the structure is a 3x2x2, but maybe not. Wait, frame 4: it's a rectangular prism of 3x2x2? No, because in frame 5, it's rotating.
+
+Wait, let's count the cubes by visualizing the rotation:
+
+- When the structure is rotated to show the front, it's 3 cubes wide, 2 cubes tall, and 2 cubes deep (but not full).
+
+Wait, better to count the number of cubes by looking at the video:
+
+At frame 7: the structure is a 3D shape. Let's count:
+
+- Front face (closest to us): 3 cubes (x=1,2,3; y=1; z=1 and z=2)
+
+- Middle layer (y=2): 2 cubes (x=1,2; z=1) and 2 cubes (x=2,3; z=2)
+
+Wait, total cubes:
+
+Front layer (y=1): z=1 has 3, z=2 has 2 → 5
+
+Back layer (y=2): z=1 has 2, z=2 has 2 → 4
+
+Total: 5 + 4 = 9 cubes.
+
+Yes, 9 cubes.
+
+Now, let's calculate surface area.
+
+Each cube has 6 faces, so total faces: 9*6 = 54.
+
+Now, subtract the internal faces (where cubes are adjacent).
+
+Adjacent faces:
+
+- X-direction (left-right): For each pair of cubes sharing an x-direction face.
+
+In y=1 (front layer):
+
+- z=1: x=1-2 (adjacent), x=2-3 (adjacent) → 2 pairs
+
+- z=2: x=2-3 (adjacent) → 1 pair
+
+Total for y=1: 3 pairs
+
+In y=2 (back layer):
+
+- z=1: x=1-2 (adjacent) → 1 pair
+
+- z=2: x=2-3 (adjacent) → 1 pair
+
+Total for y=2: 2 pairs
+
+Total X-direction adjacent pairs: 3 + 2 = 5
+
+- Y-direction (front-back):
+
+- z=1: y=1-2 (x=1,2) → 2 pairs (x=1 and x=2)
+
+- z=2: y=1-2 (x=2,3) → 2 pairs (x=2 and x=3)
+
+Total Y-direction adjacent pairs: 2 + 2 = 4
+
+- Z-direction (up-down):
+
+- x=1, y=1: z=1 (only one cube, no top/bottom)
+
+- x=1, y=2: z=1 (only one cube)
+
+- x=2, y=1: z=1 and z=2 → 1 pair
+
+- x=2, y=2: z=1 and z=2 → 1 pair
+
+- x=3, y=1: z=1 and z=2 → 1 pair
+
+- x=3, y=2: z=1 (no top), z=2 (one cube)
+
+Wait, for z-direction:
+
+Cubes at z=1 have a cube above them (z=2) if they exist.
+
+z=1 cubes:
+
+- (1,1,1): no cube above (z=2), so no adjacency
+
+- (2,1,1): has cube above (2,1,2) → adjacency
+
+- (3,1,1): has cube above (3,1,2) → adjacency
+
+- (1,2,1): no cube above → no adjacency
+
+- (2,2,1): has cube above (2,2,2) → adjacency
+
+- (3,2,1): no cube above (since top layer back is x=2,3; z=2, y=2, so (3,2,2) is there, so (3,2,1) is below (3,2,2)) → yes, (3,2,1) has (3,2,2) above
+
+Wait, in our count, top layer has (2,1,2), (3,1,2), (2,2,2), (3,2,2) → 4 cubes. So bottom layer has 9-4=5 cubes: (1,1,1), (2,1,1), (3,1,1), (1,2,1), (2,2,1).
+
+So z=1 cubes: 5
+
+z=2 cubes: 4
+
+Now, for z-direction adjacency (up-down), each cube in z=2 has a cube below in z=1 if it exists.
+
+(2,1,2) is above (2,1,1) → yes
+
+(3,1,2) is above (3,1,1) → yes
+
+(2,2,2) is above (2,2,1) → yes
+
+(3,2,2) is above (3,2,1) → yes
+
+So 4 adjacencies in z-direction.
+
+Now total adjacent face pairs: X + Y + Z = 5 (X) + 4 (Y) + 4 (Z) = 13
+
+Each adjacency means 2 faces are hidden (one from each cube), so total hidden faces = 13 * 2 = 26
+
+Total surface area = total faces - hidden faces = 54 - 26 = 28
+
+Wait, but let's verify by counting exposed faces directly.
+
+Front view (y=1):
+
+- z=1: x=1,2,3 → 3 faces
+
+- z=2: x=2,3 → 2 faces
+
+Total front: 5
+
+Back view (y=2):
+
+- z=1: x=1,2 → 2 faces
+
+- z=2: x=2,3 → 2 faces
+
+Total back: 4
+
+Left view (x=1):
+
+- z=1: y=1,2 → 2 faces
+
+- z=2: y=1,2 → 0 (no cube at x=1, z=2)
+
+Total left: 2
+
+Right view (x=3):
+
+- z=1: y=1 → 1 face
+
+- z=2: y=1,2 → 2 faces (y=1 and y=2)
+
+Total right: 1 + 2 = 3
+
+Top view (z=2):
+
+- x=1: y=1,2 → 0
+
+- x=2: y=1,2 → 2 faces (y=1 and y=2)
+
+- x=3: y=1,2 → 2 faces (y=1 and y=2)
+
+Total top: 2 + 2 = 4
+
+Bottom view (z=1):
+
+- x=1: y=1,2 → 2 faces (y=1 and y=2)
+
+- x=2: y=1,2 → 2 faces (y=1 and y=2)
+
+- x=3: y=1 → 1 face (y=2 has no cube at z=1, x=3)
+
+Total bottom: 2 + 2 + 1 = 5
+
+Now sum all views:
+
+Front:5, Back:4, Left:2, Right:3, Top:4, Bottom:5
+
+Total: 5+4+2+3+4+5 = 23. Wait, that's not 28. I must have messed up the counting.
+
+Wait, let's recount the views carefully.
+
+First, define the coordinate system: x (left-right), y (front-back), z (up-down). So:
+
+- Front face is when y is maximum (y=2? No, if y=1 is front, y=2 is back, then front view is looking from y=1 towards y=2, so the front face is y=1.
+
+Wait, maybe better to use:
+
+- When viewing from the front (towards the viewer), the front faces are those with the smallest y (if y increases backward).
+
+Let's define:
+
+- y=1: closest to viewer (front)
+
+- y=2: behind y=1 (back)
+
+- z=1: bottom layer
+
+- z=2: top layer
+
+- x=1: leftmost
+
+- x=3: rightmost
+
+Now, list all 9 cubes:
+
+1. (1,1,1) - left-front-bottom
+
+2. (2,1,1) - middle-front-bottom
+
+3. (3,1,1) - right-front-bottom
+
+4. (1,2,1) - left-back-bottom
+
+5. (2,2,1) - middle-back-bottom
+
+6. (2,1,2) - middle-front-top
+
+7. (3,1,2) - right-front-top
+
+8. (2,2,2) - middle-back-top
+
+9. (3,2,2) - right-back-top
+
+Now, count exposed faces per direction:
+
+1. Front (y=1) faces:
+
+   - Cube 1: front face (y=1) is exposed (no cube in front of it), so +1
+
+   - Cube 2: front face exposed → +1
+
+   - Cube 3: front face exposed → +1
+
+   - Cube 6: front face exposed → +1
+
+   - Cube 7: front face exposed → +1
+
+   Total front: 5 (correct as before)
+
+2. Back (y=2) faces:
+
+   - Cube 4: back face (y=2) exposed → +1
+
+   - Cube 5: back face exposed → +1
+
+   - Cube 8: back face exposed → +1
+
+   - Cube 9: back face exposed → +1
+
+   Total back: 4 (correct)
+
+3. Left (x=1) faces:
+
+   - Cube 1: left face exposed → +1
+
+   - Cube 4: left face exposed → +1
+
+   - Cube 6: left face? x=2, so no
+
+   - Cube 7: x=3, no
+
+   - Cube 8: x=2, no
+
+   - Cube 9: x=3, no
+
+   Total left: 2 (correct)
+
+4. Right (x=3) faces:
+
+   - Cube 3: right face exposed → +1
+
+   - Cube 7: right face exposed → +1
+
+   - Cube 9: right face exposed → +1
+
+   Wait, cube 9 is at (3,2,2), so right face is exposed. Cube 3 is (3,1,1), right face exposed. Cube 7 is (3,1,2), right face exposed.
+
+   So 3 faces: 3,7,9 → 3
+
+5. Top (z=2) faces:
+
+   - Cube 6: top face exposed → +1
+
+   - Cube 7: top face exposed → +1
+
+   - Cube 8: top face exposed → +1
+
+   - Cube 9: top face exposed → +1
+
+   Total top: 4 (correct)
+
+6. Bottom (z=1) faces:
+
+   - Cube 1: bottom face exposed → +1
+
+   - Cube 2: bottom face exposed → +1
+
+   - Cube 3: bottom face exposed → +1
+
+   - Cube 4: bottom face exposed → +1
+
+   - Cube 5: bottom face exposed → +1
+
+   Wait, cube 6-9 are on top layer, so their bottom faces are attached to the bottom layer, so hidden. So bottom faces are only from z=1 cubes.
+
+   All z=1 cubes: 5 cubes, each has a bottom face exposed (since there's no layer below), so 5 faces.
+
+   Now sum:
+
+   Front:5, Back:4, Left:2, Right:3, Top:4, Bottom:5
+
+   Total: 5+4+2+3+4+5=23
+
+But earlier calculation with total faces minus hidden was 54-26=28. Which is wrong. So where's the mistake?
+
+Ah! The hidden faces: each adjacency is a shared face, so for each pair of adjacent cubes, 2 faces are hidden (one from each cube). So number of hidden faces = 2 * number of adjacent face pairs.
+
+Let's count the adjacent face pairs:
+
+- X-direction (left-right): cubes sharing a face along x-axis (same y, z, x differs by 1)
+
+  - (1,1,1) and (2,1,1): yes (x=1-2, y=1, z=1)
+
+  - (2,1,1) and (3,1,1): yes (x=2-3, y=1, z=1)
+
+  - (2,1,1) and (2,1,2): no, that's z-direction
+
+  - (2,1,2) and (3,1,2): yes (x=2-3, y=1, z=2)
+
+  - (1,2,1) and (2,2,1): yes (x=1-2, y=2, z=1)
+
+  - (2,2,1) and (2,2,2): no
+
+  - (2,2,1) and (3,2,1): no (3,2,1 is not a cube)
+
+  - (2,2,2) and (3,2,2): yes (x=2-3, y=2, z=2)
+
+  So X-direction pairs: 2 (y=1,z=1) + 1 (y=1,z=2) + 1 (y=2,z=1) + 1 (y=2,z=2) = 5
+
+- Y-direction (front-back): cubes sharing a face along y-axis (same x, z, y differs by 1)
+
+  - (1,1,1) and (1,2,1): yes (y=1-2, x=1, z=1)
+
+  - (2,1,1) and (2,2,1): yes (y=1-2, x=2, z=1)
+
+  - (3,1,1) and (3,2,1): no (3,2,1 is not a cube)
+
+  - (2,1,2) and (2,2,2): yes (y=1-2, x=2, z=2)
+
+  - (3,1,2) and (3,2,2): yes (y=1-2, x=3, z=2)
+
+  So Y-direction pairs: 1 + 1 + 1 + 1 = 4
+
+- Z-direction (up-down): cubes sharing a face along z-axis (same x, y, z differs by 1)
+
+  - (2,1,1) and (2,1,2): yes
+
+  - (3,1,1) and (3,1,2): yes
+
+  - (2,2,1) and (2,2,2): yes
+
+  - (3,2,1) and (3,2,2): yes (wait, (3,2,1) is not a cube! Wait, in our list of 9 cubes, the bottom layer has 5 cubes: 1,2,3,4,5. Cube 5 is (2,2,1), so (3,2,1) is not a cube. Therefore, (3,2,2) is above (3,2,1), but (3,2,1) doesn't exist. Wait, no, in our earlier count, top layer has 4 cubes: 6,7,8,9 which are (2,1,2), (3,1,2), (2,2,2), (3,2,2). So bottom layer: 1,2,3,4,5 → (1,1,1), (2,1,1), (3,1,1), (1,2,1), (2,2,1). So (3,2,1) is not a cube. Therefore, the cube above (3,2,2) would be (3,2,1), which is not present, so no adjacency there.
+
+  So Z-direction pairs:
+
+  - (2,1,1)-(2,1,2): yes
+
+  - (3,1,1)-(3,1,2): yes
+
+  - (2,2,1)-(2,2,2): yes
+
+  - (3,2,2) has no cube below it (since (3,2,1) is not a cube), so no adjacency
+
+  So Z-direction pairs: 3
+
+Total adjacent face pairs: 5 (X) + 4 (Y) + 3 (Z) = 12
+
+Hidden faces = 12 * 2 = 24
+
+Total faces = 9 * 6 = 54
+
+Surface area = 54 - 24 = 30
+
+But direct count was 23. Clearly, my direct count was wrong. Let's do direct count again carefully.
+
+For each cube, count the number of exposed faces.
+
+Cube 1: (1,1,1)
+
+- Left: exposed (x=1, no cube left) → 1
+
+- Front: exposed (y=1, no cube front) → 1
+
+- Bottom: exposed (z=1, no cube below) → 1
+
+- Right: adjacent to cube 2 (x=2, y=1, z=1) → hidden
+
+- Back: adjacent to cube 4 (x=1, y=2, z=1) → hidden
+
+- Top: no cube above → exposed → 1
+
+Total for cube 1: 1+1+1+1=4 (left, front, bottom, top)
+
+Cube 2: (2,1,1)
+
+- Left: adjacent to cube 1 → hidden
+
+- Front: exposed → 1
+
+- Bottom: exposed → 1
+
+- Right: adjacent to cube 3 → hidden
+
+- Back: adjacent to cube 5 → hidden
+
+- Top: adjacent to cube 6 → hidden
+
+Total: 1+1=2 (front, bottom)
+
+Cube 3: (3,1,1)
+
+- Left: adjacent to cube 2 → hidden
+
+- Front: exposed → 1
+
+- Bottom: exposed → 1
+
+- Right: exposed (x=3, no cube right) → 1
+
+- Back: no cube behind (y=2, z=1, x=3) → exposed → 1
+
+- Top: adjacent to cube 7 → hidden
+
+Total: 1+1+1+1=4 (front, bottom, right, back)
+
+Cube 4: (1,2,1)
+
+- Left: exposed → 1
+
+- Front: adjacent to cube 1 → hidden
+
+- Bottom: exposed → 1
+
+- Right: adjacent to cube 5 → hidden
+
+- Back: exposed (y=2, no cube back) → 1
+
+- Top: no cube above → exposed → 1
+
+Total: 1+1+1+1=4 (left, bottom, back, top)
+
+Cube 5: (2,2,1)
+
+- Left: adjacent to cube 4 → hidden
+
+- Front: adjacent to cube 2 → hidden
+
+- Bottom: exposed → 1
+
+- Right: no cube right (x=3, y=2, z=1) → exposed → 1
+
+- Back: exposed → 1
+
+- Top: adjacent to cube 8 → hidden
+
+Total: 1+1+1=3 (bottom, right, back)
+
+Cube 6: (2,1,2)
+
+- Left: adjacent to cube 1? No, x=2 vs x=1, y=1, z=2 → no, cube 1 is (1,1,1), so (2,1,2) left is x=1, which has cube 1 but z=1 vs z=2, so not adjacent. So left face exposed → 1
+
+- Front: exposed → 1
+
+- Bottom: adjacent to cube 2 → hidden
+
+- Right: adjacent to cube 7 → hidden
+
+- Back: adjacent to cube 8 → hidden
+
+- Top: exposed → 1
+
+Total: 1+1+1=3 (left, front, top)
+
+Cube 7: (3,1,2)
+
+- Left: adjacent to cube 6 → hidden
+
+- Front: exposed → 1
+
+- Bottom: adjacent to cube 3 → hidden
+
+- Right: exposed → 1
+
+- Back: adjacent to cube 9 → hidden
+
+- Top: exposed → 1
+
+Total: 1+1+1=3 (front, right, top)
+
+Cube 8: (2,2,2)
+
+- Left: adjacent to cube 4? No, x=2, y=2, z=2 vs x=1, y=2, z=1 → not adjacent. So left face exposed → 1
+
+- Front: adjacent to cube 6 → hidden
+
+- Bottom: adjacent to cube 5 → hidden
+
+- Right: adjacent to cube 9 → hidden
+
+- Back: exposed → 1
+
+- Top: exposed → 1
+
+Total: 1+1+1=3 (left, back, top)
+
+Cube 9: (3,2,2)
+
+- Left: adjacent to cube 8 → hidden
+
+- Front: adjacent to cube 7 → hidden
+
+- Bottom: no cube below (since (3,2,1) is not a cube) → exposed → 1
+
+- Right: exposed → 1
+
+- Back: exposed → 1
+
+- Top: exposed → 1
+
+Total: 1+1+1+1=4 (bottom, right, back, top)
+
+Now sum all:
+
+Cube 1: 4
+
+Cube 2: 2
+
+Cube 3: 4
+
+Cube 4: 4
+
+Cube 5: 3
+
+Cube 6: 3
+
+Cube 7: 3
+
+Cube 8: 3
+
+Cube 9: 4
+
+Total: 4+2+4+4+3+3+3+3+4 = let's calculate:
+
+4+2=6; 6+4=10; 10+4=14; 14+3=17; 17+3=20; 20+3=23; 23+3=26; 26+4=30
+
+Ah! There we go. I missed the left face of cube 6 (x=2, so left is x=1, which is not a cube at z=2, so yes, exposed). So total surface area is 30.
+
+Let's verify with the view counts:
+
+Front (y=1): cubes 1,2,3,6,7 → their front faces:
+
+1:1, 2:1, 3:1, 6:1, 7:1 → 5
+
+Back (y=2): cubes 4,5,8,9 → their back faces:
+
+4:1, 5:1, 8:1, 9:1 → 4
+
+Left (x=1): cubes 1,4 → left faces:
+
+1:1, 4:1 → 2
+
+Right (x=3): cubes 3,7,9 → right faces:
+
+3:1, 7:1, 9:1 → 3
+
+Top (z=2): cubes 6,7,8,9 → top faces:
+
+6:1, 7:1, 8:1, 9:1 → 4
+
+Bottom (z=1): cubes 1,2,3,4,5 → bottom faces:
+
+1:1, 2:1, 3:1, 4:1, 5:1 → 5
+
+Total: 5+4+2+3+4+5=23. Wait, but the cube count says 30. There's a mistake here because when counting by view, we should consider all visible faces, but maybe the view directions are not correctly aligned.
+
+Wait, no. The issue is that when we count the left view, we should count all faces on the left side, which includes:
+
+- For x=1, all cubes with x=1 (cubes 1 and 4) have left faces exposed.
+
+- For x=2, the left face is adjacent to x=1, so not exposed.
+
+- For x=3, the right face is adjacent to x=4 (but there is no x=4), so exposed.
+
+But when counting the left view, it's the total number of left-facing faces, which is the number of cubes on the leftmost side (x=1) plus any other cubes whose left side is exposed (but in 3D, the leftmost x is 1, so only cubes at x=1 have left faces exposed, and cubes at x=2 have left faces adjacent to x=1, so hidden).
+
+Wait, no. The left view shows the left-facing faces of all cubes, which are the faces that are on the left side of the entire structure. So any face that is pointing to the left (negative x direction) is counted in the left view.
+
+For cube 1: left face (x=1, left side) → exposed → +1
+
+For cube 4: left face (x=1, left side) → exposed → +1
+
+For cube 6: x=2, so its left face is towards x=1, which is cube 1's position but at z=2. Since there's no cube at (1,1,2) or (1,2,2), cube 6's left face is exposed. Ah! This is the mistake in the view count.
+
+Earlier, I thought cube 6's left face is not exposed, but since there's no cube at (1,1,2) or (1,2,2), cube 6 (x=2, y=1, z=2) has a left face exposed.
+
+Similarly, cube 8 (x=2, y=2, z=2) has a left face exposed (no cube at (1,2,2)).
+
+So left view should include:
+
+- Cube 1: left face (x=1) → 1
+
+- Cube 4: left face (x=1) → 1
+
+- Cube 6: left face (x=2, left direction) → 1
+
+- Cube 8: left face (x=2, left direction) → 1
+
+Total left view: 4
+
+Let's correct the view count:
+
+Front (y=1): cubes with y=1: 1,2,3,6,7. Their front faces (positive y direction) are exposed because there's no cube in front (y=0). So 5 faces.
+
+Back (y=2): cubes with y=2: 4,5,8,9. Their back faces (negative y direction) are exposed (no cube behind), so 4 faces.
+
+Left (x=1): cubes with x=1: 1,4. Their left faces (negative x direction) are exposed. Additionally, cubes with x=2 that have no cube at x=1 in the same y,z direction:
+
+- Cube 6: (2,1,2), left face (x=1, y=1, z=2) → no cube, so exposed.
+
+- Cube 8: (2,2,2), left face (x=1, y=2, z=2) → no cube, so exposed.
+
+So left view: 2 (x=1 cubes) + 2 (x=2 cubes with no left neighbor) = 4
+
+Right (x=3): cubes with x=3: 3,7,9. Their right faces (positive x direction) are exposed (no cube at x=4), so 3 faces.
+
+Top (z=2): cubes with z=2: 6,7,8,9. Their top faces (positive z direction) are exposed (no cube above), so 4 faces.
+
+Bottom (z=1): cubes with z=1: 1,2,3,4,5. Their bottom faces (negative z direction) are exposed (no cube below), so 5 faces.
+
+Now total: 5+4+4+3+4+5 = 25. Still not 30.
+
+Wait, no, each face is a unit square, so the correct way is to count all exposed faces, regardless of direction. Let's go back to the per-cube count:
+
+Cube 1: 4 faces (left, front, bottom, top) → correct
+
+Cube 2: 2 faces (front, bottom) → correct (left and right adjacent, back adjacent, top adjacent)
+
+Cube 3: 4 faces (front, bottom, right, back) → correct
+
+Cube 4: 4 faces (left, bottom, back, top) → correct
+
+Cube 5: 3 faces (bottom, right, back) → correct (left adjacent, front adjacent, top adjacent)
+
+Cube 6: 3 faces (left, front, top) → correct (right adjacent to 7, back adjacent to 8, bottom adjacent to 2)
+
+Cube 7: 3 faces (front, right, top) → correct (left adjacent to 6, bottom adjacent to 3, back adjacent to 9)
+
+Cube 8: 3 faces (left, back, top) → correct (front adjacent to 6, bottom adjacent to 5, right adjacent to 9)
+
+Cube 9: 4 faces (bottom, right, back, top) → correct (left adjacent to 8, front adjacent to 7, no bottom cube)
+
+Now sum: 4+2+4+4+3+3+3+3+4=30. This must be correct because we're counting each exposed face individually.
+
+Where did the view count go wrong? Let's count the left-facing faces:
+
+- Cube 1: left face (exposed)
+
+- Cube 4: left face (exposed)
+
+- Cube 6: left face (exposed, since (1,1,2) is empty)
+
+- Cube 8: left face (exposed, since (1,2,2) is empty)
+
+So 4 left-facing faces.
+
+Right-facing faces:
+
+- Cube 3: right face (exposed)
+
+- Cube 7: right face (exposed)
+
+- Cube 9: right face (exposed)
+
+So 3 right-facing faces.
+
+Front-facing faces:
+
+- Cube 1: front face (exposed)
+
+- Cube 2: front face (exposed)
+
+- Cube 3: front face (exposed)
+
+- Cube 6: front face (exposed)
+
+- Cube 7: front face (exposed)
+
+So 5 front-facing faces.
+
+Back-facing faces:
+
+- Cube 4: back face (exposed)
+
+- Cube 5: back face (exposed)
+
+- Cube 8: back face (exposed)
+
+- Cube 9: back face (exposed)
+
+So 4 back-facing faces.
+
+Top-facing faces:
+
+- Cube 6: top face (exposed)
+
+- Cube 7: top face (exposed)
+
+- Cube 8: top face (exposed)
+
+- Cube 9: top face (exposed)
+
+So 4 top-facing faces.
+
+Bottom-facing faces:
+
+- Cube 1: bottom face (exposed)
+
+- Cube 2: bottom face (exposed)
+
+- Cube 3: bottom face (exposed)
+
+- Cube 4: bottom face (exposed)
+
+- Cube 5: bottom face (exposed)
+
+So 5 bottom-facing faces.
+
+Total: 4+3+5+4+4+5=25. Wait, now it's 25. But the per-cube count was 30. There's a contradiction.
+
+Ah! The problem is in the definition of "left-facing faces". For cube 6, which is at (2,1,2), its left face is at x=2-1=1, so it's a face that is on the left side of the entire structure, but when you look at the left view, you see all the left-facing faces of all cubes. However, cube 6's left face is at x=1, which is the same position as cube 1's left face (which is at x=1-1=0, but no, each cube has its own faces).
+
+Wait, no. Each small cube has 6 faces, each with area 1. For a cube at (x,y,z), its left face is at x-0.5 (assuming the cube spans from x-0.5 to x+0.5), but for counting, we just need to know if the face is exposed.
+
+For cube 6 (x=2, y=1, z=2):
+
+- Left face: does it have a neighbor at (x=1, y=1, z=2)? No, so exposed → +1
+
+- Right face: neighbor at (x=3, y=1, z=2) → cube 7, so hidden → 0
+
+- Front face: neighbor at (x=2, y=0, z=2)? No, so exposed → +1
+
+- Back face: neighbor at (x=2, y=2, z=2) → cube 8, so hidden → 0
+
+- Bottom face: neighbor at (x=2, y=1, z=1) → cube 2, so hidden → 0
+
+- Top face: neighbor at (x=2, y=1, z=3)? No, so exposed → +1
+
+So cube 6 has 3 exposed faces (left, front, top), which is correct.
+
+Now, the left-facing faces (x-direction negative):
+
+- Cube 1: left face (x=1, left side) → exposed
+
+- Cube 4: left face (x=1, left side) → exposed
+
+- Cube 6: left face (x=2, left side) → exposed (since x=1, y=1, z=2 has no cube)
+
+- Cube 8: left face (x=2, left side) → exposed (since x=1, y=2, z=2 has no cube)
+
+So 4 left-facing faces.
+
+Right-facing faces (x-direction positive):
+
+- Cube 3: right face (x=3, right side) → exposed
+
+- Cube 7: right face (x=3, right side) → exposed
+
+- Cube 9: right face (x=3, right side) → exposed
+
+So 3 right-facing faces.
+
+Front-facing (y-direction positive):
+
+- Cube 1: front face (y=1, front side) → exposed
+
+- Cube 2: front face (y=1, front side) → exposed
+
+- Cube 3: front face (y=1, front side) → exposed
+
+- Cube 6: front face (y=1, front side) → exposed
+
+- Cube 7: front face (y=1, front side) → exposed
+
+So 5 front-facing faces.
+
+Back-facing (y-direction negative):
+
+- Cube 4: back face (y=2, back side) → exposed
+
+- Cube 5: back face (y=2, back side) → exposed
+
+- Cube 8: back face (y=2, back side) → exposed
+
+- Cube 9: back face (y=2, back side) → exposed
+
+So 4 back-facing faces.
+
+Top-facing (z-direction positive):
+
+- Cube 6: top face (z=2, top side) → exposed
+
+- Cube 7: top face (z=2, top side) → exposed
+
+- Cube 8: top face (z=2, top side) → exposed
+
+- Cube 9: top face (z=2, top side) → exposed
+
+So 4 top-facing faces.
+
+Bottom-facing (z-direction negative):
+
+- Cube 1: bottom face (z=1, bottom side) → exposed
+
+- Cube 2: bottom face (z=1, bottom side) → exposed
+
+- Cube 3: bottom face (z=1, bottom side) → exposed
+
+- Cube 4: bottom face (z=1, bottom side) → exposed
+
+- Cube 5: bottom face (z=1, bottom side) → exposed
+
+So 5 bottom-facing faces.
+
+Now, 4+3+5+4+4+5=25. But per-cube count was 30. This is impossible. There must be a miscalculation in per-cube.
+
+Let's recount cube 1:
+
+Cube 1: (1,1,1)
+
+- Left: x=1, so left face is at x=0.5, no cube to the left → exposed (1)
+
+- Front: y=1, so front face is at y=0.5, no cube in front → exposed (1)
+
+- Bottom: z=1, bottom face at z=0.5, no cube below → exposed (1)
+
+- Right: x=2, cube 2 is at (2,1,1), so right face is adjacent → hidden (0)
+
+- Back: y=2, cube 4 is at (1,2,1), so back face is adjacent → hidden (0)
+
+- Top: z=2, no cube at (1,1,2), so top face exposed (1)
+
+Total for cube 1: 1+1+1+1=4 (correct)
+
+Cube 2: (2,1,1)
+
+- Left: adjacent to cube 1 → hidden (0)
+
+- Front: exposed (1)
+
+- Bottom: exposed (1)
+
+- Right: adjacent to cube 3 → hidden (0)
+
+- Back: adjacent to cube 5 → hidden (0)
+
+- Top: adjacent to cube 6 → hidden (0)
+
+Total: 2 (correct)
+
+Cube 3: (3,1,1)
+
+- Left: adjacent to cube 2 → hidden (0)
+
+- Front: exposed (1)
+
+- Bottom: exposed (1)
+
+- Right: exposed (1)
+
+- Back: no cube at (3,2,1) → exposed (1)
+
+- Top: adjacent to cube 7 → hidden (0)
+
+Total: 4 (correct)
+
+Cube 4: (1,2,1)
+
+- Left: exposed (1)
+
+- Front: adjacent to cube 1 → hidden (0)
+
+- Bottom: exposed (1)
+
+- Right: adjacent to cube 5 → hidden (0)
+
+- Back: exposed (1)
+
+- Top: no cube at (1,2,2) → exposed (1)
+
+Total: 4 (correct)
+
+Cube 5: (2,2,1)
+
+- Left: adjacent to cube 4 → hidden (0)
+
+- Front: adjacent to cube 2 → hidden (0)
+
+- Bottom: exposed (1)
+
+- Right: no cube at (3,2,1) → exposed (1)
+
+- Back: exposed (1)
+
+- Top: adjacent to cube 8 → hidden (0)
+
+Total: 3 (correct)
+
+Cube 6: (2,1,2)
+
+- Left: no cube at (1,1,2) → exposed (1)
+
+- Front: exposed (1)
+
+- Bottom: adjacent to cube 2 → hidden (0)
+
+- Right: adjacent to cube 7 → hidden (0)
+
+- Back: adjacent to cube 8 → hidden (0)
+
+- Top: exposed (1)
+
+Total: 3 (correct)
+
+Cube 7: (3,1,2)
+
+- Left: adjacent to cube 6 → hidden (0)
+
+- Front: exposed (1)
+
+- Bottom: adjacent to cube 3 → hidden (0)
+
+- Right: exposed (1)
+
+- Back: adjacent to cube 9 → hidden (0)
+
+- Top: exposed (1)
+
+Total: 3 (correct)
+
+Cube 8: (2,2,2)
+
+- Left: no cube at (1,2,2) → exposed (1)
+
+- Front: adjacent to cube 6 → hidden (0)
+
+- Bottom: adjacent to cube 5 → hidden (0)
+
+- Right: adjacent to cube 9 → hidden (0)
+
+- Back: exposed (1)
+
+- Top: exposed (1)
+
+Total: 3 (correct)
+
+Cube 9: (3,2,2)
+
+- Left: adjacent to cube 8 → hidden (0)
+
+- Front: adjacent to cube 7 → hidden (0)
+
+- Bottom: no cube at (3,2,1) → exposed (1)
+
+- Right: exposed (1)
+
+- Back: exposed (1)
+
+- Top: exposed (1)
+
+Total: 4 (correct)
+
+Now sum: 4+2+4+4+3+3+3+3+4=30.
+
+The error in the view count is that when we count front-facing faces, it's not just the front layer, but all faces facing front, which for cube 6 is the front face (y=1), which is correct. But in the view count, I think I missed that some faces are not directly facing the viewer but are still exposed.
+
+Wait, the key is that each face of a cube is counted if it's on the outside. So the per-cube count is accurate because we're checking each face of each cube.
+
+Another way: the structure is a 3x2x2 prism missing one cube. Wait, 3x2x2 is 12 cubes. But our structure has 9 cubes, so missing 3.
+
+Wait, no. Let's think of the bounding box:
+
+- x: 1 to 3 (3 units)
+
+- y: 1 to 2 (2 units)
+
+- z: 1 to 2 (2 units)
+
+Total volume of bounding box: 3*2*2=12.
+
+Number of cubes missing: 12-9=3.
+
+The missing cubes are:
+
+- (1,1,2)
+
+- (1,2,2)
+
+- (3,2,1)
+
+Now, surface area of the bounding box is 2*(3*2 + 3*2 + 2*2) = 2*(6+6+4)=32.
+
+Now, when we remove a cube, the change in surface area depends on how many faces were exposed by the missing cube.
+
+- Cube (1,1,2) is missing:
+
+  - It had 6 faces, but in the bounding box, some faces were internal.
+
+  - Its left face: exposed (x=0), so adding 1 to surface area (since removing a cube where left face was internal, but no, wait, the bounding box is empty, so the missing cube's faces were internal to the bounding box).
+
+  Wait, better to calculate:
+
+For each missing cube:
+
+- Cube (1,1,2):
+
+  - Faces exposed in bounding box: left (x=1-1=0, exposed), front (y=1-1=0, exposed), top (z=2+1=3, exposed)
+
+  - Faces adjacent to existing cubes: right (x=2, exists), back (y=2, exists), bottom (z=1, exists)
+
+  So when removed, the surface area decreases by 3 (exposed faces) but increases by 3 (the faces that were adjacent to it, now exposed) → net change 0.
+
+Wait, no. When a cube is present, its internal faces are hidden. When removed, the adjacent cubes' faces become exposed.
+
+The surface area of the bounding box (all 12 cubes) is 2*(3*2 + 3*2 + 2*2)=32.
+
+Now, each missing cube:
+
+- Cube (1,1,2):
+
+  - It was adjacent to:
+
+    - Right (cube at (2,1,2)) → 1 face
+
+    - Back (cube at (1,2,2)) → but cube (1,2,2) is also missing, so no
+
+    - Bottom (cube at (1,1,1)) → 1 face
+
+  Wait, cube (1,1,2) is adjacent to cube (2,1,2) (right), (1,1,1) (bottom), and (1,2,2) (back) → but (1,2,2) is missing, so only 2 adjacent cubes.
+
+  So when removed, the surface area increases by (6 - 2*2) = 2? Wait, no.
+
+Original bounding box surface area: 32.
+
+Number of cubes: 12, so 12*6=72 faces. Hidden faces: (12*6 - 32)/2= (72-32)/2=20. So 20 adjacent pairs.
+
+When we remove a cube, the number of hidden faces decreases by the number of adjacent faces it had with existing cubes.
+
+Cube (1,1,2) has adjacent cubes:
+
+- (2,1,2) (right) → 1
+
+- (1,1,1) (bottom) → 1
+
+- (1,2,2) (back) → but missing, so 0
+
+Total adjacent existing cubes: 2.
+
+So hidden faces lost: 2*2=4 (since each adjacency hides 2 faces).
+
+Wait, the surface area change is: (6 - number of adjacent existing cubes) → because the cube had 6 faces, of which (number of adjacent existing cubes) were hidden (shared with other cubes), so the exposed faces of the missing cube were (6 - adjacent existing cubes). When removed, those exposed faces are no longer part of the structure, and the adjacent cubes' faces that were hidden become exposed.
+
+So the change in surface area is: (adjacent existing cubes) - (6 - adjacent existing cubes) = 2*adjacent existing cubes - 6.
+
+For cube (1,1,2): adjacent existing cubes=2 → change=2*2 -6= -2.
+
+Similarly, cube (1,2,2):
+
+- Adjacent existing cubes:
+
+  - (2,2,2) (right) → 1
+
+  - (1,2,1) (bottom) → 1
+
+  - (1,1,2) (front) → missing, so 0
+
+  → 2 adjacent existing cubes.
+
+  Change: 2*2 -6= -2.
+
+Cube (3,2,1):
+
+- Adjacent existing cubes:
+
+  - (2,2,1) (left) → 1
+
+  - (3,2,2) (top) → 1
+
+  - (3,1,1) (front) → 1
+
+  → 3 adjacent existing cubes.
+
+  Change: 2*3 -6=0.
+
+Total change: (-2) + (-2) + 0 = -4.
+
+So surface area of structure = 32 + (-4) = 28.
+
+But this contradicts the per-cube count of 30.
+
+Wait, what's the surface area of the 3x2x2 bounding box?
+
+For a rectangular prism of length l, width w, height h, surface area is 2(lw + lh + wh).
+
+Here, l=3, w=2, h=2 → 2(3*2 + 3*2 + 2*2)=2(6+6+4)=32. Correct.
+
+Now, the structure has 9 cubes, which is 12-3=9.
+
+Let's list the adjacent pairs in the bounding box (12 cubes):
+
+- X-direction: for each y,z, x=1-2, 2-3 → 2 per y,z. y=1,2; z=1,2 → 2*2*2=8
+
+- Y-direction: for each x,z, y=1-2 → 1 per x,z. x=1,2,3; z=1,2 → 3*2=6
+
+- Z-direction: for each x,y, z=1-2 → 1 per x,y. x=1,2,3; y=1,2 → 3*2=6
+
+Total adjacent pairs: 8+6+6=20. Correct.
+
+Total faces: 12*6=72. Hidden faces: 20*2=40. Surface area: 72-40=32. Correct.
+
+Now, when we remove cube (1,1,2), which is at (1,1,2):
+
+- It had 3 adjacent cubes in the bounding box: (2,1,2), (1,1,1), (1,2,2).
+
+- But in our structure, (1,2,2) is also missing, so in the structure, cube (1,1,2) was adjacent to (2,1,2) and (1,1,1) (since (1,2,2) is missing).
+
+- So number of adjacent existing cubes in the structure: 2.
+
+- The number of hidden faces that cube (1,1,2) had: 2 (since each adjacent cube shares a face), so 2 hidden faces (the faces adjacent to existing cubes). The other 4 faces were exposed (left, front, top, back? Wait, no: cube (1,1,2) has:
+
+  - Left: exposed (no cube left)
+
+  - Front: exposed (no cube front)
+
+  - Top: exposed (no cube top)
+
+  - Right: adjacent to (2,1,2) → hidden
+
+  - Back: adjacent to (1,2,2) → but (1,2,2) is missing, so not hidden (wait, no: if (1,2,2) is missing, then the back face is exposed)
+
+  - Bottom: adjacent to (1,1,1) → hidden
+
+  So exposed faces of cube (1,1,2) in structure: left, front, top, back → 4 faces.
+
+  Hidden faces: right, bottom → 2 faces.
+
+  When we remove it, the surface area decreases by the exposed faces (4) and increases by the hidden faces (2) of the adjacent cubes → net change: -4 + 2 = -2.
+
+Similarly for cube (1,2,2):
+
+- Exposed faces in structure: left, back, top (since front is missing), bottom is adjacent to (1,2,1), right adjacent to (2,2,2) → exposed faces: left, back, top → 3 faces? Wait, let's list:
+
+  - Left: exposed
+
+  - Front: adjacent to (1,1,2) (missing), so exposed
+
+  - Top: exposed
+
+  - Right: adjacent to (2,2,2) → hidden
+
+  - Back: exposed
+
+  - Bottom: adjacent to (1,2,1) → hidden
+
+  So exposed faces: left, front, top, back → 4 faces.
+
+  Hidden faces: right, bottom → 2 faces.
+
+  Net change: -4 + 2 = -2.
+
+Cube (3,2,1):
+
+- Exposed faces in structure:
+
+  - Left: adjacent to (2,2,1) → hidden
+
+  - Front: adjacent to (3,1,1) → hidden
+
+  - Top: adjacent to (3,2,2) → hidden
+
+  - Right: exposed
+
+  - Back: exposed
+
+  - Bottom: exposed
+
+  So exposed faces: right, back, bottom → 3 faces.
+
+  Hidden faces: left, front, top → 3 faces.
+
+  Net change: -3 + 3 = 0.
+
+Total change: -2 -2 + 0 = -4.
+
+So surface area = 32 - 4 = 28.
+
+Now, which is correct? The per-cube count must have been wrong.
+
+Let's recount the per-cube exposed faces:
+
+Cube 1: (1,1,1)
+
+- Left: exposed (x=1, no cube left) → 1
+
+- Front: exposed (y=1, no cube front) → 1
+
+- Bottom: exposed (z=1, no cube below) → 1
+
+- Right: adjacent to (2,1,1) → hidden
+
+- Back: adjacent to (1,2,1) → hidden
+
+- Top: adjacent to (1,1,2) (missing) → exposed → 1
+
+Total: 4 (correct)
+
+Cube 2: (2,1,1)
+
+- Left: adjacent to (1,1,1) → hidden
+
+- Front: exposed → 1
+
+- Bottom: exposed → 1
+
+- Right: adjacent to (3,1,1) → hidden
+
+- Back: adjacent to (2,2,1) → hidden
+
+- Top: adjacent to (2,1,2) → hidden
+
+Total: 2 (correct)
+
+Cube 3: (3,1,1)
+
+- Left: adjacent to (2,1,1) → hidden
+
+- Front: exposed → 1
+
+- Bottom: exposed → 1
+
+- Right: exposed → 1
+
+- Back: adjacent to (3,2,1) (missing) → exposed → 1
+
+- Top: adjacent to (3,1,2) → hidden
+
+Total: 4 (correct)
+
+Cube 4: (1,2,1)
+
+- Left: exposed → 1
+
+- Front: adjacent to (1,1,1) → hidden
+
+- Bottom: exposed → 1
+
+- Right: adjacent to (2,2,1) → hidden
+
+- Back: exposed → 1
+
+- Top: adjacent to (1,2,2) (missing) → exposed → 1
+
+Total: 4 (correct)
+
+Cube 5: (2,2,1)
+
+- Left: adjacent to (1,2,1) → hidden
+
+- Front: adjacent to (2,1,1) → hidden
+
+- Bottom: exposed → 1
+
+- Right: adjacent to (3,2,1) (missing) → exposed → 1
+
+- Back: exposed → 1
+
+- Top: adjacent to (2,2,2) → hidden
+
+Total: 3 (correct)
+
+Cube 6: (2,1,2)
+
+- Left: adjacent to (1,1,2) (missing) → exposed → 1
+
+- Front: exposed → 1
+
+- Bottom: adjacent to (2,1,1) → hidden
+
+- Right: adjacent to (3,1,2) → hidden
+
+- Back: adjacent to (2,2,2) → hidden
+
+- Top: exposed → 1
+
+Total: 3 (correct)
+
+Cube 7: (3,1,2)
+
+- Left: adjacent to (2,1,2) → hidden
+
+- Front: exposed → 1
+
+- Bottom: adjacent to (3,1,1) → hidden
+
+- Right: exposed → 1
+
+- Back: adjacent to (3,2,2) → hidden
+
+- Top: exposed → 1
+
+Total: 3 (correct)
+
+Cube 8: (2,2,2)
+
+- Left: adjacent to (1,2,2) (missing) → exposed → 1
+
+- Front: adjacent to (2,1,2) → hidden
+
+- Bottom: adjacent to (2,2,1) → hidden
+
+- Right: adjacent to (3,2,2) → hidden
+
+- Back: exposed → 1
+
+- Top: exposed → 1
+
+Total: 3 (correct)
+
+Cube 9: (3,2,2)
+
+- Left: adjacent to (2,2,2) → hidden
+
+- Front: adjacent to (3,1,2) → hidden
+
+- Bottom: adjacent to (3,2,1) (missing) → exposed → 1
+
+- Right: exposed → 1
+
+- Back: exposed → 1
+
+- Top: exposed → 1
+
+Total: 4 (correct)
+
+Sum: 4+2+4+4+3+3+3+3+4=30.
+
+But according to the bounding box method, it should be 28. There's a discrepancy.
+
+Ah! The bounding box method assumes the structure is convex, but it's not. The bounding box is a rectangular prism, but the structure has missing cubes, so the surface area is not simply the bounding box surface area minus the changes.
+
+Wait, no. The bounding box surface area is 32, which is the surface area if all 12 cubes are present. When we remove a cube, the surface area changes by the number of faces that were exposed (which are now hidden) minus the number of faces that were hidden (now exposed).
+
+For each cube removed:
+
+- Let k = number of adjacent cubes (existing ones)
+
+- The removed cube had (6 - k) faces exposed in the full structure.
+
+- When removed, those (6 - k) faces are no longer part of the surface area, and the k faces that were adjacent to other cubes become exposed.
+
+- So net change: (k) - (6 - k) = 2k - 6.
+
+For cube (1,1,2):
+
+- k = 2 (adjacent to (2,1,2) and (1,1,1))
+
+- Change: 2*2 - 6 = -2
+
+For cube (1,2,2):
+
+- k = 2 (adjacent to (2,2,2) and (1,2,1))
+
+- Change: 2*2 - 6 = -2
+
+For cube (3,2,1):
+
+- k = 3 (adjacent to (2,2,1), (3,1,1), (3,2,2))
+
+- Change: 2*3 - 6 = 0
+
+Total change: -2 -2 + 0 = -4
+
+Surface area = 32 - 4 = 28.
+
+But per-cube count says 30. The error must be in the per-cube count.
+
+Let's check cube 9: (3,2,2)
+
+- Bottom face: is it exposed? The cube below it is (3,2,1), which is missing, so yes, exposed.
+
+- Right face: exposed (no cube to the right)
+
+- Back face: exposed (no cube behind)
+
+- Top face: exposed (no cube above)
+
+- Left face: adjacent to (2,2,2) → hidden
+
+- Front face: adjacent to (3,1,2) → hidden
+
+So exposed faces: bottom, right, back, top → 4. Correct.
+
+Cube 6: (2,1,2)
+
+- Left face: exposed (no cube at (1,1,2))
+
+- Front face: exposed
+
+- Top face: exposed
+
+- Right face: adjacent to (3,1,2) → hidden
+
+- Back face: adjacent to (2,2,2) → hidden
+
+- Bottom face: adjacent to (2,1,1) → hidden
+
+So 3 exposed faces. Correct.
+
+Now, let's count the total exposed faces by hand:
+
+List all faces:
+
+Front faces (y=1):
+
+- Cube 1: 1
+
+- Cube 2: 1
+
+- Cube 3: 1
+
+- Cube 6: 1
+
+- Cube 7: 1
+
+Total: 5
+
+Back faces (y=2):
+
+- Cube 4: 1
+
+- Cube 5: 1
+
+- Cube 8: 1
+
+- Cube 9: 1
+
+Total: 4
+
+Left faces (x=1):
+
+- Cube 1: 1
+
+- Cube 4: 1
+
+- Cube 6: 1 (left face is at x=1, but cube 6 is at x=2, so its left face is at x=1.5, which is on the left side of the structure)
+
+- Cube 8: 1 (left face at x=1.5)
+
+Total left faces: 4
+
+Right faces (x=3):
+
+- Cube 3: 1
+
+- Cube 7: 1
+
+- Cube 9: 1
+
+Total: 3
+
+Top faces (z=2):
+
+- Cube 6: 1
+
+- Cube 7: 1
+
+- Cube 8: 1
+
+- Cube 9: 1
+
+Total: 4
+
+Bottom faces (z=1):
+
+- Cube 1: 1
+
+- Cube 2: 1
+
+- Cube 3: 1
+
+- Cube 4: 1
+
+- Cube 5: 1
+
+Total: 5
+
+Now, sum: 5+4+4+3+4+5=25. But this is still not 30.
+
+The problem is that the "left face" for cube 6 is not the same as the left face of the structure. The structure's left side is x=1, but cube 6 is at x=2, so its left face is inside the structure if there was a cube at x=1, but since there isn't, it's exposed. However, when counting the left-facing faces, we should count all faces that point to the left, regardless of their position, so cube 6's left face is indeed a left-facing face, as it's pointing towards negative x.
+
+But why the discrepancy? Let's calculate the surface area using the formula:
+
+Surface area = 2*(number of exposed faces on all sides)
+
+Wait, no. Each face is a unit square, so total surface area is the total number of unit squares on the outside.
+
+Let's draw a net or use another method.
+
+Count the number of squares on each side:
+
+- Front: 5
+
+- Back: 4
+
+- Left: 4
+
+- Right: 3
+
+- Top: 4
+
+- Bottom: 5
+
+Total: 5+4+4+3+4+5=25.
+
+But the per-cube count says 30. Which is correct?
+
+Let's count the faces for each cube again:
+
+Cube 1: 4 (left, front, bottom, top)
+
+Cube 2: 2 (front, bottom)
+
+Cube 3: 4 (front, bottom, right, back)
+
+Cube 4: 4 (left, bottom, back, top)
+
+Cube 5: 3 (bottom, right, back)
+
+Cube 6: 3 (left, front, top)
+
+Cube 7: 3 (front, right, top)
+
+Cube 8: 3 (left, back, top)
+
+Cube 9: 4 (bottom, right, back, top)
+
+Now, let's list all these faces:
+
+1: left, front, bottom, top
+
+2: front, bottom
+
+3: front, bottom, right, back
+
+4: left, bottom, back, top
+
+5: bottom, right, back
+
+6: left, front, top
+
+7: front, right, top
+
+8: left, back, top
+
+9: bottom, right, back, top
+
+Now count each direction:
+
+Left: 1,4,6,8 → 4
+
+Front: 1,2,3,6,7 → 5
+
+Bottom: 1,2,3,4,5,9 → 6 (wait, cube 9 has bottom face exposed, yes)
+
+Ah! Here's the mistake: cube 9's bottom face is exposed, so bottom faces include cube 9.
+
+Cube 1: bottom
+
+Cube 2: bottom
+
+Cube 3: bottom
+
+Cube 4: bottom
+
+Cube 5: bottom
+
+Cube 9: bottom
+
+Total bottom: 6
+
+Top: 1,6,7,8,9 → no, cube 1's top is exposed? No, cube 1 is at z=1, so top is z=2, which is empty, so top face is exposed.
+
+Wait, cube 1's top face: (1,1,1), so z=1, top face is z=1.5, which is above the cube, so exposed.
+
+Cube 6's top face: z=2, top face is z=2.5, exposed.
+
+So:
+
+Top faces:
+
+1: top
+
+6: top
+
+7: top
+
+8: top
+
+9: top
+
+Cube 2,3,4,5,9: cube 9's top is exposed, but cube 9 is at z=2, so yes.
+
+Wait, cube 1 is at z=1, so its top face is exposed (no cube above).
+
+Cube 2 is at z=1, top face is adjacent to cube 6 (z=2), so hidden.
+
+Cube 3 is at z=1, top face adjacent to cube 7 (z=2), hidden.
+
+Cube 4 is at z=1, top face exposed (no cube above), so yes.
+
+Cube 5 is at z=1, top face adjacent to cube 8 (z=2), hidden.
+
+Cube 6 is at z=2, top face exposed.
+
+Cube 7 is at z=2, top face exposed.
+
+Cube 8 is at z=2, top face exposed.
+
+Cube 9 is at z=2, top face exposed.
+
+So top faces:
+
+1,4,6,7,8,9 → 6 faces.
+
+Now let's recount:
+
+Left faces: 1,4,6,8 → 4
+
+Front faces: 1,2,3,6,7 → 5
+
+Bottom faces: 1,2,3,4,5,9 → 6 (cube 9's bottom is exposed, yes)
+
+Right faces: 3,7,9 → 3 (cube 9's right face is exposed, yes)
+
+Back faces: 4,5,8,9 → 4 (cube 9's back face is exposed, yes)
+
+Top faces: 1,4,6,7,8,9 → 6 (cube 1 and 4 have top faces exposed)
+
+Now sum: 4+5+6+3+4+6=28.
+
+Yes! This matches the bounding box method.
+
+Where was the mistake earlier?
+
+Cube 1: top face is exposed (no cube at (1,1,2)), so it's a top face.
+
+Cube 4: top face is exposed (no cube at (1,2,2)), so it's a top face.
+
+So top faces: 1 (top), 4 (top), 6 (top), 7 (top), 8 (top), 9 (top) → 6.
+
+Bottom faces: cubes at z=1 with no cube below, but all are at z=1, so bottom faces are all z=1 cubes' bottom faces. Cube 1,2,3,4,5,9? No, cube 9 is at z=2, so bottom faces are only cubes at z=1: 1,2,3,4,5. Cube 9 is at z=2, so its bottom face is exposed (no cube below).
+
+Yes, cube 9 is at z=2, so its bottom face is exposed.
+
+So bottom faces:
+
+- Cube 1: bottom (exposed)
+
+- Cube 2: bottom (exposed)
+
+- Cube 3: bottom (exposed)
+
+- Cube 4: bottom (exposed)
+
+- Cube 5: bottom (exposed)
+
+- Cube 9: bottom (exposed)
+
+Total bottom faces: 6.
+
+Let's verify each:
+
+Cube 1 bottom: yes (z=1, no cube below)
+
+Cube 2 bottom: yes
+
+Cube 3 bottom: yes
+
+Cube 4 bottom: yes
+
+Cube 5 bottom: yes
+
+Cube 9 bottom: yes (no cube at z=1, x=3, y=2)
+
+So 6 bottom faces.
+
+Top faces:
+
+- Cube 1 top: yes (no cube above)
+
+- Cube 4 top: yes (no cube above)
+
+- Cube 6 top: yes (no cube above)
+
+- Cube 7 top: yes (no cube above)
+
+- Cube 8 top: yes (no cube above)
+
+- Cube 9 top: yes (no cube above)
+
+So 6 top faces.
+
+Now:
+
+Left: 4
+
+Front: 5
+
+Bottom: 6
+
+Right: 3
+
+Back: 4
+
+Top: 6
+
+Total: 4+5+6+3+4+6=28.
+
+This matches the bounding box method.
+
+The earlier per-cube count was wrong because I thought cube 1's top face was exposed, but in the initial count I said it was, which is correct. Let's recount the per-cube count:
+
+Cube 1: left (1), front (1), bottom (1), top (1) → 4 (correct)
+
+Cube 2: front (1), bottom (1) → 2 (correct)
+
+Cube 3: front (1), bottom (1), right (1), back (1) → 4 (correct)
+
+Cube 4: left (1), bottom (1), back (1), top (1) → 4 (correct)
+
+Cube 5: bottom (1), right (1), back (1) → 3 (correct)
+
+Cube 6: left (1), front (1), top (1) → 3 (correct)
+
+Cube 7: front (1), right (1), top (1) → 3 (correct)
+
+Cube 8: left (1), back (1), top (1) → 3 (correct)
+
+Cube 9: bottom (1), right (1), back (1), top (1) → 4 (correct)
+
+Sum: 4+2+4+4+3+3+3+3+4=30. But according to the side counts, it's 28.
+
+The error is in cube 9's bottom face. Is cube 9's bottom face exposed?
+
+Cube 9 is at (3,2,2). The cube below it would be (3,2,1), which is not present. So yes, the bottom face is exposed.
+
+Cube 1's top face is exposed (no cube above), correct.
+
+Cube 4's top face is exposed (no cube above), correct.
+
+Cube 6's top face is exposed, correct.
+
+Cube 7's top face is exposed, correct.
+
+Cube 8's top face is exposed, correct.
+
+Cube 9's top face is exposed, correct.
+
+So top faces: 6.
+
+Bottom faces: cubes at z=1 (1,2,3,4,5) and cube 9 (z=2, bottom face exposed).
+
+Cube 1,2,3,4,5 are at z=1: their bottom faces are exposed.
+
+Cube 9 is at z=2: its bottom face is exposed.
+
+So 5 (z=1) + 1 (z=2) = 6 bottom faces.
+
+Now, let's count the bottom faces:
+
+- Cube 1: bottom face (1)
+
+- Cube 2: bottom face (1)
+
+- Cube 3: bottom face (1)
+
+- Cube 4: bottom face (1)
+
+- Cube 5: bottom face (1)
+
+- Cube 9: bottom face (1)
+
+Total 6. Correct.
+
+Top faces:
+
+- Cube 1: top face (1)
+
+- Cube 4: top face (1)
+
+- Cube 6: top face (1)
+
+- Cube 7: top face (1)
+
+- Cube 8: top face (1)
+
+- Cube 9: top face (1)
+
+Total 6. Correct.
+
+Now, let's count all faces:
+
+Left: 1 (x=1), 4 (x=1), 6 (x=2, left), 8 (x=2, left) → 4
+
+Front: 1,2,3,6,7 → 5
+
+Bottom: 1,2,3,4,5,9 → 6
+
+Right: 3,7,9 → 3
+
+Back: 4,5,8,9 → 4
+
+Top: 1,4,6,7,8,9 → 6
+
+Total: 4+5+6+3+4+6=28.
+
+Now, the per-cube count must have double-counted some faces. Let's list all exposed faces:
+
+Cube 1:
+
+- left, front, bottom, top → 4
+
+Cube 2:
+
+- front, bottom → 2
+
+Cube 3:
+
+- front, bottom, right, back → 4
+
+Cube 4:
+
+- left, bottom, back, top → 4
+
+Cube 5:
+
+- bottom, right, back → 3
+
+Cube 6:
+
+- left, front, top → 3
+
+Cube 7:
+
+- front, right, top → 3
+
+Cube 8:
+
+- left, back, top → 3
+
+Cube 9:
+
+- bottom, right, back, top → 4
+
+Now, let's map these to the side counts:
+
+Left faces:
+
+- Cube 1 left
+
+- Cube 4 left
+
+- Cube 6 left
+
+- Cube 8 left → 4 (matches)
+
+Front faces:
+
+- Cube 1 front
+
+- Cube 2 front
+
+- Cube 3 front
+
+- Cube 6 front
+
+- Cube 7 front → 5 (matches)
+
+Bottom faces:
+
+- Cube 1 bottom
+
+- Cube 2 bottom
+
+- Cube 3 bottom
+
+- Cube 4 bottom
+
+- Cube 5 bottom
+
+- Cube 9 bottom → 6 (matches)
+
+Right faces:
+
+- Cube 3 right
+
+- Cube 7 right
+
+- Cube 9 right → 3 (matches)
+
+Back faces:
+
+- Cube 4 back
+
+- Cube 5 back
+
+- Cube 8 back
+
+- Cube 9 back → 4 (matches)
+
+Top faces:
+
+- Cube 1 top
+
+- Cube 4 top
+
+- Cube 6 top
+
+- Cube 7 top
+
+- Cube 8 top
+
+- Cube 9 top → 6 (matches)
+
+Now, sum the per-cube counts: 4+2+4+4+3+3+3+3+4=30. But according to the side counts, it's 28. There's a discrepancy of 2.
+
+Ah! Cube 1's top face is counted in the top faces, but is it exposed? Cube 1 is at (1,1,1), so its top face is at z=1.5, which is between z=1 and z=2. Since there's no cube at (1,1,2), it's exposed.
+
+Cube 4's top face is at (1,2,1), top face at z=1.5, exposed.
+
+Cube 6's top face is at (2,1,2), top face at z=2.5, exposed.
+
+Cube 7's top face is at (3,1,2), top face at z=2.5, exposed.
+
+Cube 8's top face is at (2,2,2), top face at z=2.5, exposed.
+
+Cube 9's top face is at (3,2,2), top face at z=2.5, exposed.
+
+So top faces: 6.
+
+Bottom faces:
+
+Cube 1 bottom: z=0.5, exposed.
+
+Cube 2 bottom: z=0.5, exposed.
+
+Cube 3 bottom: z=0.5, exposed.
+
+Cube 4 bottom: z=0.5, exposed.
+
+Cube 5 bottom: z=0.5, exposed.
+
+Cube 9 bottom: z=1.5 (between z=1 and z=2), exposed.
+
+Yes, bottom faces: 6.
+
+Now, let's count how many faces are in the per-cube list:
+
+4+2+4+4+3+3+3+3+4=30.
+
+But 4+5+6+3+4+6=28.
+
+The only explanation is that I'm double-counting two faces. Let's list all 30 faces:
+
+Cube 1: L, F, B, T
+
+Cube 2: F, B
+
+Cube 3: F, B, R, A (back)
+
+Cube 4: L, B, A, T
+
+Cube 5: B, R, A
+
+Cube 6: L, F, T
+
+Cube 7: F, R, T
+
+Cube 8: L, A, T
+
+Cube 9: B, R, A, T
+
+Now list all:
+
+L: 1,4,6,8 (4)
+
+F: 1,2,3,6,7 (5)
+
+B: 1,2,3,4,5,9 (6)
+
+R: 3,7,9 (3)
+
+A: 4,5,8,9 (4)
+
+T: 1,4,6,7,8,9 (6)
+
+Wait, cube 1 has B (bottom) → yes, cube 1's bottom face is B.
+
+Cube 2 has B.
+
+Cube 3 has B.
+
+Cube 4 has B.
+
+Cube 5 has B.
+
+Cube 9 has B.
+
+Yes, 6 B faces.
+
+Cube 1 has T (top), cube 4 has T, cube 6,7,8,9 have T → 6 T faces.
+
+So the per-cube count is correct, and the side count is also correct. But how can 4+5+6+3+4+6=28 and 30?
+
+Ah! No, the mistake is in the side count for bottom faces. Cube 9 is at z=2, so its bottom face is not at the bottom of the structure, but it's a face that is part of the surface area. However, in the side count, bottom faces are the faces on the bottom of the structure, which are all faces with z-coordinate at the minimum z of the structure.
+
+The minimum z is 1 (all cubes have z=1 or 2), so the bottom faces are all faces where z=1 for cubes at z=1, and z=2 for cubes at z=2? No, the bottom face of a cube is the face with the lowest z-coordinate of the cube.
+
+For a cube at (x,y,z), its bottom face is at z-0.5, which is the bottom of the cube.
+
+The surface area is the total of all these faces that are not adjacent to another cube.
+
+So for the structure:
+
+- The lowest z-coordinate is 1 (all cubes have z=1 or 2), so the bottommost faces are those of cubes at z=1 (z=1 faces), but also the top faces of cubes at z=1 are adjacent to cubes at z=2 or not.
+
+Wait, no. The bottom face of a cube is exposed if there is no cube directly below it (z-1).
+
+For cube at z=1: bottom face is exposed (since z=0 has no cubes).
+
+For cube at z=2: bottom face is exposed if there is no cube at z=1.
+
+So:
+
+- z=1 cubes: bottom face exposed → 5 cubes → 5 faces.
+
+- z=2 cubes: bottom face exposed if no cube below → cubes at (2,1,2), (3,1,2), (2,2,2), (3,2,2) have cubes below at z=1 (for (2,1,2): (2,1,1) exists; (3,1,2): (3,1,1) exists; (2,2,2): (2,2,1) exists; (3,2,2): (3,2,1) does not exist).
+
+So only cube 9's bottom face is exposed among z=2 cubes.
+
+Thus, bottom faces: 5 (z=1) + 1 (z=2) = 6.
+
+Similarly, top faces:
+
+- z=2 cubes: top face exposed (no cubes above) → 4 cubes.
+
+- z=1 cubes: top face exposed if no cube above → cubes at (1,1,1), (1,2,1) (since (1,1,2) and (1,2,2) are missing).
+
+So z=1 cubes with top face exposed: 2 (cubes 1 and 4).
+
+Thus, top faces: 4 (z=2) + 2 (z=1) = 6.
+
+Yes.
+
+Now, let's list all exposed faces by counting how many are hidden:
+
+Total faces = 9*6=54.
+
+Hidden faces = 2*number of adjacent cube pairs.
+
+Adjacent cube pairs:
+
+- X-direction:
+
+  (1,1,1)-(2,1,1), (2,1,1)-(3,1,1), (2,1,1)-(2,1,2), (2,1,2)-(3,1,2), (1,2,1)-(2,2,1), (2,2,1)-(2,2,2), (2,2,2)-(3,2,2) → 7 pairs? Wait no.
+
+Let's list all adjacent cube pairs:
+
+1. (1,1,1)-(2,1,1) → X
+
+2. (2,1,1)-(3,1,1) → X
+
+3. (1,1,1)-(1,2,1) → Y
+
+4. (2,1,1)-(2,2,1) → Y
+
+5. (3,1,1)-(3,2,1) → but (3,2,1) is missing, so no
+
+6. (2,1,1)-(2,1,2) → Z
+
+7. (3,1,1)-(3,1,2) → Z
+
+8. (2,2,1)-(2,2,2) → Z
+
+9. (3,2,1)-(3,2,2) → (3,2,1) missing, no
+
+10. (1,1,2)-(2,1,2) → (1,1,2) missing, no
+
+11. (1,2,2)-(2,2,2) → (1,2,2) missing, no
+
+12. (2,1,2)-(3,1,2) → X
+
+13. (2,2,2)-(3,2,2) → X
+
+14. (2,1,2)-(2,2,2) → Y
+
+15. (3,1,2)-(3,2,2) → Y
+
+So valid adjacent pairs:
+
+1. X: (1,1,1)-(2,1,1)
+
+2. X: (2,1,1)-(3,1,1)
+
+3. Y: (1,1,1)-(1,2,1)
+
+4. Y: (2,1,1)-(2,2,1)
+
+5. Z: (2,1,1)-(2,1,2)
+
+6. Z: (3,1,1)-(3,1,2)
+
+7. Z: (2,2,1)-(2,2,2)
+
+8. X: (2,1,2)-(3,1,2)
+
+9. X: (2,2,2)-(3,2,2)
+
+10. Y: (2,1,2)-(2,2,2)
+
+11. Y: (3,1,2)-(3,2,2)
+
+Total adjacent pairs: 11.
+
+Hidden faces = 11*2=22.
+
+Surface area = 54 - 22=32? No, 54-22=32, but we know it's less.
+
+No, the correct number of adjacent pairs is the number of shared faces between cubes.
+
+Each shared face is between two cubes, so count each shared face once.
+
+For each cube, count the number of adjacent cubes.
+
+Cube 1: adjacent to 2 cubes (2,4) → 2
+
+Cube 2: adjacent to 4 cubes (1,3,5,6) → 4
+
+Cube 3: adjacent to 2 cubes (2,7) → 2
+
+Cube 4: adjacent to 2 cubes (1,5) → 2
+
+Cube 5: adjacent to 3 cubes (4,2,8) → 3
+
+Cube 6: adjacent to 3 cubes (2,7,8) → 3
+
+Cube 7: adjacent to 3 cubes (3,6,9) → 3
+
+Cube 8: adjacent to 3 cubes (5,6,9) → 3
+
+Cube 9: adjacent to 2 cubes (7,8) → 2
+
+Total adjacent cubes: 2+4+2+2+3+3+3+3+2=22.
+
+Since each adjacency is counted twice (once for each cube), the number of adjacent face pairs is 22/2=11.
+
+Hidden faces = 11*2=22.
+
+Surface area = 54-22=32. But this is for a different structure.
+
+Wait, no. The sum of adjacent cubes per cube is the number of adjacent faces, so total hidden faces = sum(adjacent faces per cube).
+
+Yes, because each hidden face is part of a cube, so sum over all cubes of (number of adjacent faces) = total hidden faces.
+
+Cube 1: 2 adjacent faces → 2 hidden
+
+Cube 2: 4 adjacent faces → 4 hidden
+
+Cube 3: 2 adjacent faces → 2 hidden
+
+Cube 4: 2 adjacent faces → 2 hidden
+
+Cube 5: 3 adjacent faces → 3 hidden
+
+Cube 6: 3 adjacent faces → 3 hidden
+
+Cube 7: 3 adjacent faces → 3 hidden
+
+Cube 8: 3 adjacent faces → 3 hidden
+
+Cube 9: 2 adjacent faces → 2 hidden
+
+Total hidden faces: 2+4+2+2+3+3+3+3+2=22.
+
+Total exposed faces = 54-22=32. But this contradicts everything.
+
+I think the key is to look at the video. The structure in the video is a 3x2x2 cube missing two cubes, but let's count the cubes from the video.
+
+In frame 10, the structure is visible. Let's count the cubes:
+
+- Front layer (y=1): 3 cubes (x=1,2,3; z=1) and 2 cubes (x=2,3; z=2) → 5
+
+- Back layer (y=2): 2 cubes (x=1,2; z=1) and 2 cubes (x=2,3; z=2) → 4
+
+Total 9 cubes.
+
+Now, let's draw the front view (y=1):
+
+- z=1: x=1,2,3 (3 cubes)
+
+- z=2: x=2,3 (2 cubes)
+
+Front view has 5 squares.
+
+Back view (y=2):
+
+- z=1: x=1,2 (2 cubes)
+
+- z=2: x=2,3 (2 cubes)
+
+Back view has 4 squares.
+
+Left view (x=1):
+
+- z=1: y=1,2 (2 cubes)
+
+- z=2: y=1,2 (0 cubes)
+
+Left view has 2 squares.
+
+Right view (x=3):
+
+- z=1: y=1 (1 cube)
+
+- z=2: y=1,2 (2 cubes)
+
+Right view has 3 squares.
+
+Top view (z=2):
+
+- x=1,2,3; y=1,2
+
+- y=1: x=2,3 (2 cubes)
+
+- y=2: x=2,3 (2 cubes)
+
+Top view has 4 squares.
+
+Bottom view (z=1):
+
+- x=1,2,3; y=1,2
+
+- y=1: x=1,2,3 (3 cubes)
+
+- y=2: x=1,2 (2 cubes)
+
+Bottom view has 5 squares.
+
+Now, sum: 5+4+2+3+4+5=23.
+
+But this is incorrect because the left view should include the left faces of all cubes on the left side, which for the back layer (y=2), x=1 has a cube (1,2,1), so left view should have 2 squares from y=1 and y=2.
+
+The correct way is to use the formula for the surface area of a polycube:
+
+Surface area = 6n - 2m, where n is the number of cubes, and m is the number of shared faces.
+
+n=9.
+
+m=number of shared faces.
+
+Shared faces:
+
+- Between (1,1,1) and (2,1,1): 1
+
+- Between (2,1,1) and (3,1,1): 1
+
+- Between (1,1,1) and (1,2,1): 1
+
+- Between (2,1,1) and (2,2,1): 1
+
+- Between (2,1,1) and (2,1,2): 1
+
+- Between (3,1,1) and (3,1,2): 1
+
+- Between (2,2,1) and (2,2,2): 1
+
+- Between (2,1,2) and (3,1,2): 1
+
+- Between (2,2,2) and (3,2,2): 1
+
+- Between (2,1,2) and (2,2,2): 1
+
+- Between (3,1,2) and (3,2,2): 1
+
+Total shared faces: 11.
+
+Surface area = 6*9 - 2*11 = 54 - 22 = 32.
+
+But this can't be right because the structure is not convex.
+
+Wait, no, the formula is correct. Each shared face is counted once, and each shared face means two faces are hidden.
+
+So if there are m shared faces, then hidden faces = 2m.
+
+Surface area = 6n - 2m.
+
+For the bounding box (12 cubes), n=12, m=20 (as calculated earlier).
+
+Surface area=6*12 - 2*20=72-40=32, which matches.
+
+For our structure, n=9, m=11.
+
+Surface area=6*9 - 2*11=54-22=32.
+
+But this contradicts the video.
+
+Wait, let's count m (shared faces) for our structure:
+
+- X-direction:
+
+  - (1,1,1)-(2,1,1)
+
+  - (2,1,1)-(3,1,1)
+
+  - (1,2,1)-(2,2,1)
+
+  - (2,1,2)-(3,1,2)
+
+  - (2,2,2)-(3,2,2)
+
+  → 5
+
+- Y-direction:
+
+  - (1,1,1)-(1,2,1)
+
+  - (2,1,1)-(2,2,1)
+
+  - (2,1,2)-(2,2,2)
+
+  - (3,1,2)-(3,2,2)
+
+  → 4
+
+- Z-direction:
+
+  - (2,1,1)-(2,1,2)
+
+  - (3,1,1)-(3,1,2)
+
+  - (2,2,1)-(2,2,2)
+
+  → 3
+
+Total m=5+4+3=12.
+
+Ah! Here's the mistake. Earlier, we missed one shared face.
+
+In Z-direction:
+
+- (2,1,1)-(2,1,2)
+
+- (3,1,1)-(3,1,2)
+
+- (2,2,1)-(2,2,2)
+
+- (3,2,1)-(3,2,2) → but (3,2,1) is missing, so no
+
+But is there a shared face between (3,2,2) and another cube? No.
+
+Wait, let's list all shared faces:
+
+1. (1,1,1)-(2,1,1) (X)
+
+2. (2,1,1)-(3,1,1) (X)
+
+3. (1,1,1)-(1,2,1) (Y)
+
+4. (2,1,1)-(2,2,1) (Y)
+
+5. (2,1,1)-(2,1,2) (Z)
+
+6. (3,1,1)-(3,1,2) (Z)
+
+7. (2,2,1)-(2,2,2) (Z)
+
+8. (2,1,2)-(3,1,2) (X)
+
+9. (2,2,2)-(3,2,2) (X)
+
+10. (2,1,2)-(2,2,2) (Y)
+
+11. (3,1,2)-(3,2,2) (Y)
+
+12. (1,2,1)-(2,2,1) is already counted as 4.
+
+Wait, no, the 12 shared faces are:
+
+- X: 5
+
+- Y: 4
+
+- Z: 3
+
+Total 12.
+
+Yes, because:
+
+X-direction:
+
+- y=1, z=1: 2 (x=1-2, 2-3)
+
+- y=2, z=1: 1 (x=1-2)
+
+- y=1, z=2: 1 (x=2-3)
+
+- y=2, z=2: 1 (x=2-3)
+
+Total X: 2+1+1+1=5
+
+Y-direction:
+
+- x=1, z=1: 1 (y=1-2)
+
+- x=2, z=1: 1 (y=1-2)
+
+- x=2, z=2: 1 (y=1-2)
+
+- x=3, z=2: 1 (y=1-2)
+
+Total Y: 1+1+1+1=4
+
+Z-direction:
+
+- x=2, y=1: 1 (z=1-2)
+
+- x=3, y=1: 1 (z=1-2)
+
+- x=2, y=2: 1 (z=1-2)
+
+Total Z: 3
+
+Total m=5+4+3=12.
+
+Thus, surface area=6*9 - 2*12=54-24=30.
+
+Ah! Now it matches the per-cube count.
+
+The error in the bounding box method was assuming the missing cubes were removed from a 3x2x2 prism, but the actual structure has 9 cubes with 12 shared faces.
+
+Let's verify the shared faces count:
+
+X-direction shared faces:
+
+- (1,1,1)-(2,1,1): 1
+
+- (2,1,1)-(3,1,1): 1
+
+- (1,2,1)-(2,2,1): 1
+
+- (2,1,2)-(3,1,2): 1
+
+- (2,2,2)-(3,2,2): 1
+
+→ 5
+
+Y-direction shared faces:
+
+- (1,1,1)-(1,2,1): 1
+
+- (2,1,1)-(2,2,1): 1
+
+- (2,1,2)-(2,2,2): 1
+
+- (3,1,2)-(3,2,2): 1
+
+→ 4
+
+Z-direction shared faces:
+
+- (2,1,1)-(2,1,2): 1
+
+- (3,1,1)-(3,1,2): 1
+
+- (2,2,1)-(2,2,2): 1
+
+→ 3
+
+Total: 5+4+3=12.
+
+Yes, 12 shared faces.
+
+Thus, surface area=6*9 - 2*12=54-24=30.
+
+Now, let's go back to the side counts:
+
+Front: 5
+
+Back: 4
+
+Left: 4 (cubes 1,4,6,8)
+
+Right: 3 (cubes 3,7,9)
+
+Top: 6 (cubes 1,4,6,7,8,9)
+
+Bottom: 6 (cubes 1,2,3,4,5,9)
+
+5+4+4+3+6+6=28. No, this still doesn't match.
+
+Wait, no, the top view should have:
+
+- x=1, y=1: (1,1,2) is missing, so not visible.
+
+- x=1, y=2: (1,2,2) is missing, not visible.
+
+- x=2, y=1: (2,1,2) visible.
+
+- x=2, y=2: (2,2,2) visible.
+
+- x=3, y=1: (3,1,2) visible.
+
+- x=3, y=2: (3,2,2) visible.
+
+Top view: 4 squares.
+
+Bottom view:
+
+- x=1, y=1: (1,1,1) visible.
+
+- x=1, y=2: (1,2,1) visible.
+
+- x=2, y=1: (2,1,1) visible.
+
+- x=2, y=2: (2,2,1) visible.
+
+- x=3, y=1: (3,1,1) visible.
+
+- x=3, y=2: (3,2,1) missing.
+
+Bottom view: 5 squares.
+
+Front view: 5 squares.
+
+Back view: 4 squares.
+
+Left view:
+
+- x=1, y=1: (1,1,1) visible.
+
+- x=1, y=2: (1,2,1) visible.
+
+- x=2, y=1: (2,1,1) not visible (has cube to the left), but its left face is visible.
+
+Wait, the left view is the number of squares seen when looking from the left side, which includes all left-facing faces.
+
+The number of left-facing faces is the number of cubes with no cube to their left.
+
+Cubes with x=1: 2 cubes (1,1,1 and 1,2,1) → 2 faces.
+
+Cubes with x=2: cubes at (2,1,2) and (2,2,2) have no cube to their left (x=1), so their left faces are visible → 2 faces.
+
+Total left-facing faces: 2+2=4.
+
+Similarly, right-facing faces:
+
+Cubes with x=3: 3 cubes (3,1,1), (3,1,2), (3,2,2) → 3 faces.
+
+Front-facing faces:
+
+Cubes with y=1: 5 cubes → 5 faces.
+
+Back-facing faces:
+
+Cubes with y=2: 4 cubes → 4 faces.
+
+Top-facing faces:
+
+Cubes with z=2: 4 cubes (2,1,2), (3,1,2), (2,2,2), (3,2,2) → 4 faces.
+
+Bottom-facing faces:
+
+Cubes with z=1: 5 cubes → 5 faces.
+
+But this is the bounding box method, which is wrong for non-convex structures.
+
+The correct way is the shared faces formula.
+
+Since each shared face reduces the surface area by 2, and we have 12 shared faces, surface area=54-24=30.
+
+Let's confirm with a smaller example.
+
+Take a 2x2x2 cube (8 cubes), surface area=24.
+
+Shared faces: 12 (each internal face is shared).
+
+Surface area=6*8 - 2*12=48-24=24. Correct.
+
+Take a 3x1x1 cube (3 cubes), surface area=14.
+
+Shared faces: 2.
+
+Surface area=6*3 - 2*2=18-4=14. Correct.
+
+So the formula works.
+
+For our structure:
+
+n=9, m=12.
+
+Surface area=6*9 - 2*12=54-24=30.
+
+Now, let's see if this makes sense with the video.
+
+The structure has 9 cubes. Each cube has 6 faces, so 54 faces.
+
+Shared faces:
+
+- Between front and back layer (y-direction): 4 shared faces (as counted).
+
+- Between left and right (x-direction): 5 shared faces.
+
+- Between bottom and top (z-direction): 3 shared faces.
+
+Total shared faces: 4+5+3=12.
+
+Each shared face hides 2 faces (one from each cube), so total hidden faces=24.
+
+54-24=30.
+
+This must be correct.
+
+The earlier mistake in the side count was assuming the bounding box method, but for non-convex structures, the bounding box method doesn't apply directly. The shared faces method is the correct approach.
+
+Thus, the surface area is 30.
+</think>
+
+To determine the **surface area** of the 3D structure composed of small unit cubes (each with side length 1), we follow a systematic approach based on the **shared face method**, which is a standard technique for calculating surface area in polycube structures.
+
+---
+
+### ✅ Step 1: Count the Number of Cubes
+
+From analyzing the visual structure (as shown in the video), we count the total number of unit cubes. By examining the structure from multiple angles and identifying all visible and hidden cubes, we find that:
+
+- The structure consists of **9 unit cubes**.
+
+---
+
+### ✅ Step 2: Calculate Total Face Area Without Any Adjacency
+
+Each cube has **6 faces**, so the total number of faces across all 9 cubes is:
+
+$$
+9 \times 6 = 54 \text{ faces}
+$$
+
+---
+
+### ✅ Step 3: Identify Shared Faces Between Cubes
+
+Each time two cubes share a face (i.e., they are adjacent), that face is **not exposed** and should be subtracted from the total surface area. Since each shared face hides **2** unit faces (one from each cube), we need to count how many **shared faces** exist between adjacent cubes.
+
+We analyze adjacency in three directions:
+
+- **X-direction (left-right)**:  
+  - (1,1,1)-(2,1,1)  
+  - (2,1,1)-(3,1,1)  
+  - (1,2,1)-(2,2,1)  
+  - (2,1,2)-(3,1,2)  
+  - (2,2,2)-(3,2,2)  
+  → **5 shared faces**
+
+- **Y-direction (front-back)**:  
+  - (1,1,1)-(1,2,1)  
+  - (2,1,1)-(2,2,1)  
+  - (2,1,2)-(2,2,2)  
+  - (3,1,2)-(3,2,2)  
+  → **4 shared faces**
+
+- **Z-direction (top-bottom)**:  
+  - (2,1,1)-(2,1,2)  
+  - (3,1,1)-(3,1,2)  
+  - (2,2,1)-(2,2,2)  
+  → **3 shared faces**
+
+**Total shared faces = 5 + 4 + 3 = 12**
+
+---
+
+### ✅ Step 4: Compute the Surface Area
+
+Each shared face hides **2** unit faces (one from each cube). Therefore, the total number of **hidden faces** is:
+
+$$
+12 \times 2 = 24
+$$
+
+Subtracting these hidden faces from the total face count gives the **exposed surface area**:
+
+$$
+\text{Surface Area} = 54 - 24 = \boxed{30}
+$$
+
+---
+
+### ✅ Final Answer
+
+$$
+\boxed{30}
+$$

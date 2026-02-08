@@ -1,0 +1,668 @@
+Okay, let's see. The problem is to list the duration of each shape from the beginning, starting from the start of drawing. The answer needs to be to one decimal point and comma-separated, in the order the shapes appeared.
+
+First, I need to figure out when each shape appears and how long it stays on screen. Let's go through the video frames step by step.
+
+The video starts with a black screen. At [0.0 seconds], it's black. Then at [1.2 seconds], a small white shape appears. Wait, the first frame is [0.0], then [1.2] shows a tiny white shape. Wait, no, the timestamps are given as [0.0], [1.2], [2.2], etc. Wait, looking at the video description:
+
+[0.0] is black.
+
+[1.2] shows a small white shape (maybe a triangle?).
+
+[2.2] the white shape is larger, maybe a triangle or arrow.
+
+[3.2] a yellow pentagon appears next to the white shape.
+
+[4.2] a purple rectangle appears.
+
+[5.2] a red triangle appears.
+
+[6.2] a brown circle appears.
+
+[7.2] a green triangle appears.
+
+[8.2] the frame is black again? Wait, no. Wait the video description lists each frame with the time. Let me check again.
+
+The video description says:
+
+[0.0] black
+
+[1.2] small white shape (maybe a triangle)
+
+[2.2] white shape (maybe a triangle) is bigger
+
+[3.2] yellow pentagon appears
+
+[4.2] purple rectangle appears
+
+[5.2] red triangle appears
+
+[6.2] brown circle appears
+
+[7.2] green triangle appears
+
+[8.2] black screen
+
+Wait, but the problem says "list the duration of each of the shapes from the beginning (from the start of drawing)."
+
+So the first shape appears at 0.0s? Wait no. Wait, the first frame is [0.0], which is black. Then [1.2] has a small white shape. So the white shape starts at 1.2s?
+
+Wait, no. Let me parse the video description again.
+
+The video is described as:
+
+[0.0] black
+
+[1.2] small white shape
+
+[2.2] white shape (maybe a triangle) is larger
+
+Wait, actually, looking at the user's description:
+
+The timestamps are in the format [time seconds], and each frame shows the state. So:
+
+At 0.0s: black.
+
+1.2s: a small white shape (maybe a triangle) appears.
+
+2.2s: the white shape becomes larger (maybe a triangle), but maybe it's a different shape.
+
+Wait, the user's description lists the video as:
+
+[0.0] black
+
+[1.2] small white shape
+
+[2.2] white shape (probably a triangle or arrow)
+
+[3.2] yellow pentagon appears
+
+[4.2] purple rectangle
+
+[5.2] red triangle
+
+[6.2] brown circle
+
+[7.2] green triangle
+
+[8.2] black again? Wait, the user's description stops at [9.2] maybe. Wait, the user provided:
+
+<0.2 seconds> [0.0] black
+
+<1.2 seconds> [1.2] a small white shape
+
+<2.2 seconds> [2.2] a larger white shape (triangle or arrow)
+
+<3.2 seconds> [3.2] yellow pentagon
+
+<4.2 seconds> [4.2] purple rectangle
+
+<5.2 seconds> [5.2] red triangle
+
+<6.2 seconds> [6.2] brown circle
+
+<7.2 seconds> [7.2] green triangle
+
+<8.2 seconds> [8.2] black screen
+
+Wait, but the problem says "duration of each of the shapes from the beginning". So each shape's duration is the time it appears on screen.
+
+Wait, but the user's instruction says: "List the duration of each of the shapes from the beginning (from the start of drawing)."
+
+So duration of each shape is how long each shape was visible. But we need to see when each shape first appears and when it disappears.
+
+Wait, but how do we know when they disappear? The video description lists the state at each second. So for example, the first shape (the white triangle) appears at 1.2s. When does it disappear?
+
+Looking at the video timeline:
+
+At 0.0s: black.
+
+At 1.2s: small white shape.
+
+At 2.2s: white shape (maybe the same shape but larger).
+
+At 3.2s: yellow pentagon appears.
+
+So the white shape was present from 1.2s to 3.2s? Or until 2.2s? Wait, no. Let's think.
+
+At 1.2s, a small white shape appears.
+
+At 2.2s, the white shape is larger. So it's still there.
+
+At 3.2s, the yellow pentagon appears. So the white shape was there from 1.2s to 3.2s? Or does it disappear at 3.2s?
+
+Wait, the description says:
+
+[1.2] small white shape
+
+[2.2] white shape (maybe a triangle)
+
+[3.2] yellow pentagon appears
+
+So the white shape is present at 1.2, 2.2, and maybe 3.2? Wait, no. If at 3.2s, the yellow pentagon appears, perhaps the white shape was still there until 3.2s? Or does the yellow pentagon start at 3.2s, replacing the white shape?
+
+Hmm, this is a bit unclear. But given that the problem is to list the duration of each shape from the beginning, it's likely that each shape appears for a certain period until the next shape comes in.
+
+Alternatively, maybe each shape appears and stays for a certain time before the next one comes. Let's look at the sequence.
+
+Let's list the shapes in order as they appear:
+
+1. At 1.2s: small white shape. When does it stop being visible?
+
+Assuming that the white shape is present from 1.2s up to the next shape's appearance. Wait, but at 2.2s, the white shape is still present (it's larger), so it's there. Then at 3.2s, the yellow pentagon appears. So maybe the white shape is present until 3.2s, so duration of the white shape is 3.2 - 1.2 = 2.0 seconds.
+
+But wait, the first frame is 0.0s, then the white shape appears at 1.2s. Wait, the problem says "from the start of drawing", so maybe the first shape starts at 0.0s. But no, the video starts with black, then at 1.2s the white shape appears.
+
+Wait, the problem states: "duration of each of the shapes from the beginning (from the start of drawing)".
+
+So each shape's duration is the time from when it first appears until it's no longer present. Let's try to determine each shape's start and end time.
+
+Let's list the sequence with the shapes:
+
+- First shape: White triangle. It appears at 1.2s. When does it disappear? Let's see:
+
+At 1.2s: small white shape.
+
+2.2s: white shape (maybe same shape, larger).
+
+3.2s: yellow pentagon appears. So perhaps the white shape is still present at 3.2s? Or does the yellow pentagon appear, so the white shape disappears at 3.2s?
+
+This is the key. If the yellow pentagon appears at 3.2s, that means the white shape was there until 3.2s, so duration is 3.2 - 1.2 = 2.0s.
+
+Then the yellow pentagon appears at 3.2s. Next frame is 4.2s: purple rectangle. So yellow pentagon's duration is from 3.2 to 4.2, which is 1.0s.
+
+Then purple rectangle appears at 4.2s, next is red triangle at 5.2s. So purple rectangle duration is 5.2 - 4.2 = 1.0s.
+
+Red triangle at 5.2s, next is brown circle at 6.2s. So red triangle duration 6.2 - 5.2 = 1.0s.
+
+Brown circle at 6.2s, next is green triangle at 7.2s. Duration 7.2 - 6.2 = 1.0s.
+
+Green triangle at 7.2s, and then next is 8.2s: black. So green triangle duration is 8.2 - 7.2 = 1.0s.
+
+But wait, but in the video description, the first shape is white at 1.2s. Wait, but the problem says "duration of each of the shapes from the beginning". So does the white shape start at 0.0s? But at 0.0s it's black. So the first shape starts at 1.2s.
+
+Wait, but the problem says "from the start of drawing", which would be 0.0s. So each shape's duration is from when it appears until it's no longer on screen.
+
+Wait, but how long does each shape stay? Let's list all the shapes with their start and end times.
+
+Assuming that each shape appears at the given timestamp and stays until the next shape appears.
+
+Let's go step by step:
+
+1. First shape: White shape (triangle). Appears at 1.2s. Next shape appears at 3.2s (yellow pentagon). So duration: 3.2 - 1.2 = 2.0s.
+
+2. Yellow pentagon: Appears at 3.2s. Next shape at 4.2s (purple rectangle). Duration: 4.2 - 3.2 = 1.0s.
+
+3. Purple rectangle: Appears at 4.2s. Next at 5.2s (red triangle). Duration: 5.2 - 4.2 = 1.0s.
+
+4. Red triangle: Appears at 5.2s. Next at 6.2s (brown circle). Duration: 6.2 - 5.2 = 1.0s.
+
+5. Brown circle: Appears at 6.2s. Next at 7.2s (green triangle). Duration: 7.2 - 6.2 = 1.0s.
+
+6. Green triangle: Appears at 7.2s. Next at 8.2s (black). So it's present until 8.2s. Duration: 8.2 - 7.2 = 1.0s.
+
+Wait, but looking back at the video description:
+
+At [0.0] black.
+
+[1.2] small white shape.
+
+[2.2] white shape (maybe the same, but larger).
+
+[3.2] yellow pentagon.
+
+So the white shape was there from 1.2s to 3.2s? But at 2.2s, the white shape is still there (maybe it's a different state, but same shape). So it's present from 1.2s to 3.2s. So duration 2.0s.
+
+Then yellow pentagon is present from 3.2s to 4.2s (since next shape is purple at 4.2s), duration 1.0s.
+
+Similarly for others.
+
+Wait, but let's check the actual video frames:
+
+The user's description lists:
+
+[0.0] black
+
+[1.2] white shape
+
+[2.2] white shape (larger)
+
+[3.2] yellow pentagon
+
+[4.2] purple rectangle
+
+[5.2] red triangle
+
+[6.2] brown circle
+
+[7.2] green triangle
+
+[8.2] black
+
+So the white shape appears at 1.2s, is present at 1.2, 2.2, then at 3.2s the yellow pentagon appears. So the white shape is present until 3.2s, so duration is 3.2 - 1.2 = 2.0s.
+
+Yellow pentagon from 3.2 to 4.2: 1.0s.
+
+Purple rectangle: 4.2 to 5.2: 1.0s.
+
+Red triangle: 5.2 to 6.2: 1.0s.
+
+Brown circle: 6.2 to 7.2: 1.0s.
+
+Green triangle: 7.2 to 8.2: 1.0s.
+
+Wait, but the problem says "List the duration of each of the shapes from the beginning (from the start of drawing)."
+
+So each duration is the time each shape exists, starting from the beginning (0.0s) when it appears.
+
+Wait, but the first shape appears at 1.2s, so its duration is from 1.2s to 3.2s: 2.0s.
+
+The next is yellow pentagon at 3.2s, duration 1.0s.
+
+Then purple rectangle, etc.
+
+So the order of shapes is:
+
+1. White (triangle) - duration 2.0s
+
+2. Yellow pentagon - 1.0s
+
+3. Purple rectangle - 1.0s
+
+4. Red triangle - 1.0s
+
+5. Brown circle - 1.0s
+
+6. Green triangle - 1.0s
+
+Wait, but wait, the problem says "List the duration of each of the shapes from the beginning (from the start of drawing)."
+
+So the durations should be calculated as the time each shape is present, but since the start is the beginning of the video (0.0s), but the first shape appears at 1.2s.
+
+Wait, the problem says "from the beginning", so maybe for each shape, start from 0.0s, but that doesn't make sense. Wait, the instruction says: "duration of each of the shapes from the beginning (from the start of drawing)".
+
+Wait, the duration of each shape is how long each shape was on screen, starting from when it first appears.
+
+So for the first shape (white), it starts at 1.2s and ends at 3.2s: duration is 2.0s.
+
+Second shape (yellow) starts at 3.2s, ends at 4.2s: 1.0s.
+
+Third (purple): 4.2 to 5.2: 1.0s.
+
+Fourth (red): 5.2 to 6.2: 1.0s.
+
+Fifth (brown): 6.2 to 7.2: 1.0s.
+
+Sixth (green): 7.2 to 8.2: 1.0s.
+
+But wait, the problem says "List the duration of each of the shapes from the beginning (from the start of drawing)".
+
+Wait, perhaps the duration is from the beginning of the video (0.0s) to when the shape disappears.
+
+Wait, no. If a shape appears at 1.2s and disappears at 3.2s, then its duration from the start of drawing is 3.2 - 0.0 = 3.2s? But that doesn't make sense. No, because the shape wasn't there at the beginning. The duration of the shape is how long it exists. So the duration is the time it is present, so 3.2 - 1.2 = 2.0s.
+
+The problem says "from the beginning (from the start of drawing)" which probably means that the duration of each shape is the time from when it first appears until it's no longer visible.
+
+Yes, that makes sense.
+
+So the durations are:
+
+White shape: 3.2 - 1.2 = 2.0 seconds.
+
+Yellow pentagon: 4.2 - 3.2 = 1.0 second.
+
+Purple rectangle: 5.2 - 4.2 = 1.0 second.
+
+Red triangle: 6.2 - 5.2 = 1.0 second.
+
+Brown circle: 7.2 - 6.2 = 1.0 second.
+
+Green triangle: 8.2 - 7.2 = 1.0 second.
+
+Wait, but the video ends at 8.2s (black screen), so green triangle ends at 8.2s.
+
+So the durations would be 2.0, 1.0, 1.0, 1.0, 1.0, 1.0.
+
+But the question says "List the duration of each of the shapes from the beginning (from the start of drawing)."
+
+Wait, the user's video description has the timestamps as:
+
+[0.0] black
+
+[1.2] small white
+
+[2.2] white
+
+[3.2] yellow
+
+[4.2] purple
+
+[5.2] red
+
+[6.2] brown
+
+[7.2] green
+
+[8.2] black
+
+So each shape appears at the timestamp indicated. So the first shape (white) is present from 1.2s to 3.2s (since next shape appears at 3.2s), so duration 2.0s.
+
+Then yellow is 3.2s to 4.2s: 1.0s.
+
+Purple 4.2 to 5.2: 1.0s.
+
+Red 5.2 to 6.2: 1.0s.
+
+Brown 6.2 to 7.2: 1.0s.
+
+Green 7.2 to 8.2: 1.0s.
+
+So the durations are [2.0, 1.0, 1.0, 1.0, 1.0, 1.0].
+
+But wait, the problem says "List the duration of each of the shapes from the beginning (from the start of drawing)."
+
+Wait, maybe the duration is from 0.0s. For example, white shape is present from 1.2s to 3.2s, so duration from start is 3.2 - 0.0 = 3.2s? But that doesn't make sense because it's not present at the start.
+
+Wait, the problem statement says: "List the duration of each of the shapes from the beginning (from the start of drawing)."
+
+This is ambiguous, but in common usage, when they say "duration from the beginning" for a shape that appears at time t, it's the time the shape is present, so (end time - start time).
+
+Given the example in the video: "e.g., 3.2s, 1.5s, 1.0s". So the durations are 3.2, 1.5, 1.0.
+
+So if the first shape appears at 1.2s and stays until 3.2s, then duration is 2.0s.
+
+Wait, the example is 3.2s, which would mean the shape is present from 0.0 to 3.2s. But the first shape appears at 1.2s. So the example might not be referring to the duration from start, but the time elapsed since the start.
+
+Wait, the problem says: "List the duration of each of the shapes from the beginning (from the start of drawing)."
+
+So for each shape, the duration is the time it's present, measured from when it appears until when it disappears, but how does that relate to the start of drawing?
+
+Wait, the user's instruction says:
+
+"List the duration of each of the shapes from the beginning (from the start of drawing)."
+
+"Answer to 1 decimal point and list them with comma separated values: e.g., 3.2s, 1.5s, 1.0s"
+
+Ah, so the example shows the durations as 3.2s, 1.5s, 1.0s.
+
+So for the first shape, if it appears at 1.2s and stays until 3.2s, then the duration is 3.2 - 1.2 = 2.0s.
+
+But the example has 3.2s as the first value. Hmm. Wait, maybe the duration is the time elapsed since the start of the drawing (0.0s) when the shape is present.
+
+For example, the first shape appears at 1.2s and disappears at 3.2s. So its duration would be 3.2s (the time from start to when it disappears). But that doesn't seem right.
+
+Alternatively, the duration could be the time it's on screen. So from 1.2s to 3.2s, that's 2.0s.
+
+The example given is "e.g., 3.2s, 1.5s, 1.0s". So the first value is 3.2s. If the first shape appears at 0.0s, then duration would be 3.2s, but in our case, the first shape appears at 1.2s.
+
+Wait, maybe the problem is that each shape's duration is the time from the start of drawing to when it is first shown.
+
+No, the question says "duration of each of the shapes from the beginning (from the start of drawing)".
+
+Wait, perhaps the duration is how long the shape is present on screen. So each shape appears and stays for a certain time before being replaced.
+
+Given the timestamps:
+
+- White shape: appears at 1.2s, next shape appears at 3.2s ⇒ duration is 3.2 - 1.2 = 2.0s.
+
+- Yellow pentagon: appears at 3.2s, next at 4.2s ⇒ 1.0s.
+
+- Purple rectangle: 4.2 to 5.2 ⇒ 1.0s.
+
+- Red triangle: 5.2 to 6.2 ⇒ 1.0s.
+
+- Brown circle: 6.2 to 7.2 ⇒ 1.0s.
+
+- Green triangle: 7.2 to 8.2 ⇒ 1.0s.
+
+Thus, durations are 2.0, 1.0, 1.0, 1.0, 1.0, 1.0.
+
+But the example shows "3.2s, 1.5s, 1.0s". So the example has durations like 3.2, 1.5, 1.0. Which would correspond to a shape present from 0.0 to 3.2s, another from 1.5 to 3.0s? No, that's not matching.
+
+Wait, perhaps the problem is that each shape's duration is the time from when it first appears until the next shape appears. Which is what I calculated earlier. So the first shape's duration is 2.0s (from 1.2 to 3.2), then others are 1.0s.
+
+But the example given is "3.2s, 1.5s, 1.0s", which would imply that the first shape is present for 3.2 seconds (so from 0.0 to 3.2s), the second for 1.5s (from 3.2 to 4.7s), etc.
+
+But in our case, the first shape appears at 1.2s, so its duration can't be 3.2s unless it starts at 0.0s.
+
+This is confusing. Maybe the problem is that the video starts at 0.0s with the first shape.
+
+Wait, looking back at the video description:
+
+<0.2 seconds> [0.0] black
+
+<1.2 seconds> [1.2] small white shape.
+
+Wait, the video starts at 0.0s as black, then the first shape appears at 1.2s.
+
+But the problem says "duration of each of the shapes from the beginning (from the start of drawing)".
+
+If the first shape appears at 1.2s, then the duration of that shape is the time it is on screen.
+
+Assuming that each subsequent shape replaces the previous one, so each shape is present for the time between its appearance and the next shape.
+
+So:
+
+- Shape 1: white triangle → from 1.2s to 3.2s → duration 2.0s.
+
+- Shape 2: yellow pentagon → 3.2s to 4.2s → 1.0s.
+
+- Shape 3: purple rectangle → 4.2s to 5.2s → 1.0s.
+
+- Shape 4: red triangle → 5.2s to 6.2s → 1.0s.
+
+- Shape 5: brown circle → 6.2s to 7.2s → 1.0s.
+
+- Shape 6: green triangle → 7.2s to 8.2s → 1.0s.
+
+Thus, the durations are 2.0, 1.0, 1.0, 1.0, 1.0, 1.0.
+
+But the example given in the problem statement is "e.g., 3.2s, 1.5s, 1.0s". So the first value is 3.2s, which might be the duration of the first shape. In our case, if the first shape is present for 2.0s, then the first duration is 2.0s.
+
+But the user's example shows 3.2s as the first duration, which would imply the shape is present for 3.2s. However, in our case, the first shape appears at 1.2s and lasts until 3.2s, so duration is 2.0s.
+
+Wait, perhaps the problem is that the duration is the time from the start of drawing to when the shape disappears.
+
+For example, first shape appears at 1.2s, disappears at 3.2s. So duration is 3.2s (from 0.0 to 3.2s), but it's only present from 1.2s to 3.2s. But the problem says "duration of each of the shapes from the beginning", which might be the time they're on screen.
+
+I think the intended interpretation is that each duration is how long the shape is visible, from when it appears until it's replaced.
+
+So given the timestamps:
+
+- White (1.2 to 3.2): 2.0s
+
+- Yellow (3.2 to 4.2): 1.0s
+
+- Purple (4.2 to 5.2): 1.0s
+
+- Red (5.2 to 6.2): 1.0s
+
+- Brown (6.2 to 7.2): 1.0s
+
+- Green (7.2 to 8.2): 1.0s
+
+So the durations in order are 2.0, 1.0, 1.0, 1.0, 1.0, 1.0.
+
+But the problem says "Answer to 1 decimal point and list them with comma separated values: e.g., 3.2s, 1.5s, 1.0s"
+
+The example has three values. In our case, there are six shapes. So the answer would be six numbers separated by commas.
+
+Wait, but the user's question mentions "List the duration of each of the shapes from the beginning (from the start of drawing)."
+
+Let's check how many shapes there are.
+
+From the video:
+
+1. White shape (triangle) at 1.2s
+
+2. Yellow pentagon at 3.2s
+
+3. Purple rectangle at 4.2s
+
+4. Red triangle at 5.2s
+
+5. Brown circle at 6.2s
+
+6. Green triangle at 7.2s
+
+So six shapes.
+
+So the durations are 2.0, 1.0, 1.0, 1.0, 1.0, 1.0.
+
+But the problem states to list them "in the order the shapes appeared".
+
+Yes, so the first shape's duration is 2.0s, then yellow is 1.0s, etc.
+
+But the example in the problem statement says "e.g., 3.2s, 1.5s, 1.0s", which has three values. But the video in question has six shapes, so the answer should have six values.
+
+Wait, let me check again the video description.
+
+The video description:
+
+[0.0] black
+
+[1.2] white shape
+
+[2.2] white shape (larger)
+
+[3.2] yellow pentagon
+
+[4.2] purple rectangle
+
+[5.2] red triangle
+
+[6.2] brown circle
+
+[7.2] green triangle
+
+[8.2] black
+
+So from the start:
+
+- White shape is present at 1.2s and 2.2s (two frames), then yellow at 3.2s.
+
+Wait, does the white shape disappear at 3.2s, meaning it's present until 3.2s? If the video shows that at 3.2s the yellow pentagon appears, which could imply that the white shape was there until 3.2s.
+
+So duration of white shape: 3.2 - 1.2 = 2.0s.
+
+Yellow pentagon: 4.2 - 3.2 = 1.0s.
+
+Purple rectangle: 5.2 - 4.2 = 1.0s.
+
+Red triangle: 6.2 - 5.2 = 1.0s.
+
+Brown circle: 7.2 - 6.2 = 1.0s.
+
+Green triangle: 8.2 - 7.2 = 1.0s.
+
+So the durations are [2.0, 1.0, 1.0, 1.0, 1.0, 1.0].
+
+To one decimal place, all are already at one decimal.
+
+So the answer should be 2.0,1.0,1.0,1.0,1.0,1.0.
+
+But the problem says "List the durations in the order the shapes appeared."
+
+Yes.
+
+Wait, but let's confirm each duration.
+
+First shape (white):
+
+Starts at 1.2s.
+
+Ends at 3.2s.
+
+Duration: 3.2 - 1.2 = 2.0s.
+
+Second (yellow):
+
+Starts at 3.2s.
+
+Ends at 4.2s.
+
+Duration: 4.2 - 3.2 = 1.0s.
+
+Third (purple):
+
+4.2 to 5.2: 1.0s.
+
+Fourth (red):
+
+5.2 to 6.2: 1.0s.
+
+Fifth (brown):
+
+6.2 to 7.2: 1.0s.
+
+Sixth (green):
+
+7.2 to 8.2: 1.0s.
+
+Yes, that's six shapes.
+
+So the answer is 2.0,1.0,1.0,1.0,1.0,1.0.
+
+But the example in the problem statement shows three values, so maybe the problem expects rounding to one decimal, but here all are integers. So 2.0, 1.0, etc.
+
+Thus, the final answer is 2.0,1.0,1.0,1.0,1.0,1.0.
+</think>
+
+To solve this problem, we need to determine the **duration of each shape** from the **start of drawing**, which is the moment when the video begins (at 0.0 seconds). Each shape appears at specific timestamps and remains visible until the next shape appears.
+
+---
+
+### Step-by-Step Analysis
+
+Let’s examine the sequence of shapes based on the provided timestamps:
+
+| Timestamp | Shape Description         |
+|-----------|---------------------------|
+| 0.0       | Black screen (no shape)   |
+| 1.2       | Small white shape appears |
+| 2.2       | White shape becomes larger |
+| 3.2       | Yellow pentagon appears   |
+| 4.2       | Purple rectangle appears  |
+| 5.2       | Red triangle appears      |
+| 6.2       | Brown circle appears      |
+| 7.2       | Green triangle appears    |
+| 8.2       | Black screen (no shape)   |
+
+---
+
+### Determining Shape Durations
+
+We calculate the duration of each shape as the time it is **visible on screen**, i.e., from when it **first appears** to when it **disappears** (i.e., when the next shape appears):
+
+1. **White shape**  
+   - Appears at **1.2s**, disappears at **3.2s**  
+   - Duration = $ 3.2 - 1.2 = 2.0 $ s
+
+2. **Yellow pentagon**  
+   - Appears at **3.2s**, disappears at **4.2s**  
+   - Duration = $ 4.2 - 3.2 = 1.0 $ s
+
+3. **Purple rectangle**  
+   - Appears at **4.2s**, disappears at **5.2s**  
+   - Duration = $ 5.2 - 4.2 = 1.0 $ s
+
+4. **Red triangle**  
+   - Appears at **5.2s**, disappears at **6.2s**  
+   - Duration = $ 6.2 - 5.2 = 1.0 $ s
+
+5. **Brown circle**  
+   - Appears at **6.2s**, disappears at **7.2s**  
+   - Duration = $ 7.2 - 6.2 = 1.0 $ s
+
+6. **Green triangle**  
+   - Appears at **7.2s**, disappears at **8.2s**  
+   - Duration = $ 8.2 - 7.2 = 1.0 $ s
+
+---
+
+### Final Answer Format
+
+The problem asks for the durations **in the order the shapes appeared**, listed with **one decimal point** and **comma-separated**.
+
+$$
+\boxed{2.0,1.0,1.0,1.0,1.0,1.0}
+$$

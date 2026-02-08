@@ -1,0 +1,452 @@
+We are given a 3D structure made of small colored cubes, and we are asked to find **how many cubes have exactly 1 face exposed**.
+
+---
+
+### Step 1: Understand the problem
+
+A cube in the structure has **exactly 1 face exposed** if **five of its six faces are adjacent to other cubes (or the structure’s interior)**, and **only one face is on the outside**.
+
+This typically happens for cubes that are **completely surrounded on five sides** — for example, in the middle of a face of the entire structure, but not on an edge or corner.
+
+In other words, such cubes are **not on the edges or corners** of the structure — they lie in the **interior of a face** of the overall shape.
+
+---
+
+### Step 2: Analyze the structure
+
+The structure rotates, so we can observe it from multiple angles. Let’s try to deduce its shape.
+
+From the frames (4–10), we see:
+
+- It’s made of small cubes arranged in a 3D shape.
+- It appears to be **not a full cube** — it’s irregular.
+- From frame 10, it looks like a **3x3x3 cube with some cubes missing** — specifically, it looks like the center cube is missing from the front face, and maybe some others.
+
+But let’s count the cubes more carefully.
+
+---
+
+### Step 3: Count total cubes
+
+We can count the cubes by observing the structure from multiple angles.
+
+From frame 10, the structure looks like:
+
+- **Front face**: 3x3 = 9 cubes, but the center cube is missing → 8 cubes
+- **Back face**: We can see from rotation that the back face is also 3x3, but possibly with some cubes missing.
+
+Wait — actually, looking at the rotation, it’s not a full 3x3x3.
+
+Let’s try to count **layer by layer**.
+
+Assume the structure is 3 layers deep (front, middle, back).
+
+From the front view (frame 10):
+
+- Front layer: 3 rows, 3 columns → 9 cubes, but the center is missing → 8 cubes
+
+From side views (frames 7–9), we can see:
+
+- The structure is **not solid** — there are gaps.
+
+Actually, let’s count **all visible cubes** carefully.
+
+Alternatively, since the video is short and the structure rotates, we can assume it’s a **standard 3x3x3 cube with the center cube removed from the front face** — but that’s not enough.
+
+Wait — looking at frame 6 and 7, it looks like the structure is **missing several cubes**.
+
+Let me try to reconstruct it.
+
+From frame 10 (front view):
+
+- Top row: 3 cubes (left, center, right)
+- Middle row: left and right only (center missing)
+- Bottom row: 3 cubes
+
+→ So front face: 3 + 2 + 3 = 8 cubes
+
+From frame 7 (side view — let’s say left side):
+
+- We see 3 columns (front, middle, back) and 3 rows.
+
+In the front column: 3 cubes (top, middle, bottom)
+
+In the middle column: top and bottom only (middle missing)
+
+In the back column: 3 cubes
+
+→ So side view: 3 + 2 + 3 = 8 cubes
+
+But this is the same as front — so perhaps the structure is symmetric?
+
+From frame 9 (top view):
+
+- We see 3x3 grid, but center cube missing → 8 cubes
+
+Wait — so if front, side, and top all show 8 cubes, that suggests the structure is **a 3x3x3 cube with the center cube missing from each face?** No — that doesn’t make sense.
+
+Actually, if front, side, and top all show 8 cubes, it suggests the structure is **a 3x3x3 cube with only the center cube missing from the entire cube?**
+
+But in a 3x3x3 cube, removing the very center cube (the one at position (2,2,2) if 1-indexed) would leave 26 cubes.
+
+But from the views, we only see 8 cubes per face — which is inconsistent.
+
+Wait — perhaps the structure is **not 3x3x3**.
+
+Let me count total cubes from the animation.
+
+Looking at frame 10, front view: 8 cubes.
+
+From frame 9 (top view): 8 cubes.
+
+From frame 7 (side view): 8 cubes.
+
+But these are projections — they don’t give total cubes.
+
+Let’s try to count the actual cubes by observing the 3D structure.
+
+From frame 10, front face: 8 cubes.
+
+From frame 8, we see the structure from a 45-degree angle — we can see:
+
+- Front face: 8 cubes (as before)
+- Top face: 8 cubes (but some are shared)
+- Right face: 8 cubes? Not sure.
+
+Actually, perhaps it’s easier to **count all visible cubes and infer hidden ones**.
+
+Alternatively, since the structure rotates, we can **count the cubes directly**.
+
+From frame 4 to 10, we can see:
+
+- The structure is made of small cubes, each colored differently (red, yellow, green, blue).
+
+Let me count them manually.
+
+In frame 10 (front view):
+
+- Top row: 3 cubes (left: red, center: blue, right: yellow)
+- Middle row: left: green, center: missing, right: red
+- Bottom row: left: yellow, center: green, right: red
+
+→ 8 cubes
+
+In frame 9 (top view):
+
+- We see the top face: 3x3 = 9 positions
+- Center is missing → 8 cubes
+
+In frame 7 (left side view):
+
+- We see 3 rows and 3 columns
+- Front column: 3 cubes (top: red, middle: green, bottom: yellow)
+- Middle column: top: blue, middle: missing, bottom: green
+- Back column: top: yellow, middle: red, bottom: red
+
+→ 3 + 2 + 3 = 8 cubes
+
+So in each orthogonal view, we see 8 cubes — which suggests that the structure is **a 3x3x3 cube with the center cube missing** — because:
+
+- In a 3x3x3 cube, each face has 9 cubes.
+- Removing the center cube (the one at the very center of the cube) will remove one cube from each face? No — the center cube is **not on any face** — it’s internal.
+
+Wait — if we remove the center cube (the one at (2,2,2)), then **each face still has 9 cubes** — because the center cube is not on any face.
+
+So that can’t be.
+
+But in our structure, each face shows only 8 cubes — so the center cube of each face is missing? That would be 3 faces × 1 center = 3 missing cubes? But that doesn’t explain the 8 per face.
+
+Actually, if we remove the **center cube of the front face**, then the front face has 8 cubes, but the top, bottom, left, right faces still have 9 — unless we remove more.
+
+Alternatively, perhaps the structure is **not 3x3x3**, but rather a **3x3x2** structure with some cubes missing.
+
+Let me try to count total cubes.
+
+From frame 10 (front view): 8 cubes.
+
+From frame 9 (top view): 8 cubes.
+
+From frame 7 (side view): 8 cubes.
+
+But since the structure is 3D, we need to count unique cubes.
+
+Let’s try to count by layers.
+
+Assume 3 layers: front, middle, back.
+
+Front layer (closest to camera in frame 10):
+
+- Row 1 (top): 3 cubes
+- Row 2 (middle): 2 cubes (left and right)
+- Row 3 (bottom): 3 cubes
+
+→ 8 cubes
+
+Middle layer (behind front layer):
+
+From frame 7 (side view), we see:
+
+- In the middle column (middle layer), we see top and bottom cubes — middle is missing.
+
+So middle layer:
+
+- Top row: 1 cube (center)
+- Middle row: 0 cubes (missing)
+- Bottom row: 1 cube (center)
+
+→ 2 cubes
+
+Back layer (farthest):
+
+From frame 7, back column: 3 cubes (top, middle, bottom)
+
+From frame 9 (top view), back row: 3 cubes
+
+→ 3 cubes
+
+So total cubes = front (8) + middle (2) + back (3) = 13 cubes.
+
+Let me verify with another angle.
+
+From frame 8 (45-degree view):
+
+We see:
+
+- Front face: 8 cubes (as before)
+- Top face: 8 cubes? But some are shared.
+
+Actually, if front layer has 8, middle has 2, back has 3, total 13.
+
+Is that consistent?
+
+Let’s list them:
+
+**Front layer (z=1):**
+
+- (1,1,1), (1,2,1), (1,3,1) — top row
+- (2,1,1), (2,3,1) — middle row (center missing)
+- (3,1,1), (3,2,1), (3,3,1) — bottom row
+
+→ 8 cubes
+
+**Middle layer (z=2):**
+
+- (1,2,2) — top center
+- (3,2,2) — bottom center
+
+→ 2 cubes
+
+**Back layer (z=3):**
+
+- (1,1,3), (1,2,3), (1,3,3) — top row
+- (2,1,3), (2,2,3), (2,3,3) — middle row
+- (3,1,3), (3,2,3), (3,3,3) — bottom row
+
+Wait — but from frame 7, we saw that in the back column (z=3), we see 3 cubes — but in frame 9 (top view), we see 8 cubes — meaning center is missing.
+
+But in frame 9, top view: we see 3x3 grid, center missing → so (2,2,3) is missing? But in frame 7, back column has 3 cubes — including middle? Contradiction.
+
+Wait — in frame 7 (side view), the back column (z=3) has 3 cubes: top, middle, bottom — so (1,3,3), (2,3,3), (3,3,3) — but that’s the right column, not the back.
+
+I think I confused coordinates.
+
+Let me define:
+
+- x: left-right (x=1 left, x=3 right)
+- y: front-back (y=1 front, y=3 back)
+- z: top-bottom (z=1 top, z=3 bottom)
+
+In frame 10 (front view, y=1):
+
+- We see x and z: 3x3, center (x=2,z=2) missing → so (2,1,2) missing
+
+In frame 9 (top view, z=1):
+
+- We see x and y: 3x3, center (x=2,y=2) missing → so (2,2,1) missing
+
+In frame 7 (left side view, x=1):
+
+- We see y and z: 3x3, center (y=2,z=2) missing → so (1,2,2) missing
+
+So the missing cubes are:
+
+- (2,1,2) — front face center
+- (2,2,1) — top face center
+- (1,2,2) — left face center
+
+Wait — but these are different positions.
+
+So total cubes in 3x3x3 = 27
+
+Minus 3 missing → 24 cubes? But that contradicts our earlier count.
+
+Wait — perhaps the structure is not 3x3x3.
+
+Let’s count from the frames.
+
+In frame 10: front face has 8 cubes → so 8 cubes in front layer.
+
+In frame 7: left side view — we see 3 columns (y=1,2,3) and 3 rows (z=1,2,3)
+
+- y=1 (front): 3 cubes (z=1,2,3)
+- y=2 (middle): z=1 and z=3 only (z=2 missing)
+- y=3 (back): 3 cubes (z=1,2,3)
+
+So 3 + 2 + 3 = 8 cubes — but these are in different y-layers.
+
+Similarly, in frame 9 (top view): x and y, z=1 — 8 cubes.
+
+So perhaps the structure is 3x3x3 with 3 cubes missing: one from each face center.
+
+But then total cubes = 27 - 3 = 24.
+
+But in frame 10, we only see 8 cubes — which is only the front layer.
+
+So to get total cubes, we need to sum all layers.
+
+Let’s assume the structure is 3x3x3 with the following cubes missing:
+
+- (2,1,2) — front face center
+- (2,2,1) — top face center
+- (1,2,2) — left face center
+
+Wait — (1,2,2) is on the left face? If x=1 is left, then yes.
+
+But these are 3 different cubes.
+
+Total cubes = 27 - 3 = 24.
+
+But is this consistent with the views?
+
+In front view (y=1): we see x and z — missing (2,1,2) — yes, center missing → 8 cubes.
+
+In top view (z=1): we see x and y — missing (2,2,1) — center missing → 8 cubes.
+
+In left view (x=1): we see y and z — missing (1,2,2) — center missing → 8 cubes.
+
+Perfect.
+
+So the structure is a 3x3x3 cube with 3 cubes removed: the centers of the front, top, and left faces.
+
+Total cubes: 24.
+
+Now, we need to find how many cubes have **exactly 1 face exposed**.
+
+---
+
+### Step 4: Understand what "exactly 1 face exposed" means
+
+A cube has exactly 1 face exposed if it is **on the surface** but **surrounded on 5 sides** — i.e., it is in the **center of a face** of the entire structure, but not on an edge or corner.
+
+In a full 3x3x3 cube, the cubes with exactly 1 face exposed are the **center cubes of each face** — there are 6 of them.
+
+But in our case, we have removed 3 of those: the centers of front, top, and left faces.
+
+So those 3 cubes are missing — so they are not in the structure.
+
+Therefore, the remaining face centers are:
+
+- Back face center: (2,3,2)
+- Right face center: (3,2,2)
+- Bottom face center: (2,2,3)
+
+Are these cubes still present?
+
+Let’s check.
+
+We removed:
+
+- (2,1,2) — front center
+- (2,2,1) — top center
+- (1,2,2) — left center
+
+So the other 3 face centers are still there.
+
+Are they exposed on only one face?
+
+Let’s check each:
+
+**Back face center: (2,3,2)**
+
+- It is on the back face (y=3)
+- Its neighbors:
+
+  - (2,2,2) — front neighbor (y=2) — is this present? In our structure, (2,2,2) is not removed — we removed only (2,1,2), (2,2,1), (1,2,2) — so (2,2,2) is present → so (2,3,2) has a neighbor in front (y=2)
+
+  - (1,3,2) — left neighbor (x=1) — is this present? (1,3,2) — we didn’t remove it — so yes
+
+  - (3,3,2) — right neighbor (x=3) — present
+
+  - (2,3,1) — top neighbor (z=1) — present? (2,3,1) — we didn’t remove it — yes
+
+  - (2,3,3) — bottom neighbor (z=3) — present? (2,3,3) — yes
+
+So (2,3,2) has neighbors on all 5 sides — so only the back face is exposed → exactly 1 face exposed.
+
+Similarly, **right face center: (3,2,2)**
+
+- Neighbors:
+
+  - (2,2,2) — left — present
+
+  - (3,1,2) — front — present
+
+  - (3,3,2) — back — present
+
+  - (3,2,1) — top — present
+
+  - (3,2,3) — bottom — present
+
+So yes, only right face exposed.
+
+**Bottom face center: (2,2,3)**
+
+- Neighbors:
+
+  - (2,2,2) — top — present
+
+  - (1,2,3) — left — present
+
+  - (3,2,3) — right — present
+
+  - (2,1,3) — front — present
+
+  - (2,3,3) — back — present
+
+So only bottom face exposed.
+
+Therefore, these 3 cubes have exactly 1 face exposed.
+
+Are there any others?
+
+What about cubes that are not face centers? For example, could a cube on an edge have only one face exposed? No — edge cubes have 2 faces exposed.
+
+Corner cubes have 3.
+
+Internal cubes have 0.
+
+Only face-center cubes have 1 face exposed — if they are not on an edge or corner.
+
+In our case, the 3 remaining face centers are exactly that.
+
+So answer should be **3**.
+
+But wait — is there any other cube that might have only 1 face exposed?
+
+For example, consider a cube that is not on the surface? No — internal cubes have 0 faces exposed.
+
+What about cubes on the surface but not face centers? For example, on an edge — they have 2 faces exposed.
+
+Or on a corner — 3.
+
+So only face centers can have 1 face exposed.
+
+And we have 3 of them remaining.
+
+Therefore, the answer is **3**.
+
+---
+
+### ✅ Final Answer:
+
+\boxed{3}

@@ -1,0 +1,360 @@
+We are given a cube with colored faces, and we are to track which face ends up on top when the cube rolls along a path to a red square.
+
+---
+
+### Step 1: Understand the initial cube configuration
+
+At 0:07, the cube is shown with three visible faces:
+
+- **Top face**: Red
+- **Front face**: Yellow
+- **Right face**: Purple
+
+So, initially:
+
+- Top = Red
+- Front = Yellow
+- Right = Purple
+
+From the color key shown earlier (0:03), we know:
+
+- Blue, Red, Green, Yellow, Orange, Purple — all six colors are used, one per face.
+
+So the cube has six faces: Red, Yellow, Purple, Blue, Green, Orange.
+
+We need to figure out the arrangement of the other three faces (bottom, back, left) based on the cube’s rotations.
+
+---
+
+### Step 2: Track the cube’s movement along the path
+
+From 0:14 to 0:21, the cube rolls along a path made of black tiles, with one red tile at the end.
+
+The path is a zig-zag pattern: the cube rolls forward, then turns left, then forward again, then turns left again, then forward to the red tile.
+
+Let’s simulate each roll step-by-step.
+
+---
+
+#### Initial position (before rolling):
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+
+We can assign the other faces:
+
+- Bottom: Opposite of Top → must be the color opposite Red.
+- Back: Opposite of Front → opposite Yellow.
+- Left: Opposite of Right → opposite Purple.
+
+We don’t know which colors are opposite yet, but we can deduce them as we roll.
+
+---
+
+### Step 3: First roll — forward (along the path)
+
+The cube rolls forward — meaning the **front face (Yellow)** moves to the bottom, and the **bottom face** comes to the top.
+
+So after rolling forward:
+
+- New top = old bottom
+- New front = old top = Red
+- New bottom = old front = Yellow
+
+We don’t yet know what the old bottom was, but we can track it.
+
+Let’s denote the faces:
+
+Let’s assign:
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+- Bottom: ?
+- Back: ?
+- Left: ?
+
+After rolling forward (front face becomes bottom):
+
+- New top = old bottom → let’s call it X
+- New front = old top = Red
+- New bottom = old front = Yellow
+- New back = old back
+- New right = old right = Purple
+- New left = old left
+
+So now:
+
+- Top: X
+- Front: Red
+- Right: Purple
+- Bottom: Yellow
+
+We still don’t know X, but we can continue.
+
+---
+
+### Step 4: Second roll — turn left and roll forward
+
+The cube turns left. What does that mean?
+
+In 3D cube rolling, turning left means rotating the cube 90° to the left around the vertical axis (i.e., the top-bottom axis).
+
+So, before rolling, we are facing the front (Red). Turning left means we now face the left side.
+
+But in terms of the cube’s orientation, turning left rotates the cube so that the **left face becomes the front**, and the **front face becomes the right**, etc.
+
+So, before the turn, the cube is oriented:
+
+- Front: Red
+- Right: Purple
+- Top: X
+- Bottom: Yellow
+
+After turning left (rotating 90° left around vertical axis):
+
+- New front = old left
+- New right = old front = Red
+- New back = old right = Purple
+- New left = old back
+
+So now:
+
+- Front: old left → let’s call it Y
+- Right: Red
+- Left: old back → Z
+- Top: X
+- Bottom: Yellow
+
+Now, the cube rolls forward again — meaning the **new front face (Y)** becomes the bottom, and the **bottom (Yellow)** becomes the top.
+
+After rolling:
+
+- New top = old bottom = Yellow
+- New front = old top = X
+- New bottom = old front = Y
+
+So now:
+
+- Top: Yellow
+- Front: X
+- Right: Red
+- Bottom: Y
+
+---
+
+### Step 5: Third roll — turn left and roll forward
+
+Again, turn left.
+
+Current orientation:
+
+- Front: X
+- Right: Red
+- Top: Yellow
+- Bottom: Y
+
+Turning left: rotate 90° left around vertical axis.
+
+New front = old left → which was Z (from earlier)
+
+New right = old front = X
+
+New back = old right = Red
+
+New left = old back = ?
+
+Wait — we need to track all faces.
+
+Actually, let’s try to assign the six colors to the cube.
+
+---
+
+### Step 6: Assign colors to cube faces
+
+We know the cube has six faces: Red, Yellow, Green, Blue, Orange, Purple.
+
+From the initial cube (0:07):
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+
+So, the three mutually adjacent faces are Red, Yellow, Purple.
+
+The three opposite faces are:
+
+- Bottom: opposite Red → must be one of Blue, Green, Orange
+- Back: opposite Yellow
+- Left: opposite Purple
+
+Let’s denote:
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+- Bottom: ?
+- Back: ?
+- Left: ?
+
+Now, when the cube rolls forward, the front (Yellow) becomes the bottom, so bottom must be Yellow? No — wait, when you roll forward, the front face becomes the new bottom, and the old bottom becomes the new top.
+
+So, after rolling forward:
+
+- New top = old bottom
+- New bottom = old front = Yellow
+
+So, the old bottom must be the color that becomes the new top.
+
+But we don’t know what that is yet.
+
+However, since the cube has six distinct colors, and we know three adjacent faces, we can deduce the rest.
+
+Let’s assume the cube is a standard cube with opposite faces not adjacent.
+
+So:
+
+- Red is opposite one color
+- Yellow is opposite another
+- Purple is opposite another
+
+The three opposite pairs must be:
+
+- Red ↔ ?
+- Yellow ↔ ?
+- Purple ↔ ?
+
+The remaining colors are: Blue, Green, Orange.
+
+We need to assign these to the three opposite faces.
+
+But we don’t have direct info — we need to use the rolling.
+
+---
+
+### Step 7: Simulate the path with a specific assignment
+
+Let’s try to assign the opposite faces.
+
+Assume:
+
+- Red ↔ Green
+- Yellow ↔ Blue
+- Purple ↔ Orange
+
+This is arbitrary, but let’s test it.
+
+So:
+
+- Top: Red → Bottom: Green
+- Front: Yellow → Back: Blue
+- Right: Purple → Left: Orange
+
+Now, let’s simulate the rolls.
+
+---
+
+#### Initial state:
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+- Bottom: Green
+- Back: Blue
+- Left: Orange
+
+---
+
+#### Roll 1: Forward (along path)
+
+Rolling forward: front (Yellow) becomes bottom, bottom (Green) becomes top.
+
+New state:
+
+- Top: Green
+- Front: Red (old top)
+- Right: Purple
+- Bottom: Yellow
+- Back: Blue
+- Left: Orange
+
+---
+
+#### Roll 2: Turn left, then roll forward
+
+Turn left: rotate 90° left around vertical axis.
+
+Before turn:
+
+- Front: Red
+- Right: Purple
+- Left: Orange
+- Back: Blue
+
+After turning left:
+
+- New front = old left = Orange
+- New right = old front = Red
+- New back = old right = Purple
+- New left = old back = Blue
+
+Top and bottom unchanged: Top = Green, Bottom = Yellow
+
+Now, roll forward: front (Orange) becomes bottom, bottom (Yellow) becomes top.
+
+New state:
+
+- Top: Yellow
+- Front: Green (old top)
+- Right: Red
+- Bottom: Orange
+- Back: Purple
+- Left: Blue
+
+---
+
+#### Roll 3: Turn left, then roll forward
+
+Turn left: rotate 90° left around vertical axis.
+
+Before turn:
+
+- Front: Green
+- Right: Red
+- Left: Blue
+- Back: Purple
+
+After turning left:
+
+- New front = old left = Blue
+- New right = old front = Green
+- New back = old right = Red
+- New left = old back = Purple
+
+Top: Yellow, Bottom: Orange
+
+Now, roll forward: front (Blue) becomes bottom, bottom (Orange) becomes top.
+
+New state:
+
+- Top: Orange
+- Front: Yellow (old top)
+- Right: Green
+- Bottom: Blue
+- Back: Red
+- Left: Purple
+
+---
+
+#### Now, the cube is at the red square.
+
+The question is: **What color is on top?**
+
+Answer: **Orange**
+
+---
+
+### ✅ Final Answer:
+
+\boxed{orange}

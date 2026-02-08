@@ -1,0 +1,511 @@
+We are given a 3D structure made of small cubes, each with side length 1 unit. The question asks for the **surface area** of the entire figure, assuming all sides are 1 unit, and to answer with a single integer.
+
+---
+
+### Step 1: Understand the structure
+
+The structure is composed of small unit cubes arranged in a 3D shape. From the video frames, we can see the structure rotating, and it appears to be a 3x3x3 cube with some cubes missing — specifically, it looks like the center cube of each face and the very center cube of the entire 3x3x3 are removed. This is a common puzzle shape: a 3x3x3 cube with the center of each face and the very center removed — often called a "holey cube" or "skeleton cube".
+
+But let’s verify this by counting the cubes.
+
+---
+
+### Step 2: Count the number of small cubes
+
+A full 3x3x3 cube has 27 small cubes.
+
+In the video, we can see that the structure is **not solid** — there are visible holes. From the rotation, it appears that:
+
+- The center cube of each of the 6 faces is missing.
+- The very center cube (the one at position (2,2,2) if we index from 1 to 3) is also missing.
+
+But wait — if you remove the center of each face, that’s 6 cubes. And the very center is one more. So total removed = 7.
+
+Thus, number of cubes present = 27 - 7 = **20**.
+
+This matches the typical “3x3x3 with centers removed” structure.
+
+---
+
+### Step 3: Calculate surface area
+
+Each small cube has 6 faces, each of area 1 unit².
+
+But when cubes are adjacent, the shared faces are **not** part of the external surface area.
+
+So, we can’t just do 20 × 6 = 120 — we must subtract the internal (hidden) faces.
+
+Alternatively, we can calculate the surface area by counting **exposed faces** from all 6 directions (front, back, left, right, top, bottom), since the structure is symmetric.
+
+---
+
+### Step 4: Count exposed faces per direction
+
+Because the structure is symmetric, we can count the number of visible faces from one direction (say, front) and multiply by 6 — **but only if the structure is symmetric in all directions**.
+
+Let’s check:
+
+In a 3x3x3 cube with the center of each face and the very center removed:
+
+- From the **front view**: you see a 3x3 grid, but the center square is missing. So you see 8 faces.
+- Similarly, from the **back view**: also 8 faces.
+- From **left**, **right**, **top**, **bottom**: each also shows 8 faces.
+
+Wait — is that correct?
+
+Actually, no. Because when you remove the center cube of the front face, you expose the face behind it — but in this structure, the center cube of the entire cube is also removed, so there’s a tunnel through the cube.
+
+Let’s think more carefully.
+
+---
+
+### Step 5: Better approach — count total exposed faces
+
+Each cube contributes 6 faces, but for every pair of adjacent cubes, 2 faces are hidden (one from each cube).
+
+So:
+
+Total faces if all cubes were separate: 20 cubes × 6 = 120 faces.
+
+Now, subtract the number of **shared faces** (i.e., where two cubes are adjacent).
+
+Each shared face reduces the total surface area by 2 (since two faces are no longer exposed).
+
+So we need to count the number of **adjacent pairs** of cubes.
+
+---
+
+### Step 6: Count adjacent pairs
+
+We need to count how many pairs of cubes are sharing a face.
+
+This is tricky without a diagram, but since this is a known structure (3x3x3 with 7 cubes removed: 6 face centers and 1 very center), we can use known results or carefully reconstruct.
+
+The remaining 20 cubes are:
+
+- All 8 corner cubes (each has 3 faces exposed in a solid cube, but here they may have more due to holes)
+- All 12 edge cubes (not corners, not centers) — in a 3x3x3, each edge has one cube in the middle of the edge. There are 12 edges, so 12 edge cubes.
+
+Wait — 8 corners + 12 edges = 20. Yes! So the structure consists of only the **corner cubes and edge cubes** — the face centers and the very center are removed.
+
+So we have:
+
+- 8 corner cubes
+- 12 edge cubes
+
+Now, let’s compute the surface area by counting exposed faces per cube type.
+
+---
+
+### Step 7: Compute exposed faces per cube
+
+#### Corner cubes (8 total)
+
+In a solid 3x3x3, each corner cube has 3 faces exposed.
+
+But in this structure, since the center cubes are removed, some additional faces may be exposed.
+
+Actually, for a corner cube, it is adjacent to 3 other cubes: along the three edges.
+
+In the modified structure, those 3 adjacent cubes are still present (they are edge cubes), so the corner cube still has only 3 faces exposed? Not necessarily — because the cube that was in the center of the face is removed, but that doesn’t affect the corner cube directly.
+
+Wait — let’s think spatially.
+
+Take a corner cube, say at (1,1,1). In a solid cube, it is adjacent to:
+
+- (2,1,1) — edge cube
+- (1,2,1) — edge cube
+- (1,1,2) — edge cube
+
+All of these are still present in our structure (since we only removed face centers and the very center). So the corner cube still has 3 faces covered (by those 3 adjacent cubes), and 3 faces exposed.
+
+So each corner cube has **3 exposed faces**.
+
+Total for 8 corners: 8 × 3 = 24.
+
+#### Edge cubes (12 total)
+
+Each edge cube is in the middle of an edge. For example, cube at (2,1,1) — middle of the bottom front edge.
+
+In a solid cube, this cube has 2 faces exposed (the front and bottom, say), and 4 faces covered: left, right, top, bottom? Wait — let's be precise.
+
+Actually, an edge cube (not corner) in a 3x3x3 cube has:
+
+- 2 faces exposed (the two faces of the cube that are on the outer surfaces)
+- 4 faces adjacent to other cubes: two along the edge (to the two corners), and two inward (to the face center and the very center).
+
+But in our structure, the face center and the very center are **removed**.
+
+So for an edge cube, say at (2,1,1):
+
+- Adjacent to (1,1,1) — corner cube (present)
+- Adjacent to (3,1,1) — corner cube (present)
+- Adjacent to (2,2,1) — face center cube (removed)
+- Adjacent to (2,1,2) — face center cube (removed)
+- Adjacent to (2,0,1) — out of bounds
+- Adjacent to (2,1,0) — out of bounds
+
+Actually, in 3D, each cube has up to 6 neighbors.
+
+For cube at (2,1,1):
+
+- x-direction: (1,1,1) and (3,1,1) — both corners, present
+- y-direction: (2,2,1) — face center, removed; (2,0,1) — invalid
+- z-direction: (2,1,2) — face center, removed; (2,1,0) — invalid
+
+So, it is adjacent to only 2 cubes: the two corners.
+
+Therefore, it has 4 faces exposed? Let’s see:
+
+The cube has 6 faces:
+
+- Front face: exposed (assuming this is the front face)
+- Bottom face: exposed (assuming bottom)
+- Left and right: adjacent to corners, so covered
+- Top: adjacent to (2,2,1) — removed, so exposed
+- Back: adjacent to (2,1,2) — removed, so exposed
+
+Wait — if (2,1,1) is on the bottom front edge, then:
+
+- Its "top" face is toward the inside of the cube — adjacent to (2,1,2), which is removed, so exposed.
+- Its "back" face is toward the inside — adjacent to (2,2,1), which is removed, so exposed.
+
+But actually, in standard orientation:
+
+Assume the cube is oriented with x,y,z from 1 to 3.
+
+Cube at (2,1,1):
+
+- Faces:
+  - -x: toward (1,1,1) — covered
+  - +x: toward (3,1,1) — covered
+  - -y: toward (2,0,1) — out of bounds, so exposed? No, if it's on the bottom, -y might be the bottom face.
+
+Actually, we need to define which faces are which.
+
+Perhaps it’s easier to note that each edge cube has:
+
+- 2 faces that are on the outer surfaces of the big cube — these are always exposed.
+- 4 faces that are internal.
+
+In the solid cube, those 4 internal faces are covered by adjacent cubes.
+
+But in our structure, 2 of those 4 adjacent cubes are removed (the face center and the very center).
+
+Specifically, for an edge cube, it is adjacent to:
+
+- 2 corner cubes (along the edge) — still present
+- 2 face-center cubes (one on each face it belongs to) — removed
+- 1 very center cube? No, the very center is at (2,2,2), which is not adjacent to (2,1,1).
+
+Adjacent cubes to (2,1,1):
+
+- (1,1,1) — corner — present
+- (3,1,1) — corner — present
+- (2,2,1) — face center — removed
+- (2,1,2) — face center — removed
+- (2,0,1) — invalid
+- (2,1,0) — invalid
+
+So only 2 adjacent cubes are present.
+
+Therefore, the edge cube has 6 - 2 = 4 faces exposed? No — each adjacent cube covers one face of the edge cube.
+
+So if 2 adjacent cubes are present, they cover 2 faces of the edge cube.
+
+Thus, the edge cube has 6 - 2 = 4 exposed faces.
+
+Is that correct?
+
+Let’s list the 6 faces of cube (2,1,1):
+
+- Face toward (1,1,1): covered
+- Face toward (3,1,1): covered
+- Face toward (2,2,1): exposed (since no cube there)
+- Face toward (2,1,2): exposed (since no cube there)
+- Face toward (2,0,1): this is the bottom face — if the cube is on the bottom, this face is exposed to the outside.
+- Face toward (2,1,0): this is the front face — exposed to the outside.
+
+Wait — in 3D, the cube at (2,1,1) has:
+
+- In x-direction: left and right — covered by corners
+- In y-direction: up and down — down is bottom face (exposed), up is toward (2,2,1) — removed, so exposed
+- In z-direction: front and back — front is toward (2,1,0) — if z=1 is front, then front face is exposed, back is toward (2,1,2) — removed, so exposed
+
+Actually, if we assume the cube is at position (x,y,z) = (2,1,1), and the big cube goes from 1 to 3 in each dimension, then:
+
+- The face in the -y direction (y=0) is the bottom face — exposed
+- The face in the -z direction (z=0) is the front face — exposed
+- The face in the +y direction (y=2) is toward (2,2,1) — removed, so exposed
+- The face in the +z direction (z=2) is toward (2,1,2) — removed, so exposed
+- The face in the -x direction (x=1) is toward (1,1,1) — covered
+- The face in the +x direction (x=3) is toward (3,1,1) — covered
+
+So yes, 4 faces exposed: bottom, front, top (toward y=2), back (toward z=2).
+
+So each edge cube has **4 exposed faces**.
+
+Total for 12 edge cubes: 12 × 4 = 48.
+
+---
+
+### Step 8: Total surface area
+
+Corner cubes: 8 × 3 = 24
+
+Edge cubes: 12 × 4 = 48
+
+Total exposed faces = 24 + 48 = **72**
+
+Each face is 1 unit², so surface area = 72.
+
+---
+
+### Step 9: Verify with another method
+
+We can also think of the surface area as the sum over all 6 directions.
+
+From each direction (front, back, left, right, top, bottom), what do we see?
+
+From the front: we see a 3x3 grid, but the center is missing, so 8 squares.
+
+Similarly for back: 8
+
+Left: 8
+
+Right: 8
+
+Top: 8
+
+Bottom: 8
+
+Total = 6 × 8 = 48? But that’s only 48, which is less than 72.
+
+Why the discrepancy?
+
+Ah, because when you look from one direction, you only see the faces that are directly facing that direction. But in this structure, because there are holes, you can see **through** the cube, and there are faces on the **inside** that are also exposed.
+
+For example, when you look at the front, you see 8 faces, but behind the holes, there are additional faces that are visible from the side or from inside.
+
+In other words, the "projection" method only counts the faces that are visible from that direction, but it doesn't account for the fact that some faces are visible from multiple directions or that there are internal surfaces.
+
+Actually, in this case, since the structure has tunnels, there are faces that are not visible from the outside but are still part of the surface area — no, all faces are either exposed to the outside or to the inside cavity, but since the cavity is open, those faces are still part of the external surface area.
+
+In surface area calculation, we count all faces that are not shared with another cube — whether they face outward or inward into a cavity.
+
+In this structure, the holes are open to the outside, so the faces that are facing into the holes are still part of the surface area.
+
+For example, when you remove the center cube of a face, the face of the cube behind it is now exposed — and that face is part of the surface area.
+
+In the projection method, when you look from the front, you see 8 faces, but you don't see the faces that are on the back side of the holes — but those are visible from other directions.
+
+Actually, the projection method should work if you consider that each face is counted once, and since the structure is symmetric, each face is visible from exactly one direction.
+
+But in this case, because of the holes, some faces are visible from multiple directions? No, each face is perpendicular to one axis, so it is visible only from one direction.
+
+For example, a face perpendicular to the x-axis is visible only from the left or right, depending on its orientation.
+
+So let's try to count the number of faces visible from each direction.
+
+From the front (say, -z direction): we see the faces that are on the front of the cubes.
+
+In the 3x3x3 with centers removed, from the front, we see:
+
+- The 8 cubes on the front face except the center — but the center cube is removed, so we see the front faces of the 8 cubes that are on the front layer.
+
+But the front layer has 9 positions, but the center is removed, so 8 cubes are present on the front layer? No — in our structure, the front layer has the 4 corners and 4 edges of the front face, but not the center.
+
+Specifically, for the front face (z=1), the cubes at:
+
+- (1,1,1), (1,2,1), (1,3,1)
+- (2,1,1), (2,3,1)  [since (2,2,1) is removed]
+- (3,1,1), (3,2,1), (3,3,1)
+
+But (2,2,1) is removed, so we have 8 cubes on the front layer.
+
+Each of these 8 cubes has a front face exposed.
+
+Similarly, for the back face (z=3), we have 8 cubes with back faces exposed.
+
+Same for left (x=1), right (x=3), top (y=3), bottom (y=1).
+
+So total faces = 6 directions × 8 = 48.
+
+But earlier we calculated 72.
+
+This is a contradiction.
+
+What's wrong?
+
+Ah, I see the mistake.
+
+In the projection method, when we say "from the front, we see 8 faces", that is correct for the front-facing faces.
+
+But in our earlier calculation, we have 72 exposed faces, which includes faces that are not on the outer surface but are on the inner surfaces of the holes.
+
+For example, when we remove the center cube of the front face, the cube that was behind it (at (2,2,2) or something) — but in this case, the cube at (2,2,1) is removed, so the cube at (2,2,2) is still there? No, in our structure, the very center cube at (2,2,2) is also removed.
+
+Let's clarify the structure.
+
+The structure has 20 cubes: the 8 corners and the 12 edge cubes.
+
+The edge cubes are at positions like (2,1,1), (1,2,1), etc.
+
+Now, for a cube at (2,1,1), as we said, it has 4 exposed faces: bottom, front, top, back.
+
+The "top" face is facing the +y direction, toward (2,2,1), which is removed, so that face is exposed.
+
+Similarly, the "back" face is facing the +z direction, toward (2,1,2), which is removed, so exposed.
+
+Now, when we look from the top (y=3), we see the top faces of the cubes on the top layer.
+
+The top layer (y=3) has cubes at:
+
+- (1,3,1), (1,3,2), (1,3,3)
+- (2,3,1), (2,3,3)  [ (2,3,2) is removed? No, (2,3,2) is an edge cube? Let's see.
+
+In the top layer (y=3), the cubes are:
+
+- Corners: (1,3,1), (1,3,3), (3,3,1), (3,3,3)
+- Edge centers: (2,3,1), (2,3,3), (1,3,2), (3,3,2)
+
+But (2,3,2) is the center of the top face, which is removed.
+
+So on the top layer, we have 8 cubes: the 4 corners and the 4 edge centers (not the face center).
+
+Each of these 8 cubes has a top face exposed.
+
+Similarly for other directions.
+
+So from each direction, we see 8 faces.
+
+Total 6 × 8 = 48.
+
+But this only counts the faces that are on the "outer" surface in that direction.
+
+However, for the cube at (2,1,1), its "top" face (facing +y) is not on the top layer; it's on the bottom layer, and it's facing upward, but since there's no cube above it, it's exposed, but when we look from the top, we don't see this face because it's not on the top layer.
+
+In fact, this face is visible from the side or from above if we could see through, but in surface area, we count it as part of the surface area.
+
+The projection method only counts the faces that are visible from that direction, but for surface area, we need to count all exposed faces, regardless of direction.
+
+In the projection method, each exposed face is perpendicular to one axis, so it is visible from exactly one direction.
+
+For example, a face with normal in the +y direction is visible only from the top (if we are looking down the y-axis).
+
+So for the cube at (2,1,1), its face in the +y direction is facing upward, so it should be visible from the top.
+
+But when we look from the top, we see the top faces of the cubes on the top layer, which are at y=3.
+
+The cube at (2,1,1) is at y=1, so its +y face is not on the top; it's on the bottom, and it's facing upward, but since there's no cube above it, it's exposed, and it should be visible from the top if we could see through the structure.
+
+In a solid structure, you can't see it, but in this hollow structure, you can see it from the top if you look through the hole.
+
+But in surface area calculation, we count it as a separate face.
+
+So the projection method should still work if we count all faces that are exposed in that direction, including those that are not on the outermost layer.
+
+For example, from the top, we see:
+
+- The top faces of the 8 cubes on the top layer (y=3)
+- Additionally, if there are holes, we may see the top faces of cubes below, but only if they are exposed and facing up.
+
+In this case, for the cube at (2,1,1), its +y face is exposed, and it is facing up, so when we look from the top, we can see it if there is a clear line of sight.
+
+But in the structure, between (2,1,1) and the top, there is the cube at (2,2,1) which is removed, and (2,2,2) removed, and (2,3,1) is present, so there is a hole, so yes, we can see the +y face of (2,1,1) from the top.
+
+Similarly, we can see the +y face of (2,3,1) from the top? (2,3,1) is on the top layer, so its top face is already counted.
+
+For (2,1,1), its +y face is at y=2, and it is exposed, and since the cube at (2,2,1) is removed, and (2,2,2) is removed, and (2,3,1) is at y=3, so from the top, looking down, we can see the +y face of (2,1,1) through the hole.
+
+So in the top view, we see not only the 8 top faces of the top layer, but also the +y faces of the cubes on the bottom layer that are exposed and facing up.
+
+This is getting complicated.
+
+Perhaps it's easier to stick with the first method.
+
+Let's calculate the number of exposed faces by considering each cube.
+
+We have 8 corner cubes, each with 3 exposed faces, as in the solid cube, because their adjacent cubes are still there.
+
+For corner cube at (1,1,1):
+
+- Adjacent to (2,1,1), (1,2,1), (1,1,2) — all edge cubes, which are present.
+- So 3 faces covered, 3 exposed.
+
+Yes.
+
+For edge cube at (2,1,1):
+
+- Adjacent to (1,1,1), (3,1,1) — corners, present
+- Adjacent to (2,2,1) — face center, removed
+- Adjacent to (2,1,2) — face center, removed
+- No other adjacent cubes.
+
+So only 2 adjacent cubes, so 2 faces covered, 4 faces exposed.
+
+Yes.
+
+So 8 corners × 3 = 24
+
+12 edges × 4 = 48
+
+Total 72.
+
+Now, to verify, let's calculate the number of shared faces.
+
+Total possible faces: 20 cubes × 6 = 120
+
+Number of shared faces: each shared face is between two cubes, and reduces the total surface area by 2.
+
+So if we can count the number of adjacent pairs, then surface area = 120 - 2 × (number of adjacent pairs).
+
+So let's count the number of adjacent pairs.
+
+First, between corner and edge cubes.
+
+Each corner cube is adjacent to 3 edge cubes (along the three edges).
+
+There are 8 corner cubes, each adjacent to 3 edge cubes, so 8 × 3 = 24 adjacencies.
+
+But each adjacency is counted once, and it's between a corner and an edge, so no double-counting here.
+
+Now, are there adjacencies between edge cubes?
+
+For example, two edge cubes on the same face but not on the same edge.
+
+Like (2,1,1) and (1,2,1) — are they adjacent? (2,1,1) and (1,2,1) are not adjacent; they are at distance sqrt(2), so not sharing a face.
+
+In 3D, two cubes are adjacent only if they share a face, i.e., differ by 1 in exactly one coordinate.
+
+So for edge cubes, are there any that are adjacent to each other?
+
+For example, take (2,1,1) and (2,1,3) — not adjacent.
+
+Or (2,1,1) and (2,3,1) — not adjacent.
+
+Or (2,1,1) and (1,1,2) — let's see: (2,1,1) and (1,1,2) differ in x and z, so not adjacent.
+
+In fact, no two edge cubes are adjacent to each other, because each edge cube is on a different edge, and edges are not adjacent in a way that shares a face.
+
+For example, the edge cube on the bottom front edge (2,1,1) is not adjacent to the edge cube on the bottom right edge (3,1,2) — they differ in x and z.
+
+The only adjacencies are between corner cubes and edge cubes.
+
+So total number of adjacent pairs = 24 (as above).
+
+Therefore, number of shared faces = 24.
+
+Each shared face means 2 faces are hidden (one from each cube), so total hidden faces = 2 × 24 = 48.
+
+Total surface area = 120 - 48 = 72.
+
+Yes.
+
+So the surface area is 72.
+
+---
+
+### Final Answer
+
+\boxed{72}

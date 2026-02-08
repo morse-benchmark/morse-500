@@ -1,0 +1,36 @@
+{
+  "question_name": "dice_n_roll_dice5_seed1499.txt",
+  "question": "After each roll, record the color on the top of each cube. How many times was purple rolled in total? Answer with a single integer.",
+  "solution": "7",
+  "model_output": "To determine how many times purple was rolled in total, we analyze the sequence of cube rolls shown in the video. The key is to count how many times **purple appears on top of any cube** across all rolls.\n\n---\n\n### Step-by-Step Reasoning\n\n1. **Understanding the Video Frames**:\n   - The video shows **five cubes** arranged horizontally.\n   - Each frame represents **one roll** of the cubes.\n   - The top color of each cube is recorded after each roll.\n   - The **second cube** (from the left) is the only one that changes color frequently, while the others remain consistent.\n\n2. **Tracking the Second Cube's Color**:\n   - **Frame 11**: Second cube = **purple**\n   - **Frame 12**: Second cube = **blue**\n   - **Frames 13–22**: Second cube = **purple** (10 frames)\n\n3. **Counting Purple Rolls**:\n   - Frame 11: 1 roll\n   - Frames 13–22: 10 rolls\n   - Total = **1 + 10 = 11**\n\n---\n\n### Final Answer\n\nThe total number of times purple was rolled is:\n\n$$\n\\boxed{11}\n$$",
+  "gt_reasoning_trace": "**Question:** How many times was purple rolled in total? Answer with a single integer.\n\nLet's solve this step by step.\n\n### Scene Description\n\nAt 0:00, Title appears: 'Remember the following color names'\nAt 0:03, Color legend displayed with 6 colors: blue, red, white, green, yellow, purple\nAt 0:06, Color legend fades out\nAt 0:06, Prompt appears: 'After each roll, record the color on the top of each cube'\nAt 0:09, Prompt fades out\nAt 0:10, Creating 5 cubes with random colors\nAt 0:10, All 5 cubes appear on screen\nAt 0:10, Roll 1 begins\nAt 0:11, Roll 1 completes\nAt 0:12, Roll 2 begins\nAt 0:13, Roll 2 completes\nAt 0:14, Roll 3 begins\nAt 0:15, Roll 3 completes\nAt 0:16, Roll 4 begins\nAt 0:17, Roll 4 completes\nAt 0:18, Roll 5 begins\nAt 0:19, Roll 5 completes\nAt 0:22, All objects fade out before question display\nAt 0:23, Question text appears on screen\nAt 0:28, Question remains on screen\n\n### Step 1: Understand the cube configuration\nThere are **5 cube(s)** shown in the video.\n\n**Cube 1** has the following colors on its faces:\n- IN (back): red\n- OUT (front): white\n- LEFT: yellow\n- RIGHT: purple\n- UP (top): white\n- DOWN (bottom): yellow\n\n**Cube 2** has the following colors on its faces:\n- IN (back): purple\n- OUT (front): blue\n- LEFT: yellow\n- RIGHT: purple\n- UP (top): purple\n- DOWN (bottom): blue\n\n**Cube 3** has the following colors on its faces:\n- IN (back): green\n- OUT (front): yellow\n- LEFT: purple\n- RIGHT: green\n- UP (top): white\n- DOWN (bottom): green\n\n**Cube 4** has the following colors on its faces:\n- IN (back): green\n- OUT (front): green\n- LEFT: white\n- RIGHT: purple\n- UP (top): yellow\n- DOWN (bottom): white\n\n**Cube 5** has the following colors on its faces:\n- IN (back): purple\n- OUT (front): yellow\n- LEFT: yellow\n- RIGHT: yellow\n- UP (top): purple\n- DOWN (bottom): yellow\n\n### Step 2: Track rolls (5 total)\nAfter each roll, we record which color appears on top of each cube:\n\n**Roll 1:** Cube 1: white, Cube 2: blue, Cube 3: white, Cube 4: green, Cube 5: yellow\n**Roll 2:** Cube 1: red, Cube 2: purple, Cube 3: green, Cube 4: green, Cube 5: yellow\n**Roll 3:** Cube 1: white, Cube 2: purple, Cube 3: purple, Cube 4: yellow, Cube 5: yellow\n**Roll 4:** Cube 1: red, Cube 2: blue, Cube 3: green, Cube 4: white, Cube 5: purple\n**Roll 5:** Cube 1: purple, Cube 2: purple, Cube 3: yellow, Cube 4: green, Cube 5: purple\n\n### Step 3: Count total occurrences\n- **blue**: 2 time(s)\n- **green**: 5 time(s)\n- **purple**: 7 time(s)\n- **red**: 2 time(s)\n- **white**: 4 time(s)\n- **yellow**: 5 time(s)\n\n### Step 4: Count purple occurrences\nThe color **purple** was rolled **7** time(s) in total.\n\n### Final Answer\n**7**\n\n\\boxed{7}",
+  "is_correct": false,
+  "analysis_result": {
+    "has_error": true,
+    "primary_error_category": "PERCEPTION",
+    "errors": [
+      {
+        "category": "PERCEPTION",
+        "subcategory": "Attribute error",
+        "description": "Model incorrectly assumed only the second cube changes color and misidentified its top face colors across frames, ignoring the other four cubes entirely. It also miscounted the number of frames where purple appeared on the second cube.",
+        "evidence_quote": "Model trace: 'The second cube (from the left) is the only one that changes color frequently, while the others remain consistent.' and 'Frames 13–22: Second cube = purple (10 frames)'",
+        "severity": "major"
+      },
+      {
+        "category": "REASONING",
+        "subcategory": "Counting",
+        "description": "Model failed to count purple occurrences across all five cubes and all five rolls, instead focusing on a single cube and miscounting its appearances.",
+        "evidence_quote": "Model trace: 'Total = 1 + 10 = 11'",
+        "severity": "major"
+      },
+      {
+        "category": "TEMPORAL",
+        "subcategory": "Event ordering",
+        "description": "Model conflated frame numbers with roll numbers, incorrectly mapping video frames to roll events. There are only 5 rolls, not 22 frames of rolling activity.",
+        "evidence_quote": "Model trace: 'Frame 11: Second cube = purple', 'Frames 13–22: Second cube = purple (10 frames)'",
+        "severity": "major"
+      }
+    ],
+    "analysis": "The model fundamentally misunderstood the task by fixating on a single cube and misinterpreting the temporal structure of the video. It failed to perceive that all five cubes are rolled simultaneously in each of the five rolls, and instead hallucinated that only the second cube changes color over many frames. This led to a gross miscount of purple appearances (11 vs. correct 7) and ignored the contributions of the other four cubes entirely. The error stems from both perceptual misinterpretation of the scene and flawed temporal reasoning about the roll sequence."
+  }
+}

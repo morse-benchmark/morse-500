@@ -1,0 +1,414 @@
+We are given a 3D structure made of small cubes, each with side length 1 unit. We are to compute the **total surface area** of the entire figure, counting only the **external faces** (i.e., faces not shared between two cubes).
+
+---
+
+### Step 1: Understand the structure
+
+From the video frames (0:04–0:10), we see a 3D structure composed of small colored cubes. It appears to be a **3x3x3 cube with some cubes removed**.
+
+Let’s analyze the structure carefully.
+
+At 0:05, we see a cube that looks like a 3x3x3 cube, but with the **center cube of each face missing** — and possibly the very center cube missing too. This is a classic “holey cube” or “Menger sponge-like” structure, but let’s count the cubes to be sure.
+
+Actually, looking at the rotation:
+
+- At 0:06, we see a front face with 8 cubes (a 3x3 grid minus the center).
+- At 0:07, we see the top and side — again, missing centers.
+- At 0:09, we see a view that suggests the structure is **hollow in the center** and has **no cubes along the very center of each face or the very center of the cube**.
+
+This is the **standard “3x3x3 cube with center and face centers removed”** — often called a “cube with holes” or “skeleton cube”.
+
+Let’s count the number of small cubes:
+
+In a full 3x3x3 cube, there are 27 small cubes.
+
+We remove:
+- The very center cube (1 cube).
+- The center cube of each of the 6 faces (6 cubes).
+
+Total removed = 7 cubes.
+
+So, total cubes remaining = 27 - 7 = **20 cubes**.
+
+But wait — are we sure that’s the structure? Let’s verify by visual inspection.
+
+Looking at 0:05: front face has 8 cubes (missing center). Top face (0:06) also has 8. Side face (0:07) also 8. And the structure is symmetric.
+
+Yes — this is the **standard 3x3x3 cube with the center cube and the 6 face-center cubes removed**.
+
+So, we have 20 small cubes.
+
+---
+
+### Step 2: Compute surface area
+
+Each small cube has 6 faces, each of area 1 unit².
+
+If all 20 cubes were isolated, total surface area would be 20 × 6 = 120.
+
+But when cubes are adjacent, they share faces — and those shared faces are **not part of the external surface area**.
+
+So we must subtract **2 for each shared face** (since each shared face is internal and was counted twice — once for each cube).
+
+So, we need to count the number of **adjacent face pairs** (i.e., shared faces between two cubes).
+
+---
+
+### Step 3: Count shared faces
+
+We can approach this by considering the structure.
+
+The structure is a 3x3x3 cube with 7 cubes removed: the very center and the 6 face centers.
+
+Let’s think of the remaining 20 cubes as being in the “edges” and “corners” of the big cube.
+
+In a 3x3x3 cube:
+
+- **Corner cubes**: 8 corners — each has 3 faces exposed.
+- **Edge cubes (not corners)**: each edge of the cube has 1 cube in the middle (since corners are already counted). There are 12 edges → 12 edge cubes.
+- **Face-center cubes**: 6 — these are removed.
+- **Center cube**: 1 — removed.
+
+So remaining cubes: 8 (corners) + 12 (edges) = 20 — matches.
+
+Now, let’s compute total external surface area by counting exposed faces.
+
+---
+
+### Step 4: Count exposed faces per cube type
+
+#### A. Corner cubes (8 total)
+
+Each corner cube in a 3x3x3 cube normally has 3 faces exposed.
+
+But in our structure, are any of these faces covered? No — because the adjacent cubes (edge and face-center) are either present or removed.
+
+Wait — the face-center cubes are removed, so for a corner cube, the face that was adjacent to the face-center cube is now exposed.
+
+Actually, in the full 3x3x3 cube, each corner cube has 3 faces exposed, and 3 faces adjacent to other cubes (edge cubes and face-center cubes).
+
+But in our structure, the face-center cubes are removed — so the face of the corner cube that was adjacent to the face-center cube is now **exposed**.
+
+Wait — let’s take a specific example.
+
+Consider the front-top-left corner cube.
+
+In a full cube, it touches:
+- The front-top edge cube (to its right),
+- The front-left edge cube (below it),
+- The top-left edge cube (behind it),
+- And the front face-center, top face-center, and left face-center cubes? No — actually, in 3D, a corner cube touches only the three adjacent edge cubes — not the face centers directly.
+
+Wait — let’s clarify.
+
+In a 3x3x3 cube, each small cube has neighbors:
+
+- A corner cube (say, position (1,1,1)) has neighbors at (2,1,1), (1,2,1), and (1,1,2) — these are the edge cubes along the three axes.
+
+The face-center cubes are at (2,2,1), (2,1,2), etc. — so they are **not adjacent** to the corner cube.
+
+Therefore, removing the face-center cubes **does not affect the adjacency of the corner cubes**.
+
+So each corner cube still has 3 faces exposed and 3 faces adjacent to edge cubes.
+
+But in our structure, are the edge cubes present? Yes — we only removed the center and face-center cubes. The 12 edge cubes are still there.
+
+So each corner cube has 3 faces exposed.
+
+Total for 8 corners: 8 × 3 = 24.
+
+#### B. Edge cubes (12 total)
+
+Each edge cube is in the middle of an edge.
+
+In a full 3x3x3 cube, an edge cube (not corner) has 2 faces exposed (the two faces that are on the outer surfaces of the big cube), and 4 faces adjacent to other cubes: two to the corner cubes, and two to the face-center cubes.
+
+But in our structure, the face-center cubes are removed.
+
+So for an edge cube, the two faces that were adjacent to the face-center cubes are now **exposed**.
+
+Therefore, instead of 2 exposed faces, it now has 2 + 2 = 4 exposed faces.
+
+Let’s verify with an example.
+
+Take the front-top edge cube (position (2,1,1) if we label from 1 to 3).
+
+In full cube, it touches:
+- Left: corner cube (1,1,1)
+- Right: corner cube (3,1,1)
+- Down: front face-center cube (2,2,1)
+- Back: top face-center cube (2,1,2)
+
+So, in full cube, it has 2 exposed faces: front and top.
+
+When we remove the front face-center and top face-center cubes, the “down” and “back” faces of this edge cube are now exposed.
+
+So yes, it now has 4 exposed faces.
+
+Therefore, each edge cube has 4 exposed faces.
+
+Total for 12 edge cubes: 12 × 4 = 48.
+
+---
+
+### Step 5: Total surface area
+
+From corners: 24
+
+From edges: 48
+
+Total = 24 + 48 = **72**
+
+---
+
+### Step 6: Verify with alternative method
+
+Total cubes: 20
+
+Each has 6 faces → 120 faces.
+
+Now, count shared faces (internal faces).
+
+Each shared face reduces total surface area by 2.
+
+So, we need to count the number of adjacent cube pairs.
+
+In the structure:
+
+- Each corner cube is adjacent to 3 edge cubes (as before).
+
+There are 8 corner cubes, each adjacent to 3 edge cubes → 8 × 3 = 24 adjacencies.
+
+But each adjacency is counted twice (once from each cube), so actual number of shared faces between corner and edge cubes = 24 / 2 = 12.
+
+Additionally, are there any adjacencies between edge cubes?
+
+In the 3x3x3 cube, edge cubes on the same face are not adjacent — they are separated by the face-center cube, which is removed.
+
+For example, the front-top edge cube and front-bottom edge cube are not adjacent — they are separated by the front face-center cube, which is removed.
+
+Similarly, edge cubes on different faces — say, front-top and front-left — are not adjacent; they meet at a corner, but that corner is occupied by a corner cube, not directly adjacent.
+
+Actually, in the 3x3x3 cube, no two edge cubes are adjacent to each other — they are all separated by face-center cubes or corners.
+
+Therefore, the only adjacencies are between corner cubes and edge cubes — total 12 shared faces.
+
+So, total internal faces = 12.
+
+Each internal face reduces surface area by 2 (since it was counted in two cubes).
+
+So, total surface area = 120 - 2×12 = 120 - 24 = 96? Wait, that contradicts our previous result.
+
+What’s wrong?
+
+Ah — I see the mistake.
+
+In the full 3x3x3 cube, each edge cube is adjacent to two face-center cubes and two corner cubes.
+
+But in our structure, the face-center cubes are removed, so those adjacencies are gone.
+
+But in our current structure, the only adjacencies are between corner cubes and edge cubes — 12 such adjacencies, as above.
+
+But then, total surface area = 20×6 - 2×12 = 120 - 24 = 96.
+
+But earlier we got 72. Contradiction.
+
+Where is the error?
+
+Let’s reexamine.
+
+In the full 3x3x3 cube, total surface area is 6×9 = 54 (since each face is 3x3=9, and 6 faces).
+
+But when we remove cubes, the surface area can increase because new faces are exposed.
+
+In our case, we remove 7 cubes: the center and 6 face centers.
+
+Each removed cube exposes new faces.
+
+But it’s complicated.
+
+Better to stick with the first method: count exposed faces per cube.
+
+Let’s take a specific cube and count its exposed faces.
+
+Consider the front-top-left corner cube.
+
+In the full 3x3x3 cube, it has 3 faces exposed: front, top, left.
+
+It is adjacent to three edge cubes: front-top edge, front-left edge, top-left edge.
+
+In our structure, those edge cubes are still there, so those three faces are still covered.
+
+So it still has 3 exposed faces.
+
+Now consider the front-top edge cube.
+
+In full cube, it has 2 faces exposed: front and top.
+
+It is adjacent to: left corner, right corner, front face-center, top face-center.
+
+In our structure, the front face-center and top face-center are removed, so the faces that were adjacent to them are now exposed.
+
+So it has 2 (original) + 2 (newly exposed) = 4 exposed faces.
+
+Similarly for all edge cubes.
+
+Now, are there any other cubes? No — only corners and edges.
+
+So 8 corners × 3 = 24
+
+12 edges × 4 = 48
+
+Total = 72.
+
+But why did the other method give 96?
+
+Because in the other method, I assumed that each cube has 6 faces, and subtracted for shared faces.
+
+But in that method, I only subtracted the shared faces between corner and edge cubes — 12 shared faces.
+
+But is that correct?
+
+Each corner cube is adjacent to 3 edge cubes — 8 corners × 3 = 24, but each adjacency is counted twice, so 12 shared faces.
+
+But are there any other shared faces?
+
+For example, are two edge cubes adjacent? No, as established.
+
+But what about the edge cubes and the removed face-center cubes? When we remove a face-center cube, it was adjacent to 4 edge cubes.
+
+For example, the front face-center cube was adjacent to the 4 edge cubes on the front face: top, bottom, left, right.
+
+When we remove it, those 4 edge cubes each lose one adjacent cube, so each gains one exposed face.
+
+But in our structure, those edge cubes are still there, and now have an additional exposed face.
+
+In the "total faces minus shared" method, we start with 20 cubes × 6 = 120 faces.
+
+Now, we need to subtract 2 for each shared face between two cubes that are both present.
+
+The only shared faces are between corner and edge cubes — 12 such shared faces, as before.
+
+So 120 - 24 = 96.
+
+But this contradicts the 72 from the other method.
+
+The issue is that in the 72 method, we are not accounting for the fact that when a cube is removed, the faces that were adjacent to it are now exposed, but in the 96 method, we are not adding those exposed faces because we are only considering the 20 cubes and their adjacencies.
+
+Actually, the 96 method is correct for the 20 cubes if we only consider adjacencies among them.
+
+But in reality, when we remove a cube, the faces that were adjacent to it are now part of the external surface.
+
+In the 20-cube structure, the total surface area should include:
+
+- The faces of the 20 cubes that are not adjacent to any other cube (including the removed ones).
+
+So, to compute it correctly, we should consider that each face of a cube is exposed unless it is adjacent to another cube (present or removed).
+
+But since the removed cubes are not there, their adjacent faces are exposed.
+
+So, for each of the 20 cubes, we need to count how many of its 6 faces are adjacent to another cube that is present.
+
+If a face is adjacent to a removed cube, it is exposed.
+
+So, let's do it this way.
+
+For each cube, count the number of its faces that are adjacent to a cube that is still present.
+
+Then, exposed faces = 6 - (number of adjacent present cubes).
+
+Then sum over all 20 cubes.
+
+Let's do it.
+
+#### Corner cubes (8)
+
+Each corner cube has 3 adjacent cubes in the full cube: the three edge cubes on the three edges.
+
+In our structure, those 3 edge cubes are present.
+
+So, each corner cube has 3 adjacent present cubes.
+
+Therefore, exposed faces = 6 - 3 = 3.
+
+Total for 8 corners: 8 × 3 = 24.
+
+#### Edge cubes (12)
+
+Each edge cube, in the full cube, has 4 adjacent cubes: 2 corner cubes and 2 face-center cubes.
+
+In our structure, the 2 corner cubes are present, but the 2 face-center cubes are removed.
+
+So, it has 2 adjacent present cubes.
+
+Therefore, exposed faces = 6 - 2 = 4.
+
+Total for 12 edges: 12 × 4 = 48.
+
+Total surface area = 24 + 48 = 72.
+
+This matches our first method.
+
+The mistake in the "total faces minus shared" method was that I only subtracted the shared faces between present cubes, but I should have also considered that the faces adjacent to removed cubes are exposed, which is already accounted for in this method.
+
+In the "total faces minus shared" method, if I want to use it, I need to start with the total possible faces and subtract only the faces that are shared between two present cubes.
+
+But the total possible faces are 20 × 6 = 120.
+
+The number of shared faces between present cubes is 12 (as before).
+
+So surface area = 120 - 2×12 = 96? No, that's not right because the 120 includes only the faces of the present cubes, and when we remove a cube, we don't have its faces, but the faces of the present cubes that were adjacent to removed cubes are now exposed, which is already included in the 120.
+
+Actually, the 120 is the total number of faces of the 20 cubes.
+
+Each face that is adjacent to another present cube is internal and should be subtracted twice (once for each cube).
+
+Each face that is adjacent to a removed cube or is on the boundary is external.
+
+In this case, for each present cube, the number of faces adjacent to present cubes is as above.
+
+For corner cubes: 3 faces adjacent to present cubes.
+
+For edge cubes: 2 faces adjacent to present cubes.
+
+So total number of faces that are adjacent to present cubes = 8×3 + 12×2 = 24 + 24 = 48.
+
+But each such face is shared between two cubes, so the number of shared face pairs is 48 / 2 = 24.
+
+I think I made a mistake earlier.
+
+Let's clarify.
+
+Each shared face is counted twice in the sum over cubes of "number of adjacent present cubes" — once for each cube.
+
+So, if I sum over all 20 cubes the number of their faces that are adjacent to a present cube, I get twice the number of shared face pairs.
+
+For corner cubes: each has 3 adjacent present cubes, so 8 × 3 = 24.
+
+For edge cubes: each has 2 adjacent present cubes, so 12 × 2 = 24.
+
+Total = 24 + 24 = 48.
+
+This 48 is twice the number of shared face pairs, so number of shared face pairs = 24.
+
+Then, total surface area = total faces - 2 × number of shared face pairs = 120 - 2×24 = 120 - 48 = 72.
+
+Yes! Now it matches.
+
+I had incorrectly said there were 12 shared face pairs earlier, but it's 24.
+
+Why? Because each corner cube is adjacent to 3 edge cubes, and there are 8 corner cubes, so 8×3=24 adjacencies, but each adjacency is between one corner and one edge, and since there are 12 edge cubes, each edge cube is adjacent to 2 corner cubes (because each edge has two corners), so 12×2=24, same thing.
+
+So number of shared face pairs = 24.
+
+Thus, surface area = 120 - 2×24 = 72.
+
+Perfect.
+
+---
+
+### Final Answer
+
+The surface area is **72** square units.
+
+\boxed{72}

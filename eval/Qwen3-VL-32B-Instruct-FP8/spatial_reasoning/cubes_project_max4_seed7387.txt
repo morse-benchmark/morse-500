@@ -1,0 +1,639 @@
+We are given a 3D structure made of colored cubes, and we are to find the **maximum number of visible square faces** that can be seen in a **parallel 2D projection**, **considering only the side faces** (i.e., not the top or bottom faces).
+
+---
+
+### Step 1: Understand the structure
+
+From frames 4 to 10, we see a 3D structure composed of small cubes. Let’s try to reconstruct it from the animation.
+
+The structure rotates, showing different views. We can count the number of cubes by observing the structure from multiple angles.
+
+Let’s count the cubes:
+
+- From the front view (frame 5): We see 3 columns, each with 2 cubes → 6 cubes.
+- But when it rotates (frame 7), we see that there are cubes sticking out on the side — suggesting depth.
+- From frame 8: We see a front view with 3 columns, and behind the middle column, there’s an additional cube (yellow) sticking up.
+- From frame 9: We see a side view — 2 columns with 2 cubes each, and one column with 3 cubes → total 7 cubes.
+- From frame 10: We see a front view with 3 columns, 2 cubes high, and one extra cube on top of the rightmost column → again 7 cubes.
+
+So, the structure is made of **7 cubes**.
+
+---
+
+### Step 2: Understand the question
+
+We are to find the **maximum number of visible square faces** in a **parallel 2D projection**, **considering only the side faces**.
+
+Note: “Side faces” likely means **not the top or bottom faces**, but **front, back, left, right** — i.e., the lateral faces. However, in a 2D projection, we are projecting along a direction, so we see a silhouette where each cube contributes 1 face per visible side — but only if it’s not occluded.
+
+But the key is: **parallel 2D projection** — meaning orthographic projection, not perspective.
+
+And “visible square faces” — meaning each face of a cube that is visible from the viewpoint, and not hidden by another cube.
+
+But note: the question says **“considering only the side faces”** — so we **exclude top and bottom faces**.
+
+So, in a 2D projection (say, front view), we see the front faces of cubes. But if a cube is behind another, its front face is hidden.
+
+But the question is asking for the **maximum** number of visible side faces — so we can choose the **best viewing direction** (i.e., the direction that maximizes the number of visible side faces).
+
+So, we need to find the orientation (view direction) that shows the **maximum number of side faces** (i.e., not top/bottom) of the cubes, with no occlusion.
+
+But in orthographic projection, we project along one axis, and we see the projection on a plane perpendicular to that axis.
+
+In such a projection, we see **only the faces perpendicular to the projection direction** — i.e., if projecting along the z-axis (front view), we see front and back faces? No — actually, in orthographic projection, we see the **faces that are parallel to the projection plane**.
+
+Wait — let’s clarify:
+
+In orthographic projection, if we project along the z-axis (i.e., looking from front to back), then we see the **x-y plane** — so we see the **front faces** of cubes (the ones facing the viewer). The back faces are not visible. The top and bottom faces are not visible in this view.
+
+But the question says: “considering only the side faces” — so top and bottom are excluded. So in this front view, we see only front faces — which are side faces? Well, in a cube, each face is a side face — but “side faces” might be intended to mean **not top or bottom** — so front, back, left, right.
+
+But in a front view, we see front faces — which are side faces.
+
+Similarly, in a side view, we see left/right faces — which are also side faces.
+
+So, the problem is: choose a viewing direction (orthographic projection) such that the maximum number of cube faces (excluding top and bottom) are visible.
+
+But note: in orthographic projection, you only see the faces that are perpendicular to the viewing direction? No — you see the projection, and each cube contributes a face if it is visible (i.e., not occluded).
+
+Actually, in orthographic projection, each cube contributes **one face** to the projection — the one facing the viewer — if it is not occluded by another cube in front of it.
+
+But wait — if you project along the z-axis, you see the x-y plane — each cube projects as a square, and if a cube is behind another, it is hidden.
+
+So, the number of visible faces in a given direction is equal to the number of cubes that are **not occluded** in that direction.
+
+But each cube contributes **one face** per direction — the one facing the viewer.
+
+So, for example, in front view, we see the front face of each cube that is not blocked.
+
+Similarly, in side view, we see the side face of each cube that is not blocked.
+
+But the question is asking for **the maximum number of visible square faces** — meaning, we can choose the best viewing direction.
+
+So, we need to find the viewing direction (i.e., which axis to project along) that maximizes the number of visible faces (excluding top and bottom).
+
+But note: if we project along the x-axis, we see the y-z plane — which includes front/back and top/bottom faces. But the question says “considering only the side faces”, so we must **exclude top and bottom faces**.
+
+So, in the y-z plane (side view), we see left/right faces (side faces) and top/bottom faces. But we are to **exclude** top and bottom — so we only count the left/right faces that are visible.
+
+Wait — this is ambiguous.
+
+Perhaps “side faces” means **faces that are not top or bottom** — i.e., front, back, left, right — and we want to count how many of those are visible in the projection.
+
+But in a 2D projection, we can only see the faces that are perpendicular to the projection direction — i.e., if we project along the z-axis, we see front/back faces? No — if we project along the z-axis, we are looking along the z-axis, so we see the x-y plane — which corresponds to the **front** face of the cube (if the cube is oriented with faces aligned to axes).
+
+Actually, let’s define coordinates:
+
+Assume the cube has faces aligned with the x, y, z axes.
+
+- The “front” face is the one perpendicular to the z-axis (i.e., in the x-y plane).
+- The “top” face is perpendicular to the y-axis (in the x-z plane).
+- The “side” face (left/right) is perpendicular to the x-axis (in the y-z plane).
+
+So, if we project along the z-axis (i.e., look along z), we see the front face of each cube — which is a side face (since it’s not top or bottom).
+
+Similarly, if we project along the x-axis, we see the left/right face — which is a side face.
+
+If we project along the y-axis, we see the top/bottom face — which we are told to **exclude**.
+
+So, the viewing directions we can use are along the x-axis or z-axis — because along y-axis, we see top/bottom, which are excluded.
+
+Wait — but what if we project along a diagonal? The question says “parallel 2D projection” — which typically means orthographic projection along one of the principal axes. But sometimes it can mean any direction — but in such problems, usually, it’s along the axes.
+
+But to be safe, let’s assume we can choose any direction — but since the structure is made of axis-aligned cubes, the maximum will occur along one of the principal axes.
+
+So, we consider projections along x, y, z.
+
+But along y: we see top/bottom — which are excluded → so we cannot count them.
+
+So only x and z directions are allowed.
+
+But let’s check: if we project along x-axis, we see the y-z plane — which corresponds to the **left/right** faces — which are side faces — so allowed.
+
+If we project along z-axis, we see the x-y plane — front/back faces — side faces — allowed.
+
+If we project along y-axis, we see x-z plane — top/bottom — excluded.
+
+So we only consider projections along x and z axes.
+
+Now, we need to compute, for each direction, how many **side faces** are visible — i.e., how many cubes are visible (not occluded) in that view.
+
+Since each visible cube contributes **one face** to the projection (the one facing the viewer), and we are to count the number of such faces.
+
+So, we need to compute the number of cubes visible in front view (z-direction) and in side view (x-direction), and pick the maximum.
+
+---
+
+### Step 3: Count visible cubes in front view (projecting along z-axis)
+
+From the animation, when we look from the front (frame 5), we see:
+
+- Left column: 2 cubes
+- Middle column: 2 cubes
+- Right column: 2 cubes
+
+But wait — in frame 10, we see a cube sticking up on the right — so the right column has 3 cubes? Let’s check.
+
+Actually, from frame 10: we see 3 columns, each 2 cubes high, and one extra cube on top of the rightmost column — so total 7 cubes.
+
+In front view (projecting along z), we see:
+
+- The frontmost cube in each column is visible.
+
+But if there are cubes behind, they are hidden.
+
+So, we need to know the depth (x-direction) of each cube.
+
+From the animation:
+
+- In frame 7: we see a side view — 2 columns in x-direction? Or 3?
+
+Actually, from frame 8: we see a view where the structure has depth.
+
+Let’s try to reconstruct the 3D structure.
+
+Assume coordinates: (x, y, z), where x is depth (left-right), y is height, z is front-back.
+
+From frame 5: front view — we see 3 columns in z-direction? Or x?
+
+Actually, in frame 5: we see 3 columns from left to right — that’s x-direction.
+
+Each column has 2 cubes — so y=1 and y=2.
+
+But in frame 7: we rotate — now we see a view where the structure has depth — so some cubes are in front, some behind.
+
+In frame 8: we see a view where the rightmost column (in x) has a cube sticking up — and behind it, there’s another cube.
+
+In frame 9: we see a side view — 2 columns in y? Or z?
+
+Actually, from frame 9: we see 2 columns (left and right) with 2 cubes each, and one column with 3 cubes — so total 7.
+
+And from frame 10: front view — 3 columns in x, 2 cubes each, and one extra on top of the rightmost — so 7 cubes.
+
+Now, to determine the 3D structure, let’s assign positions.
+
+Assume the structure is built on a 3x3 grid in x and z, with height y.
+
+From front view (z-direction projection):
+
+- At x=1: cubes at y=1, y=2
+- At x=2: cubes at y=1, y=2
+- At x=3: cubes at y=1, y=2, and y=3? But in frame 10, it looks like only 2 in the front, and one extra on top — but is it behind?
+
+Actually, in frame 10, the rightmost column has a cube on top — but is it in front or behind?
+
+From frame 7: when rotated, we see that the rightmost part has a tall column — and behind it, there’s a cube — so likely, the rightmost column is in front, and behind it, there’s a cube at the same height.
+
+But let’s count the cubes.
+
+From frame 8: we see a view where the structure has:
+
+- A tall yellow cube (3 high) on the right
+- A pink cube in front
+- A blue cube behind
+
+So, perhaps:
+
+- At (x=3, z=1): cubes at y=1,2,3 (tall column)
+- At (x=2, z=1): cube at y=1 (pink)
+- At (x=2, z=2): cube at y=1 (blue)
+- At (x=1, z=1): cube at y=1
+- At (x=1, z=2): cube at y=1
+- At (x=3, z=2): cube at y=1? Or y=2?
+
+Wait, total 7 cubes.
+
+From frame 10: front view — 3 columns in x, each with 2 cubes — so 6, plus one extra on top of rightmost — so 7.
+
+But if the rightmost column has 3 cubes, then it must be that the 3rd cube is at y=3, x=3, z=1.
+
+Then the other 6 cubes are at y=1 or 2.
+
+But in frame 8, we see a cube behind the tall one — so likely, there is a cube at (x=3, z=2, y=1) — but then in front view, we would see 2 cubes in the right column: one at y=1 and one at y=2 — but we see a tall one at y=3 — so the cube at y=3 is at z=1, and the one at y=1 or 2 at z=2 is behind.
+
+But in front view, if we project along z, we see only the frontmost cube in each (x,y) position.
+
+So, for each (x,y), if there is a cube at z=1, it is in front, and if there is a cube at z=2, it is behind and hidden.
+
+So, in front view, we see:
+
+- (x=1,y=1): cube at z=1 → visible
+- (x=1,y=2): cube at z=1 → visible
+- (x=2,y=1): cube at z=1 → visible
+- (x=2,y=2): cube at z=1 → visible
+- (x=3,y=1): cube at z=1 → visible
+- (x=3,y=2): cube at z=1 → visible
+- (x=3,y=3): cube at z=1 → visible
+
+But that’s 7 cubes — all visible? But in frame 5, we only see 6 cubes in front view — because the top cube is not visible? No, in frame 5, we see 3 columns, each with 2 cubes — so 6, and the 7th is on top — but in front view, if it's at (x=3,y=3,z=1), it should be visible.
+
+But in frame 5, the rightmost column has 2 cubes — not 3.
+
+Contradiction.
+
+Perhaps the 7th cube is at (x=3,y=3,z=2) — behind.
+
+Then in front view, we see only the cube at z=1 for each (x,y) — so for (x=3,y=3), there is no cube at z=1, only at z=2 — so it is not visible in front view.
+
+So in front view, we see:
+
+- (x=1,y=1), (x=1,y=2)
+- (x=2,y=1), (x=2,y=2)
+- (x=3,y=1), (x=3,y=2)
+
+Total 6 cubes.
+
+The 7th cube is at (x=3,y=3,z=2) — behind, so not visible in front view.
+
+Now, in side view — say, projecting along x-axis.
+
+Then we see the y-z plane.
+
+We need to know for each (y,z), the cube that is most to the right (x=3) or left (x=1) — but since we are projecting along x, we see the cubes from the side — so for each (y,z), if there is a cube at x=3, it is in front, and if at x=2 or 1, it is behind.
+
+So, let’s list all cubes with their positions.
+
+Assume:
+
+- Cube 1: (x=1,y=1,z=1)
+- Cube 2: (x=1,y=2,z=1)
+- Cube 3: (x=2,y=1,z=1)
+- Cube 4: (x=2,y=2,z=1)
+- Cube 5: (x=3,y=1,z=1)
+- Cube 6: (x=3,y=2,z=1)
+- Cube 7: (x=3,y=3,z=2)  ← behind the rightmost column
+
+Now, in front view (project along z): for each (x,y), we see the cube with smallest z (most front).
+
+- (1,1): z=1 → cube 1 → visible
+- (1,2): z=1 → cube 2 → visible
+- (2,1): z=1 → cube 3 → visible
+- (2,2): z=1 → cube 4 → visible
+- (3,1): z=1 → cube 5 → visible
+- (3,2): z=1 → cube 6 → visible
+- (3,3): z=2 → cube 7 → but no cube at z=1 for (3,3) → so not visible
+
+So 6 visible faces.
+
+In side view (project along x): for each (y,z), we see the cube with largest x (most right).
+
+- (1,1): x=3 → cube 5 → visible
+- (1,2): x=3 → cube 6 → visible
+- (1,3): x=3 → cube 7 → visible
+- (2,1): x=3 → cube 5 → visible
+- (2,2): x=3 → cube 6 → visible
+- (2,3): x=3 → cube 7 → visible
+- (3,1): x=3 → cube 5 → visible
+- (3,2): x=3 → cube 6 → visible
+- (3,3): x=3 → cube 7 → visible
+
+Wait — this is not right. In side view, for each (y,z), we see the cube with the largest x-coordinate.
+
+But in our case, for each (y,z), there is at most one cube, and it is at x=3 for y=1,2,3 and z=1 or 2.
+
+Specifically:
+
+- At (y=1,z=1): cube 5 (x=3)
+- At (y=2,z=1): cube 6 (x=3)
+- At (y=3,z=2): cube 7 (x=3)
+- At (y=1,z=2): no cube? We have no cube at z=2 for y=1.
+- Similarly, (y=2,z=2): no cube.
+- (y=3,z=1): no cube.
+
+So, in side view, we see:
+
+- (y=1,z=1): cube 5
+- (y=2,z=1): cube 6
+- (y=3,z=2): cube 7
+
+That’s only 3 cubes? But that can’t be right — we should see more.
+
+Perhaps I have the coordinates wrong.
+
+Let me redefine.
+
+Perhaps z is front-back, x is left-right, y is up.
+
+In front view, we look along z, so we see x-y plane.
+
+In side view, we look along x, so we see y-z plane.
+
+But in the structure, the cubes are:
+
+From the animation, in front view (frame 5): 3 columns in x, 2 rows in y.
+
+In frame 7: we see a side view — there is a tall column on the right (3 high), and behind it, a cube.
+
+In frame 8: we see the tall column, and a cube in front, and one behind.
+
+Perhaps the structure is:
+
+- At position (x=1,y=1,z=1): cube
+- (x=1,y=2,z=1): cube
+- (x=2,y=1,z=1): cube
+- (x=2,y=2,z=1): cube
+- (x=3,y=1,z=1): cube
+- (x=3,y=2,z=1): cube
+- (x=3,y=3,z=1): cube  — but then in front view, we should see 3 in the right column, but in frame 5, we see only 2.
+
+Unless the 7th cube is at (x=3,y=3,z=2) — behind.
+
+Then in front view, for (x=3,y=3), no cube at z=1, so not visible.
+
+In side view (project along x), we see y-z plane.
+
+For each (y,z), the cube with largest x.
+
+- (y=1,z=1): x=3 → cube at (3,1,1)
+- (y=2,z=1): x=3 → cube at (3,2,1)
+- (y=3,z=2): x=3 → cube at (3,3,2)
+- (y=1,z=2): no cube
+- (y=2,z=2): no cube
+- (y=3,z=1): no cube
+
+So only 3 cubes visible in side view? That seems too few.
+
+But in frame 9, we see a side view with 2 columns with 2 cubes, and one with 3 — so 7 cubes visible? That can't be.
+
+Perhaps in side view, we are looking along y-axis? But then we see top/bottom, which are excluded.
+
+I think I have a confusion.
+
+Perhaps "side faces" means we are to count the number of faces that are visible and are not top or bottom, but in the projection, we can see multiple faces per cube if it's at an angle, but the question says "parallel 2D projection", which typically means orthographic, and we see only one face per cube.
+
+But in orthographic projection, each cube contributes at most one face to the image.
+
+So the number of visible faces equals the number of visible cubes.
+
+So we need to find the viewing direction that maximizes the number of visible cubes, excluding top/bottom faces.
+
+But in any orthographic projection along x, y, or z, we see a certain number.
+
+But along y, we see top/bottom — excluded.
+
+Along x or z, we see side faces.
+
+So we need to choose between x and z.
+
+From the structure, in front view (z-direction), we see 6 cubes (as above).
+
+In side view (x-direction), how many?
+
+Let’s assume the structure is:
+
+- Row 1 (y=1): cubes at (x=1,z=1), (x=2,z=1), (x=3,z=1)
+- Row 2 (y=2): cubes at (x=1,z=1), (x=2,z=1), (x=3,z=1)
+- Row 3 (y=3): cube at (x=3,z=2)  — behind
+
+In side view, projecting along x, we see the y-z plane.
+
+For each (y,z), we see the cube with largest x.
+
+- (y=1,z=1): x=3 → cube at (3,1,1) → visible
+- (y=2,z=1): x=3 → cube at (3,2,1) → visible
+- (y=3,z=2): x=3 → cube at (3,3,2) → visible
+- (y=1,z=2): no cube
+- (y=2,z=2): no cube
+- (y=3,z=1): no cube
+
+So only 3 visible.
+
+But that can't be right because in frame 9, we see a side view with 7 cubes visible? No, in frame 9, we see a view that has 2 columns with 2 cubes, and one with 3 — but that might be a different projection.
+
+Perhaps in frame 9, we are looking along the y-axis — but then we see top/bottom, which are excluded.
+
+Perhaps "side faces" means we are to count the number of side faces that are visible in the 3D structure, but in a 2D projection, which is confusing.
+
+Another interpretation: perhaps "parallel 2D projection" means we are to project the 3D structure onto a 2D plane, and count the number of square faces that are visible in that projection — i.e., the number of squares in the silhouette, where each square represents a face of a cube that is visible.
+
+In that case, for a given projection direction, the number of visible faces is the number of cubes that are not occluded, and each contributes one face.
+
+So in front view, 6.
+
+In side view, 3.
+
+But 6 is larger.
+
+But is there a better direction? For example, if we project along a diagonal, we might see more.
+
+For example, if we project along the direction (1,0,1), then we might see more cubes.
+
+In that case, for each cube, we see it if it is not occluded by another cube in that direction.
+
+So, let's try to compute for a 45-degree view.
+
+Assume we project along the vector (1,0,1), so we see the projection on the plane perpendicular to (1,0,1).
+
+Then, for each cube, its projection is a square, and we need to see if it is occluded.
+
+The cubes are at:
+
+1. (1,1,1)
+2. (1,2,1)
+3. (2,1,1)
+4. (2,2,1)
+5. (3,1,1)
+6. (3,2,1)
+7. (3,3,2)
+
+Now, when projecting along (1,0,1), the projection coordinate can be (y, x-z) or something.
+
+The projection direction is (1,0,1), so the projection plane is spanned by (0,1,0) and (1,0,-1) or something.
+
+To determine visibility, we can sort the cubes by their projection along the direction (1,0,1).
+
+The projection scalar is x + z (since direction vector (1,0,1), so dot product with (x,y,z) is x + z).
+
+For each cube, compute x + z:
+
+1. (1,1,1): 1+1=2
+2. (1,2,1): 2
+3. (2,1,1): 3
+4. (2,2,1): 3
+5. (3,1,1): 4
+6. (3,2,1): 4
+7. (3,3,2): 3+2=5
+
+Now, in the projection, cubes with smaller x+z are in front.
+
+So, cube 7 has x+z=5, so it is behind all others.
+
+Cube 5 and 6 have x+z=4, cube 3 and 4 have 3, etc.
+
+But to see if a cube is visible, we need to see if there is another cube with smaller x+z that projects to the same (y, x-z) or overlapping.
+
+The projection coordinates: for a cube at (x,y,z), its projection on the plane perpendicular to (1,0,1) can be given by (y, x-z).
+
+For example:
+
+1. (1,1,1): (y=1, x-z=0)
+2. (1,2,1): (2,0)
+3. (2,1,1): (1,1)
+4. (2,2,1): (2,1)
+5. (3,1,1): (1,2)
+6. (3,2,1): (2,2)
+7. (3,3,2): (3,1)  since x-z=3-2=1
+
+Now, the projection is on the (y, x-z) plane.
+
+We need to see which cubes are not occluded.
+
+Cube 7: (3,1) — is there any cube with smaller x+z that projects to (3,1)? x+z for cube 7 is 5.
+
+Is there a cube with x+z < 5 and projection (3,1)? The projection (3,1) means y=3, x-z=1.
+
+Is there a cube with y=3, x-z=1, and x+z < 5?
+
+x-z=1, x+z < 5.
+
+Add: 2x < 6 => x<3, and 2z < 4 => z<2.
+
+So x<3, z<2, and x-z=1.
+
+Possible: x=2, z=1: then x-z=1, x+z=3<5.
+
+Is there a cube at (2,3,1)? In our structure, no. We have cubes only at y=1,2,3 but for (x=2,y=3,z=1) — no cube.
+
+Similarly, x=1, z=0 — not possible.
+
+So no cube at (2,3,1), so cube 7 is not occluded.
+
+Now, cube 5: (1,2) — y=1, x-z=2.
+
+Is there a cube with x+z < 4 and projection (1,2)? x+z<4, y=1, x-z=2.
+
+x-z=2, x+z<4.
+
+Add: 2x < 6 => x<3, 2z<2 => z<1.
+
+So z<1, x<3, x-z=2.
+
+z<1, so z=0, then x=2, x+z=2<4.
+
+Cube at (2,1,0)? No, no such cube.
+
+So cube 5 is visible.
+
+Similarly, cube 6: (2,2) — y=2, x-z=2.
+
+x+z<4, y=2, x-z=2.
+
+x-z=2, x+z<4.
+
+2x<6 => x<3, 2z<2 => z<1.
+
+z<1, x=2, z=0 — no cube.
+
+So visible.
+
+Cube 3: (1,1) — y=1, x-z=1.
+
+x+z<3, y=1, x-z=1.
+
+x-z=1, x+z<3.
+
+2x<4 => x<2, 2z<2 => z<1.
+
+x<2, z<1, x-z=1.
+
+z=0, x=1 — cube at (1,1,0)? No.
+
+So visible.
+
+Cube 4: (2,1) — y=2, x-z=1.
+
+x+z<3, y=2, x-z=1.
+
+x-z=1, x+z<3.
+
+x<2, z<1.
+
+x=1, z=0 — no cube.
+
+So visible.
+
+Cube 1: (1,0) — y=1, x-z=0.
+
+x+z<2, y=1, x-z=0.
+
+x-z=0 => x=z, x+z<2 => 2x<2 => x<1, so x=0,z=0 — no cube.
+
+So visible.
+
+Cube 2: (2,0) — y=2, x-z=0.
+
+x+z<2, y=2, x-z=0.
+
+x=z, x+z<2 => x<1, so x=0,z=0 — no cube.
+
+So visible.
+
+So all 7 cubes are visible in this projection!
+
+Is that possible? Let's list the projections:
+
+- Cube 1: (y=1, x-z=0)
+- Cube 2: (y=2, x-z=0)
+- Cube 3: (y=1, x-z=1)
+- Cube 4: (y=2, x-z=1)
+- Cube 5: (y=1, x-z=2)
+- Cube 6: (y=2, x-z=2)
+- Cube 7: (y=3, x-z=1)
+
+Now, are any of these overlapping? For example, cube 3 and cube 7 both have x-z=1, but different y: cube 3 has y=1, cube 7 has y=3, so they are at different y, so no overlap.
+
+Similarly, cube 1 and 2 both have x-z=0, but different y.
+
+Cube 5 and 6 have x-z=2, different y.
+
+So no two cubes project to the same (y, x-z) point, so no occlusion.
+
+Therefore, all 7 cubes are visible in this projection.
+
+But is this a "side face"? The question says "considering only the side faces".
+
+In this projection, we are projecting along (1,0,1), which is not along the axes, so we are seeing a combination of front and side faces.
+
+But the question is: "considering only the side faces" — does that mean we should only count the faces that are side faces (not top/bottom), or does it mean that in the projection, we are to consider only the side faces of the cubes?
+
+In this projection, each cube contributes a face that is not top or bottom — because the projection direction is (1,0,1), so the face that is visible is the one perpendicular to (1,0,1), which is not the top or bottom face (which are perpendicular to y-axis).
+
+The top face is perpendicular to (0,1,0), bottom to (0,-1,0), while the projection direction is (1,0,1), so the visible face is perpendicular to (1,0,1), which is a "side" face — not top or bottom.
+
+So yes, it is a side face.
+
+Therefore, in this projection, we can see 7 visible side faces.
+
+Is this the maximum? Since there are 7 cubes, and each can contribute one face, 7 is the maximum possible.
+
+And we achieved it.
+
+So the answer should be 7.
+
+But let's confirm with the structure.
+
+In the animation, in frame 10, we see the structure, and it seems that the cubes are arranged such that no cube is directly behind another in any direction, but in this diagonal projection, they are all visible.
+
+Perhaps in the intended interpretation, only axis-aligned projections are allowed.
+
+But the question says "parallel 2D projection", which can include diagonal directions.
+
+And since we can achieve 7, and it's the maximum possible (since there are 7 cubes), it must be 7.
+
+Moreover, in the problem, it says "maximum number", so we should consider the best possible.
+
+So, the answer is 7.
+
+But let's make sure that in this projection, we are not seeing top or bottom faces.
+
+The face that is visible for each cube is the one facing the projection direction, which is (1,0,1), so it's a face that is perpendicular to that direction, which is not aligned with the coordinate axes, but it is still a side face, since it's not the top or bottom.
+
+The top and bottom faces are perpendicular to the y-axis, while this face is perpendicular to (1,0,1), so it's different.
+
+So yes.
+
+Therefore, the maximum number is 7.
+
+**Final Answer**
+
+\boxed{7}

@@ -1,0 +1,307 @@
+We are shown a 3D structure made of colored cubes, rotating to show different perspectives. The question is: **How many cubes are left?** — implying we need to count the total number of visible and hidden cubes that make up the structure.
+
+---
+
+### Step 1: Understand the structure
+
+The structure appears to be made of small cubes arranged in a 3D grid. It rotates, so we can see it from multiple angles. The colors (red, yellow, blue, green) are likely just for visual distinction — they don’t affect the count.
+
+We need to determine the **total number of cubes** in the structure, including those that are hidden from view.
+
+---
+
+### Step 2: Analyze the structure from multiple angles
+
+Let’s try to reconstruct the structure layer by layer (like slicing it horizontally).
+
+From the rotation, we can observe:
+
+- The structure is **not a full cube** — it’s irregular.
+- It appears to be **3 layers high** (top, middle, bottom).
+- Each layer has a different number of cubes.
+
+Let’s count per layer.
+
+---
+
+### Step 3: Count cubes per layer
+
+#### **Bottom layer (Layer 1)**
+
+From the bottom view (or when the structure is rotated to show the bottom), we can see:
+
+- 3 cubes in the front row.
+- 1 cube in the back row, centered.
+
+Wait — let’s look more carefully.
+
+Actually, from the rotation, when we look at the structure from the side or front, we can see:
+
+- In the **front view**, we see 3 cubes vertically stacked on the left, and 2 cubes stacked on the right (but offset).
+
+Alternatively, let’s count by **columns**.
+
+---
+
+### Step 4: Count by columns (most reliable method)
+
+Imagine the structure is built on a 3x3 grid (3 columns wide, 3 rows deep). We can count how many cubes are in each column.
+
+Let’s define positions as (x, y, z), where:
+
+- x = column (left to right: 1, 2, 3)
+- y = row (front to back: 1, 2, 3)
+- z = height (bottom to top: 1, 2, 3)
+
+We’ll go column by column.
+
+---
+
+#### **Column 1 (leftmost)**
+
+From the front view, we see 3 cubes stacked vertically — so height 3.
+
+Also, from side views, we can see that this column has cubes in all 3 rows (front, middle, back).
+
+So, **3 cubes** in column 1.
+
+---
+
+#### **Column 2 (middle)**
+
+From the front view, we see:
+
+- At the bottom: a cube (yellow, perhaps).
+- At the middle: a cube (red?).
+- At the top: a cube (blue?).
+
+Also, from the side, we can see that this column has cubes in all 3 rows.
+
+So, **3 cubes** in column 2.
+
+---
+
+#### **Column 3 (rightmost)**
+
+From the front view:
+
+- Bottom: cube present.
+- Middle: cube present.
+- Top: cube present.
+
+From side views, we see that in the back row, there is no cube at the top — but wait, let’s check.
+
+Actually, when the structure rotates, we can see that in the **back row, right column**, there is **no cube at the top** — only at bottom and middle.
+
+Wait — let’s re-examine.
+
+Looking at the structure when rotated to show the back:
+
+- In the **back row, right column**, there is a cube at the bottom and middle, but **not at the top**.
+
+So, column 3 has:
+
+- Front row: 3 cubes (bottom, middle, top)
+- Middle row: 3 cubes (bottom, middle, top)
+- Back row: 2 cubes (bottom, middle) — **no top cube**
+
+Wait — that would be 3 + 3 + 2 = 8? That can’t be right — we’re double-counting.
+
+Actually, we need to think of **each column as a vertical stack**.
+
+Let’s define columns as vertical stacks along the x-axis.
+
+So:
+
+- **Column 1 (x=1)**: cubes at (1,1,1), (1,1,2), (1,1,3) — 3 cubes
+- **Column 2 (x=2)**: cubes at (2,1,1), (2,1,2), (2,1,3) — 3 cubes
+- **Column 3 (x=3)**: cubes at (3,1,1), (3,1,2), (3,1,3) — 3 cubes? But wait, from the back view, we see that in the back row (y=3), there is no cube at the top.
+
+Actually, we need to consider **all positions (x,y)**, not just front row.
+
+Let’s use a grid:
+
+Define a 3x3 grid for the base (x=1,2,3; y=1,2,3). For each position, count how many cubes are stacked vertically.
+
+---
+
+#### **Front row (y=1)**
+
+- x=1: 3 cubes (bottom, middle, top)
+- x=2: 3 cubes
+- x=3: 3 cubes
+
+→ 3 + 3 + 3 = 9
+
+#### **Middle row (y=2)**
+
+- x=1: 3 cubes? From side view, yes — we see cubes stacked in the middle row.
+- x=2: 3 cubes
+- x=3: 3 cubes
+
+→ 3 + 3 + 3 = 9
+
+#### **Back row (y=3)**
+
+- x=1: 3 cubes? From rotation, when we look at the back, we see cubes in the back row, left and middle columns, but **not right**.
+
+Wait — let’s look again.
+
+When the structure rotates to show the back:
+
+- Left column (x=1): we see a cube at bottom, middle, and top — so 3 cubes.
+- Middle column (x=2): cube at bottom, middle, top — 3 cubes.
+- Right column (x=3): only cubes at bottom and middle — **no top cube**.
+
+So:
+
+- x=1, y=3: 3 cubes
+- x=2, y=3: 3 cubes
+- x=3, y=3: 2 cubes
+
+→ 3 + 3 + 2 = 8
+
+Wait — that would give total: front row 9 + middle row 9 + back row 8 = 26? That seems too high.
+
+But that can’t be — the structure is small.
+
+Wait — I think I made a mistake.
+
+Actually, the structure is **not 3x3x3**. It’s smaller.
+
+Let’s count **visually** from the rotations.
+
+---
+
+### Step 5: Count visible cubes and infer hidden ones
+
+From the rotations, we can see:
+
+- The structure has **3 layers** (height).
+- In the **bottom layer**, we see:
+
+  - Front row: 3 cubes (left, middle, right)
+  - Middle row: 3 cubes
+  - Back row: 2 cubes (left and middle — no right)
+
+→ So bottom layer: 3 + 3 + 2 = 8 cubes
+
+Wait — but when we look at the structure, it doesn’t look that wide.
+
+Actually, from the front view, we see:
+
+- Left column: 3 cubes stacked
+- Middle column: 3 cubes stacked
+- Right column: 3 cubes stacked — but when rotated, we see that the back row, right column is missing the top cube.
+
+But in the bottom layer, all 3 columns have cubes in front and middle rows, and right column has cube in back row? No — from rotation, the back row, right column has **no cube at all**? Or only bottom?
+
+Let’s look again.
+
+When the structure is rotated to show the back:
+
+- Left column: cube at bottom, middle, top — 3
+- Middle column: cube at bottom, middle, top — 3
+- Right column: only bottom and middle — **no top**
+
+So in the **back row (y=3)**:
+
+- x=1: 3 cubes
+- x=2: 3 cubes
+- x=3: 2 cubes
+
+So total cubes:
+
+- For each (x,y) position, count height.
+
+Let’s make a table:
+
+| x\y | 1 (front) | 2 (middle) | 3 (back) |
+|-----|-----------|------------|----------|
+| 1   | 3         | 3          | 3        |
+| 2   | 3         | 3          | 3        |
+| 3   | 3         | 3          | 2        |
+
+Total = 3+3+3 + 3+3+3 + 3+3+2 = 26? That’s too many.
+
+But the structure looks much smaller — maybe 3x3x3 minus some cubes.
+
+Wait — perhaps the structure is only 2x3x3? Let’s try a different approach.
+
+---
+
+### Step 6: Count by layers (bottom, middle, top)
+
+#### **Bottom layer (z=1)**
+
+From the front view, we see 3 cubes in front row, 3 in middle row, and 2 in back row? But that’s 8 — too many.
+
+Wait — from the video, when the structure rotates, we can see:
+
+- The bottom layer has cubes in:
+
+  - Front-left, front-middle, front-right
+  - Middle-left, middle-middle, middle-right
+  - Back-left, back-middle — **no back-right**
+
+So bottom layer: 8 cubes.
+
+#### **Middle layer (z=2)**
+
+From front view, we see:
+
+- Front-left, front-middle, front-right
+- Middle-left, middle-middle, middle-right
+- Back-left, back-middle — **no back-right**
+
+Same as bottom? So 8 cubes.
+
+#### **Top layer (z=3)**
+
+From front view, we see:
+
+- Front-left, front-middle, front-right
+- Middle-left, middle-middle, middle-right
+- Back-left, back-middle — **no back-right**
+
+Same? But wait — from the rotation, when we look at the top, we see that the back-right cube is **missing** — so top layer also has 8 cubes?
+
+But that would be 24 cubes — too many.
+
+Wait — no, that can’t be. The structure is small — maybe only 3x3x2?
+
+Wait — let’s count **visually** from the video.
+
+Actually, looking at the structure:
+
+- It appears to be **3 cubes wide (x)**, **3 cubes deep (y)**, **3 cubes high (z)** — but with **one cube missing** in the top layer, back-right corner.
+
+So total = 3x3x3 = 27 minus 1 = 26.
+
+But is that correct?
+
+Wait — when the structure rotates, we can see that in the **back row, right column**, there is **no cube at the top** — but there are cubes at bottom and middle.
+
+So total cubes:
+
+- Bottom layer: 3x3 = 9
+- Middle layer: 3x3 = 9
+- Top layer: 3x3 - 1 = 8
+
+Total = 9 + 9 + 8 = **26**
+
+But is there a cube missing in other layers? From the rotations, no — only the top-back-right cube is missing.
+
+So answer is **26**.
+
+But let’s double-check.
+
+Wait — from the video, when it rotates, we can see that the **back row, right column** has cubes at bottom and middle, but **not top** — so yes, only one cube missing.
+
+Therefore, total cubes = 27 - 1 = 26.
+
+---
+
+### Final Answer:
+
+\boxed{26}

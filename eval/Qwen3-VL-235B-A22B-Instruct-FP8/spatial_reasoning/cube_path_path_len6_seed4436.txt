@@ -1,0 +1,398 @@
+We are given a cube with colored faces and a path it rolls along. We must determine which color face will be on top when the cube reaches the final red square.
+
+---
+
+### Step 1: Understand the initial orientation
+
+From the video, at 0:07, the cube is shown with:
+
+- Top face: **Red**
+- Front face (facing us): **Yellow**
+- Right face: **Purple**
+
+We can infer the other faces by standard cube geometry (opposite faces are not adjacent).
+
+Let’s assign the cube’s faces based on initial view:
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+
+Then, by deduction:
+
+- Bottom: must be opposite Red → **Green** (since Red and Green are not adjacent in the initial view, and from the color list, Green is the only one not shown on top/front/right)
+- Back: opposite Yellow → **Blue**
+- Left: opposite Purple → **Orange**
+
+So initial face mapping:
+
+- Top: Red
+- Bottom: Green
+- Front: Yellow
+- Back: Blue
+- Right: Purple
+- Left: Orange
+
+---
+
+### Step 2: Trace the cube’s path
+
+The cube rolls along a path made of squares. We must simulate the rolling motion step by step.
+
+The path is shown starting at 0:14. The cube starts on the first black square, and rolls along the path to the final red square.
+
+Let’s number the squares in the path:
+
+1. Start position: cube is on first black square (initial orientation as above).
+2. Then it rolls **forward** (toward the next square) → this will bring the **front face (Yellow)** down, and the **bottom face (Green)** will come to the front, and the **top face (Red)** will go to the back. But actually, when rolling forward, the top face becomes the back, and the front becomes the bottom.
+
+Wait — let’s be precise.
+
+When a cube rolls **forward** (i.e., rotates 90° around the x-axis, so the front face goes down), the new top face becomes the **old back face**.
+
+But let’s simulate each roll carefully.
+
+---
+
+### Step 3: Simulate each roll
+
+We’ll track the top face after each roll.
+
+Initial state (on first square):
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+
+---
+
+#### Roll 1: Forward to next square (first black square)
+
+Rolling forward → the front face (Yellow) becomes the bottom, the top face (Red) becomes the back, the bottom face (Green) becomes the front, and the back face (Blue) becomes the top.
+
+So after roll 1:
+
+- Top: Blue
+- Front: Green
+- Right: Purple (unchanged, since rolling forward doesn’t change right/left)
+
+---
+
+#### Roll 2: Forward again (second black square)
+
+Roll forward again → front (Green) goes down, top (Blue) goes back, bottom (Yellow) comes to front, back (Red) comes to top.
+
+Wait — after roll 1, bottom was Yellow (since front was Yellow and it went down).
+
+After roll 1:
+
+- Top: Blue
+- Front: Green
+- Bottom: Yellow
+- Back: Red
+- Right: Purple
+- Left: Orange
+
+Roll forward again:
+
+- New bottom = old front = Green
+- New front = old bottom = Yellow
+- New top = old back = Red
+- New back = old top = Blue
+
+So after roll 2:
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+
+Wait — this is the same as initial orientation!
+
+That can’t be right — we rolled forward twice, so we should be two steps ahead.
+
+Actually, yes — rolling forward twice brings the cube back to original orientation? No, that’s only if you roll in the same direction twice — but in 3D, rolling forward twice doesn’t necessarily bring you back to original orientation unless you’re on a flat plane and rolling in a straight line.
+
+Wait — let’s think differently.
+
+Actually, when you roll a cube forward once, the face that was front becomes bottom, and the face that was top becomes back.
+
+So:
+
+Initial:
+
+- Top: Red
+- Front: Yellow
+- Bottom: Green
+- Back: Blue
+
+After rolling forward:
+
+- The cube rotates so that the front face (Yellow) is now on the bottom.
+- The top face (Red) is now on the back.
+- The bottom face (Green) is now on the front.
+- The back face (Blue) is now on the top.
+
+So new top = Blue
+
+New front = Green
+
+New bottom = Yellow
+
+New back = Red
+
+Right and left unchanged.
+
+Now, roll forward again:
+
+- New bottom = old front = Green
+- New front = old bottom = Yellow
+- New top = old back = Red
+- New back = old top = Blue
+
+So top is now Red again.
+
+Interesting — after two forward rolls, top is back to Red.
+
+But now, the path turns.
+
+Looking at the path at 0:16-0:18:
+
+The path goes:
+
+- Start
+- Forward 2 squares (both black)
+- Then turns **right** (to the right side)
+- Then forward 1 square (black)
+- Then turns **right** again
+- Then forward 1 square (red)
+
+So total rolls:
+
+1. Forward
+2. Forward
+3. Right turn (roll right)
+4. Forward
+5. Right turn (roll right)
+6. Forward to red square
+
+We need to simulate each roll.
+
+---
+
+### Step 4: Simulate all 6 rolls
+
+Let’s define the cube’s face orientations after each roll.
+
+We’ll track: Top, Front, Right, Bottom, Back, Left
+
+Initial (on first square):
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+- Bottom: Green
+- Back: Blue
+- Left: Orange
+
+---
+
+#### Roll 1: Forward
+
+Roll forward → front becomes bottom, top becomes back, bottom becomes front, back becomes top.
+
+New:
+
+- Top: Blue (old back)
+- Front: Green (old bottom)
+- Right: Purple (unchanged)
+- Bottom: Yellow (old front)
+- Back: Red (old top)
+- Left: Orange (unchanged)
+
+---
+
+#### Roll 2: Forward
+
+Again, roll forward:
+
+- New top = old back = Red
+- New front = old bottom = Yellow
+- New bottom = old front = Green
+- New back = old top = Blue
+- Right and Left unchanged
+
+So:
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+- Bottom: Green
+- Back: Blue
+- Left: Orange
+
+This is back to initial orientation! So after two forward rolls, cube is in same orientation as start.
+
+---
+
+#### Roll 3: Roll Right (turning right on path)
+
+Now, the cube rolls to the right — meaning it rotates 90° around the y-axis (or z-axis? Let’s think).
+
+When rolling to the right, the right face becomes the bottom, the top becomes the left, the bottom becomes the top, and the left becomes the top? Wait.
+
+Actually, when rolling right:
+
+- The right face goes down
+- The top face goes to the left
+- The bottom face comes up to the top
+- The left face comes to the top? No.
+
+Better way:
+
+Imagine the cube is facing you. Rolling right means it rotates clockwise around the vertical axis? No — rolling right means it tips to the right, so the right face becomes the new bottom.
+
+So:
+
+- New bottom = old right = Purple
+- New right = old top = Red
+- New top = old left = Orange
+- New left = old bottom = Green
+
+Front and back unchanged? Actually, no — when rolling right, the front and back remain front and back.
+
+Wait — let’s define:
+
+After roll right:
+
+- The face that was right is now bottom
+- The face that was top is now left
+- The face that was bottom is now top
+- The face that was left is now right
+
+Front and back remain the same.
+
+So from current state (after roll 2):
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+- Bottom: Green
+- Back: Blue
+- Left: Orange
+
+Roll right:
+
+- New bottom = old right = Purple
+- New right = old top = Red
+- New top = old left = Orange
+- New left = old bottom = Green
+- Front: Yellow (unchanged)
+- Back: Blue (unchanged)
+
+So now:
+
+- Top: Orange
+- Front: Yellow
+- Right: Red
+- Bottom: Purple
+- Back: Blue
+- Left: Green
+
+---
+
+#### Roll 4: Forward
+
+Now roll forward.
+
+Roll forward: front becomes bottom, top becomes back, bottom becomes front, back becomes top.
+
+Current:
+
+- Top: Orange
+- Front: Yellow
+- Right: Red
+- Bottom: Purple
+- Back: Blue
+- Left: Green
+
+Roll forward:
+
+- New bottom = old front = Yellow
+- New front = old bottom = Purple
+- New top = old back = Blue
+- New back = old top = Orange
+- Right and Left unchanged: Right=Red, Left=Green
+
+So:
+
+- Top: Blue
+- Front: Purple
+- Right: Red
+- Bottom: Yellow
+- Back: Orange
+- Left: Green
+
+---
+
+#### Roll 5: Roll Right (turning right again)
+
+Roll right: right face becomes bottom, top becomes left, bottom becomes top, left becomes right.
+
+Current:
+
+- Top: Blue
+- Front: Purple
+- Right: Red
+- Bottom: Yellow
+- Back: Orange
+- Left: Green
+
+Roll right:
+
+- New bottom = old right = Red
+- New right = old top = Blue
+- New top = old left = Green
+- New left = old bottom = Yellow
+- Front and Back unchanged: Front=Purple, Back=Orange
+
+So now:
+
+- Top: Green
+- Front: Purple
+- Right: Blue
+- Bottom: Red
+- Back: Orange
+- Left: Yellow
+
+---
+
+#### Roll 6: Forward to red square
+
+Now roll forward one last time.
+
+Current:
+
+- Top: Green
+- Front: Purple
+- Right: Blue
+- Bottom: Red
+- Back: Orange
+- Left: Yellow
+
+Roll forward:
+
+- New bottom = old front = Purple
+- New front = old bottom = Red
+- New top = old back = Orange
+- New back = old top = Green
+- Right and Left unchanged: Right=Blue, Left=Yellow
+
+So final top face: **Orange**
+
+---
+
+### Final Answer:
+
+The color face on top when the cube reaches the red square is **orange**.
+
+$\boxed{orange}$

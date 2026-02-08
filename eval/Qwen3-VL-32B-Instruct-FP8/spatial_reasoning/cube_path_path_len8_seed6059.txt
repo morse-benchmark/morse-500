@@ -1,0 +1,392 @@
+We are given a cube with colored faces and a path it must follow. The goal is to determine **which color face will be on top** when the cube reaches the **red square** at the end of the path.
+
+---
+
+### Step 1: Understand the cube’s initial state
+
+At the beginning (0:07), the cube is shown with **three visible faces**:
+
+- **Top face**: Red
+- **Front face**: Yellow
+- **Left face**: Purple
+
+We are told to remember the color names:
+
+- Blue, Red, Green, Yellow, Orange, Purple — these are the six colors of the cube’s faces.
+
+So, the cube has one face of each of these six colors.
+
+---
+
+### Step 2: Track the cube’s movement along the path
+
+The cube moves along a zig-zag path made of black tiles, ending at a red square.
+
+We need to simulate the cube’s **rotations** as it moves from tile to tile.
+
+Let’s define the cube’s orientation as it moves. We’ll track the **top face**, **front face**, and **left face** (which determines the rest via cube geometry).
+
+---
+
+### Step 3: Initial cube state
+
+- Top: Red
+- Front: Yellow
+- Left: Purple
+
+So, the cube’s faces:
+
+- Top: Red
+- Bottom: ??? (opposite of Red)
+- Front: Yellow
+- Back: ??? (opposite of Yellow)
+- Left: Purple
+- Right: ??? (opposite of Purple)
+
+We don’t yet know which colors are opposite which, but we’ll deduce them as the cube rotates.
+
+---
+
+### Step 4: Movement along the path
+
+The cube moves along a path that zig-zags. We need to simulate each move.
+
+The path is shown as a sequence of tiles. From the animation (0:14–0:22), we can count the number of moves:
+
+- Start at tile 1 (where cube is initially placed)
+- Then moves to tile 2, 3, 4, 5, 6 — total of **5 moves** to reach the red square.
+
+Let’s simulate each move.
+
+---
+
+#### Move 1: First step
+
+The cube moves **forward** (in the direction of the path). Since the front face is Yellow, moving forward means the cube **rolls forward** on its front face.
+
+When a cube rolls forward, the **front face becomes the bottom**, and the **top face becomes the front**, and the **back face becomes the top**.
+
+Wait — let’s be precise.
+
+When a cube rolls **forward** (along the direction it’s facing), the **front face rotates down** to become the **bottom**, and the **top face rotates down** to become the **front**, and the **back face rotates up** to become the **top**.
+
+Actually, a better way: think of the cube rotating **around the front-back axis**.
+
+But perhaps easier: when the cube rolls **forward**, the **bottom face** becomes the **back**, the **top face** becomes the **front**, the **front face** becomes the **bottom**, and the **back face** becomes the **top**.
+
+Wait — that’s not quite right.
+
+Let’s use a standard rolling motion.
+
+When a cube rolls **forward** (i.e., in the direction of its front face), the **front face** becomes the **bottom**, the **top face** becomes the **front**, and the **back face** becomes the **top**.
+
+Actually, let’s use the standard cube rolling rules:
+
+> When a cube rolls **forward**, the **top face** becomes the **front**, the **front face** becomes the **bottom**, the **bottom face** becomes the **back**, and the **back face** becomes the **top**.
+
+But this is confusing. Let’s assign coordinates.
+
+---
+
+### Alternate approach: Track cube state with a 3D orientation
+
+Let’s define the cube’s orientation using:
+
+- Top face color
+- Front face color
+- Left face color
+
+We can deduce the rest.
+
+Initial state:
+
+- Top: Red
+- Front: Yellow
+- Left: Purple
+
+So, the right face is opposite left → must be **Blue** (since Blue is not yet assigned, and all six colors are used).
+
+The back face is opposite front → must be **Green** (since Green is not yet assigned).
+
+The bottom face is opposite top → must be **Orange** (since Orange is not yet assigned).
+
+So, full assignment:
+
+- Top: Red → Bottom: Orange
+- Front: Yellow → Back: Green
+- Left: Purple → Right: Blue
+
+✅ All six colors assigned.
+
+---
+
+### Step 5: Simulate each move
+
+The cube moves along a path. From the animation, it moves:
+
+1. Forward (along the path)
+2. Then right (turns right)
+3. Forward
+4. Left
+5. Forward
+
+Wait — actually, from the animation (0:14–0:22), the cube moves along a zig-zag path. Let’s count the number of moves and directions.
+
+Looking at the path:
+
+- Start at position 1 (cube is placed)
+- Moves to position 2 (forward)
+- Then to position 3 (turns right, moves forward)
+- Then to position 4 (turns left, moves forward)
+- Then to position 5 (turns right, moves forward)
+- Then to position 6 (turns left, moves forward) — this is the red square.
+
+Wait — actually, the red square is at the **end**, and from the animation, the cube makes **5 moves** to reach it.
+
+But the direction of each move depends on the path.
+
+From the visual:
+
+- The path is a zig-zag: it goes forward, then turns right, then forward, then turns left, then forward, then turns right, then forward — but that’s 6 moves? Let’s count the tiles.
+
+The path has 6 tiles: the starting tile and 5 moves to reach the 6th tile (red square).
+
+But the cube starts on the first tile, so it moves 5 times.
+
+Each move is a **roll** to the next tile.
+
+The key is: **each move is a 90-degree rotation** around an axis perpendicular to the direction of motion.
+
+But we need to know the direction of motion relative to the cube’s current orientation.
+
+This is complex. Let’s try to simulate each step.
+
+---
+
+### Move 1: Forward
+
+The cube is facing forward (front face is Yellow). It rolls forward.
+
+When rolling forward, the **front face becomes the bottom**, the **top face becomes the front**, and the **back face becomes the top**.
+
+So:
+
+- Top: Red → becomes front
+- Front: Yellow → becomes bottom
+- Bottom: Orange → becomes back
+- Back: Green → becomes top
+
+So after rolling forward:
+
+- Top: Green
+- Front: Red
+- Left: Purple (unchanged, since rolling forward doesn’t affect left/right)
+
+Wait — is that correct?
+
+Actually, when rolling forward, the **left and right faces remain the same**, but the top, front, bottom, back rotate.
+
+Yes.
+
+So:
+
+- Top: Green
+- Front: Red
+- Left: Purple
+- Right: Blue
+- Back: Orange (since bottom was Orange, now back)
+- Bottom: Yellow (since front was Yellow, now bottom)
+
+✅
+
+---
+
+### Move 2: Turns right, then moves forward
+
+After move 1, the cube is facing **Red** (since front is now Red).
+
+Now, it turns **right**. So it rotates 90 degrees to the right.
+
+When turning right, the cube rotates around the **vertical axis** (top-bottom), so the **front face becomes the right face**, the **right face becomes the back**, the **back becomes the left**, and the **left becomes the front**.
+
+So:
+
+- Front: Red → becomes right
+- Right: Blue → becomes back
+- Back: Orange → becomes left
+- Left: Purple → becomes front
+
+So after turning right:
+
+- Top: Green (unchanged)
+- Front: Purple
+- Left: Orange
+- Right: Red
+- Back: Blue
+- Bottom: Yellow
+
+Now, it moves **forward** — i.e., in the direction of the new front face (Purple).
+
+So, rolling forward again.
+
+Rolling forward: front face becomes bottom, top becomes front, back becomes top.
+
+So:
+
+- Top: Green → becomes front
+- Front: Purple → becomes bottom
+- Bottom: Yellow → becomes back
+- Back: Blue → becomes top
+
+So after move 2 (turn + roll):
+
+- Top: Blue
+- Front: Green
+- Left: Orange
+- Right: Red
+- Back: Yellow
+- Bottom: Purple
+
+✅
+
+---
+
+### Move 3: Turns left, then moves forward
+
+Current front: Green.
+
+Turns left → rotates 90° left (counterclockwise).
+
+So:
+
+- Front: Green → becomes left
+- Left: Orange → becomes back
+- Back: Yellow → becomes right
+- Right: Red → becomes front
+
+So after turning left:
+
+- Top: Blue
+- Front: Red
+- Left: Green
+- Right: Yellow
+- Back: Orange
+- Bottom: Purple
+
+Now, moves forward (in direction of front face = Red).
+
+Rolling forward:
+
+- Top: Blue → becomes front
+- Front: Red → becomes bottom
+- Bottom: Purple → becomes back
+- Back: Orange → becomes top
+
+So after move 3:
+
+- Top: Orange
+- Front: Blue
+- Left: Green
+- Right: Yellow
+- Back: Red
+- Bottom: Purple
+
+✅
+
+---
+
+### Move 4: Turns right, then moves forward
+
+Current front: Blue.
+
+Turns right → rotate 90° right.
+
+- Front: Blue → becomes right
+- Right: Yellow → becomes back
+- Back: Red → becomes left
+- Left: Green → becomes front
+
+After turn:
+
+- Top: Orange
+- Front: Green
+- Left: Red
+- Right: Blue
+- Back: Yellow
+- Bottom: Purple
+
+Now, moves forward (in direction of front = Green).
+
+Rolling forward:
+
+- Top: Orange → becomes front
+- Front: Green → becomes bottom
+- Bottom: Purple → becomes back
+- Back: Yellow → becomes top
+
+So after move 4:
+
+- Top: Yellow
+- Front: Orange
+- Left: Red
+- Right: Blue
+- Back: Purple
+- Bottom: Green
+
+✅
+
+---
+
+### Move 5: Turns left, then moves forward
+
+Current front: Orange.
+
+Turns left → rotate 90° left.
+
+- Front: Orange → becomes left
+- Left: Red → becomes back
+- Back: Purple → becomes right
+- Right: Blue → becomes front
+
+After turn:
+
+- Top: Yellow
+- Front: Blue
+- Left: Orange
+- Right: Purple
+- Back: Red
+- Bottom: Green
+
+Now, moves forward (in direction of front = Blue).
+
+Rolling forward:
+
+- Top: Yellow → becomes front
+- Front: Blue → becomes bottom
+- Bottom: Green → becomes back
+- Back: Red → becomes top
+
+So after move 5:
+
+- Top: Red
+- Front: Yellow
+- Left: Orange
+- Right: Purple
+- Back: Green
+- Bottom: Blue
+
+✅
+
+---
+
+### Final State
+
+The cube reaches the **red square**.
+
+What is on **top**? **Red**
+
+---
+
+### ✅ Final Answer:
+
+\boxed{red}

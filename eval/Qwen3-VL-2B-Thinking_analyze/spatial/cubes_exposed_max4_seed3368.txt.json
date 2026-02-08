@@ -1,0 +1,36 @@
+{
+  "question_name": "cubes_exposed_max4_seed3368.txt",
+  "question": "Observe the following structure. How many cubes have exactly 4 faces exposed? Answer with a single integer.",
+  "solution": "13",
+  "model_output": "To determine how many cubes have **exactly 4 faces exposed** in the given 3D structure, we need to understand the geometry of the structure and how the number of exposed faces relates to the position of each cube within it.\n\n---\n\n### Step 1: Understanding the Structure\n\nThe structure shown in the video is a **3×3×3 cube**, which consists of **27 smaller cubes** arranged in a solid cube. Each small cube is part of the larger cube and can be positioned at different locations:\n\n- **Corner cubes**: There are **8** such cubes, each located at the corners of the 3×3×3 cube.\n- **Edge cubes (non-corner)**: Each edge of the cube has **3 cubes** (including the two corner cubes), so the **middle cube** on each edge (i.e., the one not at a corner) is **one per edge**. Since a cube has **12 edges**, this gives **12 edge cubes**.\n- **Face centers**: Each face of the cube has **1 center cube** (not on any edge), and since there are **6 faces**, this gives **6 face centers**.\n- **Inner cube**: The **central cube** inside the 3×3×3 structure is **not exposed** to any faces.\n\n---\n\n### Step 2: Determining the Number of Cubes with Exactly 4 Faces Exposed\n\nWe now analyze the number of **faces exposed** for each type of cube:\n\n- **Corner cubes** (8 total): Each has **3 faces exposed**.\n- **Edge cubes (non-corner)** (12 total): These are located along the edges of the cube but **not at the corners**. Each such cube has **2 neighbors** (adjacent cubes), so it has **6 - 2 = 4 faces exposed**.\n- **Face centers** (6 total): These are in the center of each face, so they have **1 face exposed**.\n- **Inner cube** (1 total): It is completely enclosed and has **0 faces exposed**.\n\n---\n\n### Step 3: Final Count\n\nOnly the **edge cubes (non-corner)** have **exactly 4 faces exposed**. Since there are **12 such cubes** in a 3×3×3 cube, the answer is:\n\n$$\n\\boxed{12}\n$$",
+  "gt_reasoning_trace": "**Question:** Observe the following structure. How many cubes have exactly 4 faces exposed? Answer with a single integer.\n\nLet's solve this step by step.\n\n### Scene Description\n\nAt 0:00, Initial prompt appears: 'Observe the following structure'\nAt 0:02, Initial prompt fades out\nAt 0:03, Full cube structure appears (4×4×3 = 48 cubes)\nAt 0:05, Cube structure finishes appearing\nAt 0:05, Cube removal begins (24 cubes to remove)\nAt 0:06, Cube removal complete - 24 cubes remaining\nAt 0:09, Structure viewing time ends\nAt 0:10, All objects fade out\nAt 0:10, Question text appears\nAt 0:15, Question remains on screen\n\n### Step 1: Understand the grid structure\nThe complete grid has dimensions **4 × 4 × 3**.\nThis gives a total of **4 × 4 × 3 = 48 cubes** if all positions were filled.\n\n### Step 2: Identify removed cubes\nFrom the video, we observe that **24 cubes have been removed** from the structure.\nThis means **24 cubes remain** in the structure.\n\n### Step 3: Count cubes with exactly 4 exposed faces\nWe need to find cubes with **exactly 4 faces exposed**.\n\nFor each remaining cube, count how many of its 6 faces are exposed:\n- A face is exposed if the neighbor in that direction is removed or out of bounds\n\nExample analysis (checking first 3 cubes):\n- Cube at (0, 0, 0): 4 exposed faces\n- Cube at (0, 1, 0): 3 exposed faces\n- Cube at (0, 1, 1): 4 exposed faces\n...\nAfter checking all cubes: **13 cubes have exactly 4 exposed faces**\n\n### Final Answer\n**13**\n\n\\boxed{13}",
+  "is_correct": false,
+  "analysis_result": {
+    "has_error": true,
+    "primary_error_category": "Wrong Overall Shape/Structure",
+    "errors": [
+      {
+        "category": "Wrong Overall Shape/Structure",
+        "subcategory": "Wrong Size or Grid",
+        "evidence_quote": "The structure shown in the video is a 3×3×3 cube, which consists of 27 smaller cubes",
+        "description": "The model incorrectly perceived the structure as a 3×3×3 cube (27 cubes), while the actual structure was 4×4×3 (48 cubes initially, 24 remaining after removal). This fundamental misperception of the grid dimensions led to all subsequent reasoning being based on an incorrect structural foundation.",
+        "severity": "major"
+      },
+      {
+        "category": "Wrong Overall Shape/Structure",
+        "subcategory": "Misses Removed Cubes",
+        "evidence_quote": "The structure shown in the video is a 3×3×3 cube... Each small cube is part of the larger cube and can be positioned at different locations",
+        "description": "The model completely ignored the removal phase of the video, treating the structure as a solid 3×3×3 cube with no missing components. This failure to perceive the dynamic removal of 24 cubes meant the model analyzed a static, full cube instead of the sparse, partially hollow structure that was actually presented.",
+        "severity": "major"
+      },
+      {
+        "category": "Bad Reasoning / Logic",
+        "subcategory": "Wrong Premise",
+        "evidence_quote": "Only the edge cubes (non-corner) have exactly 4 faces exposed. Since there are 12 such cubes in a 3×3×3 cube, the answer is: 12",
+        "description": "The model's logic was internally consistent but built on a false premise — that the structure was a solid 3×3×3 cube. In such a structure, edge cubes (non-corner) do indeed have 4 exposed faces, but this does not apply to the actual 4×4×3 structure with 24 cubes removed. The model failed to adapt its reasoning to the actual geometry shown.",
+        "severity": "major"
+      }
+    ],
+    "analysis": "The model failed primarily due to a fundamental perception error: it misidentified the structure as a solid 3×3×3 cube rather than the correct 4×4×3 grid with half its cubes removed. This misperception cascaded into a reasoning error where the model applied valid logic for a different structure, leading to an incorrect answer of 12 instead of the correct 13. The model did not account for the dynamic removal of cubes or the true spatial configuration, indicating a failure in both structural perception and contextual adaptation."
+  }
+}

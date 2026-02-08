@@ -1,0 +1,267 @@
+We are given a task to count how many times the color **green** appears on top of the cubes after each roll.
+
+---
+
+### Step 1: Understand the setup
+
+We are shown 5 cubes in a row. Each cube has different colors on its faces. The cubes are rolled one after another (or perhaps simultaneously, but each roll changes the top face). We are to record the **top face color** after each roll.
+
+We are told to **remember the following color names**:
+
+- Blue → light blue square
+- Red → red square
+- White → white square
+- Green → green square
+- Yellow → yellow square
+- Purple → purple square
+
+So we can identify colors by their names and associated squares.
+
+---
+
+### Step 2: Observe the cube rolls
+
+We are shown a sequence of frames where the cubes are rolling. Since the cubes are rolling, the top face changes with each roll.
+
+We need to **track the top face color of each cube after each roll** and count how many times **green** appears on top **across all cubes and all rolls**.
+
+However, the video does not show a long sequence of rolls — it shows **one sequence of rolling**, and then asks the question.
+
+Looking at the frames from 0:11 to 0:22, we see:
+
+- **Frame 0:11**: Initial positions. Top faces (from left to right):
+  - Cube 1: red
+  - Cube 2: green
+  - Cube 3: red
+  - Cube 4: red
+  - Cube 5: white
+
+Wait — actually, looking more carefully:
+
+At **0:11**, the cubes are shown with:
+
+- Cube 1: top = red, front = white
+- Cube 2: top = green, front = blue
+- Cube 3: top = red, front = purple
+- Cube 4: top = red, front = yellow
+- Cube 5: top = white, front = green
+
+Wait — this is inconsistent. The front face is not the same as the top face. But we are only concerned with the **top face**.
+
+Let me re-express the top faces at each frame.
+
+---
+
+### Step 3: Track top faces across rolls
+
+We are told to record the color on top of each cube **after each roll**. The cubes are rolling, so each cube may change its top face.
+
+Let’s go frame by frame from 0:11 to 0:22.
+
+**Frame 0:11 (initial state)** — top faces (left to right):
+
+- Cube 1: red
+- Cube 2: green
+- Cube 3: red
+- Cube 4: red
+- Cube 5: white
+
+→ Green appears **once** (on cube 2)
+
+---
+
+**Frame 0:13** — after first roll? Top faces:
+
+- Cube 1: white
+- Cube 2: blue
+- Cube 3: purple
+- Cube 4: yellow
+- Cube 5: green
+
+→ Green appears **once** (on cube 5)
+
+---
+
+**Frame 0:14** — next state:
+
+- Cube 1: white
+- Cube 2: green
+- Cube 3: green
+- Cube 4: yellow
+- Cube 5: green
+
+→ Green appears **three times** (cubes 2, 3, 5)
+
+---
+
+**Frame 0:15** — next:
+
+- Cube 1: red
+- Cube 2: green
+- Cube 3: green
+- Cube 4: green
+- Cube 5: green
+
+→ Green appears **four times** (cubes 2, 3, 4, 5)
+
+---
+
+**Frame 0:16** — next:
+
+- Cube 1: red
+- Cube 2: green
+- Cube 3: green
+- Cube 4: green
+- Cube 5: green
+
+→ Still **four times**
+
+---
+
+**Frame 0:17** — next:
+
+- Cube 1: white
+- Cube 2: green
+- Cube 3: green
+- Cube 4: green
+- Cube 5: green
+
+→ Still **four times**
+
+---
+
+**Frame 0:18** — next:
+
+- Cube 1: white
+- Cube 2: green
+- Cube 3: green
+- Cube 4: green
+- Cube 5: green
+
+→ Still **four times**
+
+---
+
+**Frame 0:19** — next:
+
+- Cube 1: white
+- Cube 2: green
+- Cube 3: green
+- Cube 4: green
+- Cube 5: green
+
+→ Still **four times**
+
+---
+
+**Frame 0:20** — next:
+
+- Cube 1: white
+- Cube 2: green
+- Cube 3: green
+- Cube 4: green
+- Cube 5: green
+
+→ Still **four times**
+
+---
+
+**Frame 0:21** — next:
+
+- Cube 1: white
+- Cube 2: green
+- Cube 3: green
+- Cube 4: green
+- Cube 5: green
+
+→ Still **four times**
+
+---
+
+**Frame 0:22** — next:
+
+- Cube 1: white
+- Cube 2: green
+- Cube 3: green
+- Cube 4: green
+- Cube 5: green
+
+→ Still **four times**
+
+---
+
+Wait — but the question is: **How many times was green rolled in total?**
+
+Does this mean: **across all frames, how many times does green appear on top?**
+
+That is, if we count every time a cube shows green on top in each frame, and sum them.
+
+We have 11 frames from 0:11 to 0:22 (inclusive). Let’s list the number of green top faces per frame:
+
+- Frame 0:11: 1 green (cube 2)
+- Frame 0:13: 1 green (cube 5)
+- Frame 0:14: 3 greens (cubes 2,3,5)
+- Frame 0:15: 4 greens (cubes 2,3,4,5)
+- Frame 0:16: 4 greens
+- Frame 0:17: 4 greens
+- Frame 0:18: 4 greens
+- Frame 0:19: 4 greens
+- Frame 0:20: 4 greens
+- Frame 0:21: 4 greens
+- Frame 0:22: 4 greens
+
+Wait — how many frames? From 0:11 to 0:22 is 12 frames? Let's count:
+
+0:11, 0:12, 0:13, 0:14, 0:15, 0:16, 0:17, 0:18, 0:19, 0:20, 0:21, 0:22 → **12 frames**
+
+But we don’t have data for 0:12. In the video, 0:12 is not shown — it’s a blank frame? Or is it a transition?
+
+Actually, looking at the timestamps:
+
+- 0:11 — initial
+- 0:13 — next state
+- 0:14 — next
+- ...
+- 0:22 — final
+
+So frames shown are: 0:11, 0:13, 0:14, 0:15, 0:16, 0:17, 0:18, 0:19, 0:20, 0:21, 0:22 → **11 frames**
+
+Let’s list them:
+
+1. 0:11 → 1 green
+2. 0:13 → 1 green
+3. 0:14 → 3 greens
+4. 0:15 → 4 greens
+5. 0:16 → 4 greens
+6. 0:17 → 4 greens
+7. 0:18 → 4 greens
+8. 0:19 → 4 greens
+9. 0:20 → 4 greens
+10. 0:21 → 4 greens
+11. 0:22 → 4 greens
+
+Now sum:
+
+1 + 1 + 3 + 4 + 4 + 4 + 4 + 4 + 4 + 4 + 4 =
+
+Let’s compute:
+
+1 + 1 = 2
+
+2 + 3 = 5
+
+5 + 4 = 9
+
+Then 4 added 7 more times: 7 × 4 = 28
+
+Total = 9 + 28 = **37**
+
+---
+
+### Step 4: Final Answer
+
+The total number of times green appears on top across all frames is **37**.
+
+---
+
+✅ **Answer: \boxed{37}**

@@ -1,0 +1,328 @@
+We are shown a 3D structure made of small colored cubes, forming a larger cube-like shape. The structure rotates, allowing us to see different perspectives.
+
+The question asks:  
+**“What is the maximum number of visible square faces that can be seen in a parallel 2D projection, considering only the side faces? Answer with a single integer.”**
+
+---
+
+### Step 1: Understand the structure
+
+From the video frames (0:04–0:10), we see a 3D object composed of small cubes. It appears to be a **3×3×3 cube with some cubes missing** — specifically, it looks like the **center cube of each face and the very center cube of the entire 3×3×3 are removed**, making it a hollowed-out cube with some internal structure visible.
+
+But actually, looking closely at the rotation (especially 0:07–0:10), it’s more like a **3×3×3 cube with only the outer layer of cubes present** — i.e., a **hollow cube** — meaning the 27 total cubes minus the 1 center cube = 26 cubes? Wait — no.
+
+Actually, in a 3×3×3 cube, if you remove only the very center cube (the one at position (2,2,2) if indexed from 1), you’re left with 26 cubes. But in the video, when it rotates, we can see that **some cubes are missing from the faces too** — for example, at 0:07, we see a “hole” in the front face, and at 0:09, we see the structure is not fully solid.
+
+Wait — let’s count the cubes.
+
+Actually, from the animation, it appears to be a **3×3×3 cube with the center cube of each face removed, and the very center cube removed** — but that’s 7 cubes removed (6 face centers + 1 body center), leaving 20 cubes.
+
+But perhaps a better approach is to **not count cubes, but count visible square faces in a 2D projection**.
+
+---
+
+### Step 2: Understand the question
+
+We are to find the **maximum number of visible square faces** in a **parallel 2D projection**, considering **only the side faces**.
+
+Important clarifications:
+
+- “Parallel 2D projection” means orthographic projection — no perspective, no foreshortening. Think of viewing the object from a direction where parallel lines remain parallel.
+- “Considering only the side faces” — this likely means **excluding the top and bottom faces**. So we are only counting faces that are on the **front, back, left, right** — i.e., the **lateral faces** — not top or bottom.
+- “Visible square faces” — in the 2D projection, we can only see faces that are not occluded by other cubes in front of them.
+
+So, in other words: from a chosen viewing direction (which we can choose to maximize visibility), how many **lateral** (non-top/bottom) square faces can we see?
+
+Note: In a 3D object made of cubes, each cube face is a square. But in projection, if two cubes are aligned along the viewing direction, only the front one is visible.
+
+---
+
+### Step 3: Strategy
+
+To maximize the number of visible **side** faces, we should choose a viewing direction that shows **three faces** of the object — for example, a corner view where we can see front, right, and top — but wait, the question says **“considering only the side faces”**, which probably excludes top and bottom.
+
+So we must exclude top and bottom faces. That means we can only count faces that are on the **front, back, left, right** — i.e., the **vertical faces**.
+
+In a 3D object, if we look at it from a direction that is **not aligned with any axis** (i.e., a corner view), we can see **three faces**: front, right, and top — but top is excluded.
+
+So to see only side faces, we should look from a direction that shows **two side faces** — for example, a view that shows front and right, but not top or bottom.
+
+In such a view, we can see the front face and the right face of the object.
+
+But since the object is made of small cubes, we need to count how many **individual square faces** are visible on those two sides, **without double-counting or counting occluded faces**.
+
+Actually, in a parallel projection, if we look at the object from a direction that is **45 degrees between front and right**, we can see both the front and right faces simultaneously, and since it’s orthographic, no scaling — we just see the union of the two faces.
+
+But in that case, the cubes on the edge between front and right will have two faces visible — but we are counting **faces**, not cubes. So if a cube has both a front face and a right face visible, we count both.
+
+So the total visible side faces = visible front faces + visible right faces.
+
+But we must be careful: if a cube is hidden behind another cube in the front face, its front face is not visible. Similarly for the right face.
+
+So to maximize the number of visible side faces, we need to choose a viewing direction that reveals as many **non-occluded** front and right faces as possible.
+
+Alternatively, perhaps the question is simpler: since it’s a 3×3×3 cube with some cubes missing, and we are to find the maximum number of visible **side** (lateral) square faces in any parallel projection.
+
+Let’s assume the structure is a **3×3×3 cube with the center cube removed** — that’s 26 cubes.
+
+But from the animation, it’s clear that **more than just the center cube is missing** — for example, at 0:07, we see that the front face has a hole in the center, and at 0:09, we see that the structure is like a frame.
+
+Actually, looking at 0:05–0:06, it looks like a **solid 3×3×3 cube**, but then at 0:07, it rotates and we see that the center of the front face is missing, and also the center of the top face is missing — so it’s **not solid**.
+
+Perhaps it’s a **cube with all center cubes of each face removed, and the very center cube removed** — so 6 face centers + 1 body center = 7 removed, leaving 20 cubes.
+
+But let’s try to count the visible faces from a good angle.
+
+---
+
+### Step 4: Count visible side faces from a good viewing angle
+
+Let’s assume we view the object from a direction that shows the **front and right faces** — and we want to count the number of visible square faces on those two faces.
+
+In a **solid 3×3×3 cube**, from such a view, we would see:
+
+- Front face: 3×3 = 9 faces, but only the front layer — actually, in 3D, if it’s solid, we see only the front face of the front layer — 9 faces.
+
+- Right face: similarly, 9 faces.
+
+But the cubes on the edge between front and right are shared — but since we are counting **faces**, not cubes, the front face of the front-right cube is counted in front, and the right face of the same cube is counted in right — so total 9 + 9 = 18.
+
+But in a solid cube, the back layers are hidden, so only the front layer's front faces are visible, and only the right layer's right faces are visible.
+
+So for a solid 3×3×3, from a corner view showing front and right, we see 9 (front) + 9 (right) = 18 side faces.
+
+But our object is not solid — it has holes.
+
+From the animation, at 0:07, we see that the front face has a hole in the center — so only 8 front faces are visible? Wait, no — in 3D, if the center cube is missing, then the front face has 8 visible faces? Actually, no — if the center cube of the front face is missing, then we see the front face of the cubes around it, but the hole might reveal the back, but since we are only counting side faces, and the back is not visible from front, perhaps we still see 8 front faces.
+
+Actually, in a 3×3 grid, if the center cube is missing, then the front face has 8 visible square faces (the 8 around the hole).
+
+Similarly, if the right face also has its center missing, then 8 right faces.
+
+But the cube at the front-right edge — if it’s present, its front and right faces are both visible.
+
+So total visible side faces = front visible faces + right visible faces.
+
+If both front and right faces have their centers missing, then 8 + 8 = 16.
+
+But is that the maximum? Perhaps from a different angle, we can see more.
+
+What if we view it from a direction that shows **three faces** — but the question says "considering only the side faces", which probably excludes top and bottom, so even if we see three faces, we only count the two side ones.
+
+Alternatively, perhaps "side faces" means all faces except top and bottom, so front, back, left, right — and in a projection, we can see at most two of them at once.
+
+So maximum is front + right = 16 in this case.
+
+But let's look at the structure more carefully.
+
+At 0:09, we see the structure from a different angle — it looks like a cube with the center of each face missing, and also the very center missing — so it's like a 3×3×3 with the 7 cubes removed: 6 face centers and 1 body center.
+
+So the remaining 20 cubes are the corners and edges.
+
+In a 3×3×3, there are:
+
+- 8 corner cubes (each has 3 faces exposed)
+
+- 12 edge cubes (not corners) — but in 3×3×3, the edge cubes are the ones on the edges but not corners — there are 12 edges, each with 1 cube in the middle — but those are the face centers, which are removed.
+
+- 6 face centers — removed.
+
+- 1 body center — removed.
+
+So only the 8 corner cubes remain? But 8 is too few — at 0:05, it looks like more than 8 cubes.
+
+Perhaps I miscounted.
+
+In a 3×3×3 cube, total cubes = 27.
+
+If we remove the 6 face centers and the 1 body center, we remove 7, leaving 20.
+
+The 20 include:
+
+- 8 corners
+
+- 12 edge cubes (the ones on the edges but not corners) — in a 3×3×3, each edge has one cube in the middle — there are 12 edges, so 12 edge cubes.
+
+But in a 3×3×3, the "edge cubes" are the ones on the edges of the cube, which are not corners — and there are 12 of them (one per edge).
+
+And the face centers are 6, body center 1.
+
+So if we remove only the 6 face centers and 1 body center, we are left with 8 corners + 12 edge cubes = 20 cubes.
+
+Yes.
+
+Now, each of these cubes has some faces exposed.
+
+But for the projection, we need to see how many faces are visible from a particular view.
+
+To maximize the number of visible side faces, let's choose a viewing direction that shows the front and right faces.
+
+In this view, for the front face, we see the front faces of the cubes that are on the front layer.
+
+The front layer of the 3×3×3 has 9 cubes: 4 corners, 4 edge centers, 1 face center.
+
+But in our structure, the face center is removed, and the edge centers are present? Wait, no — in our structure, the 12 edge cubes are the ones on the edges of the entire cube, not on the face edges.
+
+Let's clarify.
+
+In the 3×3×3 cube, the cubes can be classified as:
+
+- Corner cubes: 8, each at a corner of the cube.
+
+- Edge cubes: 12, each on an edge but not at a corner — for example, the cube at the middle of the top-front edge.
+
+- Face-center cubes: 6, each at the center of a face.
+
+- Body-center cube: 1.
+
+In our structure, we have removed the 6 face-center cubes and the 1 body-center cube, so we have the 8 corner cubes and the 12 edge cubes.
+
+Now, when we look at the front face, which cubes contribute to the front face?
+
+The front face consists of the 9 cubes in the front layer: positions (1,1,1), (1,2,1), (1,3,1), (2,1,1), (2,2,1), (2,3,1), (3,1,1), (3,2,1), (3,3,1) — if we index from 1.
+
+Among these, the face-center is (2,2,1), which is removed.
+
+The edge cubes on the front face are: (1,2,1), (2,1,1), (2,3,1), (3,2,1) — these are the middle of the edges of the front face.
+
+In our structure, are these edge cubes present? Yes, because we only removed face-center and body-center, not the edge cubes.
+
+The corner cubes on the front face are (1,1,1), (1,3,1), (3,1,1), (3,3,1) — also present.
+
+So on the front face, we have 8 cubes: 4 corners and 4 edge cubes, with the center missing.
+
+So when we look at the front face, we see 8 visible front faces.
+
+Similarly, for the right face, we see 8 visible right faces.
+
+Now, are there any cubes that are on both front and right? Yes, the cubes at the front-right edge.
+
+Specifically, the cubes at (3,1,1), (3,2,1), (3,3,1) are on the right face as well.
+
+For example, cube at (3,2,1): this is on the front face and on the right face (since x=3 is the right face).
+
+In our structure, this cube is present (it's an edge cube).
+
+From the viewing direction that shows both front and right, we can see both the front face and the right face of this cube.
+
+So we count both faces.
+
+Similarly for other cubes on the edge.
+
+So total visible side faces = number of visible front faces + number of visible right faces = 8 + 8 = 16.
+
+Is there any overlap or double-counting? No, because we are counting faces, not cubes. Each face is counted separately.
+
+Can we see more than 16? For example, if we view from a direction that shows front, right, and also part of the back or left, but in parallel projection, from a single view, we can only see at most three faces, but since we are excluding top and bottom, and if we see three faces, say front, right, and back, but back is not visible if front is in front.
+
+In orthographic projection, from a single view, you can only see the faces that are not occluded, and typically for a convex object, you see at most three faces, but for our object, since it's hollow, you might see more, but in this case, it's still limited.
+
+Moreover, the question likely expects us to consider the maximum from any single view, and 16 seems reasonable.
+
+But let's verify with the animation.
+
+At 0:07, we see the front face with 8 visible squares (center missing).
+
+At 0:09, we see a view where we can see the front and right, and it looks like 8 on front and 8 on right, but some are shared, but as said, we count faces.
+
+Perhaps the answer is 16.
+
+But let's think if we can see more.
+
+Suppose we view from a direction that is not aligned with the axes — for example, at 45 degrees to front and right, and also slightly tilted, but since we are to consider only side faces, and in parallel projection, the number of visible faces might be the same.
+
+Another way: the maximum number of visible side faces is limited by the surface area.
+
+The total number of side faces in the structure.
+
+Each cube has 6 faces, but many are internal or hidden.
+
+For the 8 corner cubes: each has 3 faces exposed, but in the full cube, some are internal, but in our structure, since it's hollow, let's calculate the total number of exposed side faces.
+
+But for the projection, we care about visible from one view.
+
+Perhaps 16 is the answer.
+
+But let's consider a different structure.
+
+At 0:05, it looks like a solid cube, but then it rotates and we see holes.
+
+At 0:06, it's solid, but at 0:07, it's not.
+
+Perhaps the structure is a 3×3×3 with only the outer shell — i.e., all cubes except the very center — so 26 cubes.
+
+In that case, from a corner view, we see 9 front + 9 right = 18 side faces.
+
+But in the video, at 0:07, we see that the front face has a hole, so it's not solid.
+
+At 0:07, the front face has 8 visible squares, not 9.
+
+Similarly, at 0:09, the right face has 8.
+
+So likely, the structure has the face centers removed.
+
+So 8 + 8 = 16.
+
+Perhaps the answer is 16.
+
+But let's see if we can see more by choosing a different view.
+
+Suppose we view from a direction that shows the front and the left face — same thing, 8 + 8 = 16.
+
+Or if we view from a direction that shows only the front face — then we see 8, which is less.
+
+Or if we view from a direction that shows three faces, but since top and bottom are excluded, and if we see front, right, and say, the back, but back is not visible if front is in front.
+
+In orthographic projection, for a convex object, you see at most three faces, but for our object, since it's not convex (has holes), you might see more, but in this case, the holes are on the faces, so when you look at front, you see the 8 faces, and if you look at a corner, you see front and right, 8+8=16.
+
+Moreover, the cubes on the edge between front and right are counted in both, but as said, their faces are different.
+
+So I think 16 is the maximum.
+
+Perhaps the question is tricking us, and "side faces" means only the four vertical faces, and in a projection, we can see at most two of them, so 8+8=16.
+
+So I'll go with 16.
+
+But let's double-check with a different approach.
+
+Suppose we consider the structure as a 3×3×3 with the 7 cubes removed: 6 face centers and 1 body center.
+
+Then the remaining 20 cubes are:
+
+- 8 corners: each has 3 faces exposed, but in the context of the whole object, some faces are internal, but since the center is removed, for corner cubes, all 3 faces are exposed.
+
+For example, the cube at (1,1,1): its front, left, and bottom faces are exposed.
+
+Similarly for other corners.
+
+- 12 edge cubes: for example, the cube at (2,1,1): this is on the bottom-front edge. Its front and bottom faces are exposed, and its left and right are adjacent to other cubes, but in our structure, since the face centers are removed, for the cube at (2,1,1), its left and right are not adjacent to cubes if the face centers are removed, but in 3×3×3, the cube at (2,1,1) is on the front-bottom edge, and its left and right are at (1,1,1) and (3,1,1), which are corners, so it is adjacent to them.
+
+Actually, in the full cube, the edge cube at (2,1,1) has neighbors at (1,1,1), (3,1,1), (2,2,1), (2,1,2), etc.
+
+But in our structure, (2,2,1) is removed (face center), so the cube at (2,1,1) has no neighbor at (2,2,1), so its back face (towards (2,2,1)) is exposed.
+
+Similarly, its top face (towards (2,1,2)) — (2,1,2) is an edge cube, which is present, so it may be adjacent.
+
+This is getting complicated.
+
+Perhaps for the purpose of this problem, since the video shows the structure rotating, and at 0:07 and 0:09, we can clearly see 8 faces on front and 8 on right, and the question asks for the maximum in a 2D projection, and 16 is achievable, and likely the answer.
+
+Moreover, the answer is to be a single integer, and 16 is reasonable.
+
+So I'll box 16.
+
+But let's see if there's a way to see more.
+
+Suppose we view from a direction that is not aligned with the axes — for example, at 45 degrees to the front and right, and also at a slight angle to see the top, but the question says "considering only the side faces", so we ignore top and bottom.
+
+In that case, we still see only the front and right faces, and the number of visible faces is the same as in the axis-aligned view, because in orthographic projection, the number of visible faces doesn't change with rotation for a convex object, but our object is not convex.
+
+However, in this case, since the holes are symmetric, likely 16 is the maximum.
+
+Perhaps from a view that shows the front and the back, but in parallel projection, you can't see both front and back unless the object is transparent, which it's not.
+
+So I think 16 is the answer.
+
+**Final Answer**
+
+\boxed{16}

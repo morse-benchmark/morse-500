@@ -1,0 +1,180 @@
+We are shown a sequence of cube rolls and asked to count how many times "yellow" appeared on top.
+
+First, we are given a key to identify colors:
+
+- Blue → light blue square
+- Red → red square
+- White → white square
+- Green → green square
+- Yellow → yellow square
+- Purple → purple square
+
+Then, we are told: “After each roll, record the color on the top of each cube.”
+
+We are shown 3 cubes rolling in sequence. Let’s go frame by frame and record the top color of each cube after each roll.
+
+---
+
+**Initial state (0:11):**
+
+- Cube 1 (left): top = blue
+- Cube 2 (middle): top = white
+- Cube 3 (right): top = red
+
+→ Yellow count = 0
+
+---
+
+**Roll 1 (0:13):**
+
+- Cube 1: top = green
+- Cube 2: top = blue
+- Cube 3: top = yellow ← **1st yellow**
+
+→ Yellow count = 1
+
+---
+
+**Roll 2 (0:15):**
+
+- Cube 1: top = blue
+- Cube 2: top = white
+- Cube 3: top = yellow ← **2nd yellow**
+
+→ Yellow count = 2
+
+---
+
+**Roll 3 (0:17):**
+
+- Cube 1: top = purple
+- Cube 2: top = green
+- Cube 3: top = red
+
+→ Yellow count = 2
+
+---
+
+**Roll 4 (0:19):**
+
+- Cube 1: top = green
+- Cube 2: top = blue
+- Cube 3: top = yellow ← **3rd yellow**
+
+→ Yellow count = 3
+
+---
+
+**Roll 5 (0:21):**
+
+- Cube 1: top = blue
+- Cube 2: top = white
+- Cube 3: top = orange? Wait — but orange is not in our color key.
+
+Hold on — at 0:21, the right cube’s top face is orange. But our color key only includes: blue, red, white, green, yellow, purple.
+
+This is likely a trick or error — but looking back at 0:19, the right cube’s top was yellow, and at 0:21, it’s orange — which is not in the key.
+
+However, at 0:23, the cube rolls again and the top becomes yellow again.
+
+Wait — let’s re-express the sequence carefully.
+
+Actually, let’s list the top face of the **rightmost cube** (since only it seems to show yellow consistently) across all rolls:
+
+- Roll 0 (initial): red
+- Roll 1: yellow → count = 1
+- Roll 2: yellow → count = 2
+- Roll 3: red
+- Roll 4: yellow → count = 3
+- Roll 5: yellow → count = 4? Wait, at 0:23, the top is yellow again.
+
+At 0:23:
+
+- Cube 1: top = green
+- Cube 2: top = blue
+- Cube 3: top = yellow ← **4th yellow**
+
+Wait — but let’s check the timing.
+
+Actually, the video shows 5 distinct roll states after the initial setup:
+
+1. Initial (0:11)
+2. First roll (0:13)
+3. Second roll (0:15)
+4. Third roll (0:17)
+5. Fourth roll (0:19)
+6. Fifth roll (0:21)
+7. Sixth roll (0:23)
+
+That’s 6 rolls after the initial state? Or 6 states total including initial?
+
+Actually, the instruction says: “After each roll, record the color...”
+
+So we should count the top face **after each roll**, meaning we ignore the initial state and start counting from the first roll.
+
+Let’s define:
+
+- Roll 1 → frame at 0:13
+- Roll 2 → frame at 0:15
+- Roll 3 → frame at 0:17
+- Roll 4 → frame at 0:19
+- Roll 5 → frame at 0:21
+- Roll 6 → frame at 0:23
+
+Now, for each roll, check the top face of **all three cubes** — because the question is “how many times was yellow rolled in total?” — meaning across all cubes and all rolls.
+
+So let’s make a table:
+
+| Roll # | Cube 1 Top | Cube 2 Top | Cube 3 Top | Yellow Count (this roll) |
+|--------|------------|------------|------------|---------------------------|
+| 1      | green      | blue       | yellow     | 1                         |
+| 2      | blue       | white      | yellow     | 1                         |
+| 3      | purple     | green      | red        | 0                         |
+| 4      | green      | blue       | yellow     | 1                         |
+| 5      | blue       | white      | orange?    | 0 (orange not yellow)     |
+| 6      | green      | blue       | yellow     | 1                         |
+
+Wait — at roll 5 (0:21), cube 3 top is orange. But orange is not in our color key. Is it possible it’s meant to be yellow? Or is it a different color?
+
+Looking closely at 0:21, the top face of cube 3 is a pale orange or peach — definitely not yellow. But at 0:23, it’s clearly yellow again.
+
+So unless orange is a misrendering of yellow, we should not count it.
+
+But let’s double-check the video frames:
+
+- 0:13 → cube 3 top: bright yellow → yellow
+- 0:15 → cube 3 top: bright yellow → yellow
+- 0:17 → cube 3 top: red → not yellow
+- 0:19 → cube 3 top: bright yellow → yellow
+- 0:21 → cube 3 top: pale orange → not yellow (based on color key)
+- 0:23 → cube 3 top: bright yellow → yellow
+
+So yellow appears on cube 3 at rolls 1, 2, 4, and 6.
+
+That’s 4 times.
+
+Now, did any other cube show yellow?
+
+Looking at cube 1 and 2:
+
+- Cube 1: tops are green, blue, purple, green, blue, green — no yellow
+- Cube 2: tops are blue, white, green, blue, white, blue — no yellow
+
+So only cube 3 showed yellow, and it did so 4 times.
+
+Therefore, total yellow rolls = 4.
+
+But wait — let’s confirm the number of rolls.
+
+The video shows:
+
+- Initial state: 0:11
+- Then 6 more states: 0:13, 0:15, 0:17, 0:19, 0:21, 0:23
+
+That’s 6 rolls.
+
+And yellow appeared on top of cube 3 in rolls 1, 2, 4, and 6 → 4 times.
+
+Final answer: 4
+
+\boxed{4}

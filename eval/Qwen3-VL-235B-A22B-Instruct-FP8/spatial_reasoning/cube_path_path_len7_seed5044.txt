@@ -1,0 +1,550 @@
+We are given a cube with colored faces and a path of squares it rolls along. The goal is to determine which color face will be on top when the cube reaches the red square at the end of the path.
+
+---
+
+### Step 1: Understand the initial state
+
+From frames 0:07 to 0:09, we see the cube rotating. At 0:09, the cube is shown with:
+
+- Top face: **Red**
+- Front face: **Yellow**
+- Right face: **Purple**
+
+We can deduce the initial orientation:
+
+Let’s assign directions:
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+
+From this, we can infer the opposite faces:
+
+- Bottom: opposite of Red → **Green** (since Red and Green are opposites in the initial color mapping)
+- Back: opposite of Yellow → **Blue**
+- Left: opposite of Purple → **Orange**
+
+Wait — let’s verify the color mapping from the beginning.
+
+---
+
+### Step 2: Recall color mapping
+
+At 0:03, we are told:
+
+- Blue → blue square
+- Red → red square
+- Green → green square
+- Yellow → yellow square
+- Orange → orange square
+- Purple → purple square
+
+So all six colors are assigned to the six faces of the cube. No two colors are the same, and we can assume standard cube opposite pairs? Not necessarily — we must deduce from movement.
+
+But in frame 0:09, we see:
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+
+So let’s label the cube’s faces:
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+
+Then:
+
+- Bottom: ? (opposite Red)
+- Back: ? (opposite Yellow)
+- Left: ? (opposite Purple)
+
+We don’t yet know which colors are opposite which, so we must track the cube’s rotations as it rolls.
+
+---
+
+### Step 3: Trace the cube’s movement along the path
+
+From 0:14 to 0:21, the cube rolls along a path of black squares, ending on a red square.
+
+Let’s number the positions:
+
+- Start: cube is on first black square (position 1), with Red on top, Yellow front, Purple right.
+
+Then it rolls:
+
+#### Roll 1: to the right (to position 2)
+
+When a cube rolls to the right, the right face becomes the bottom, the bottom becomes the left, the left becomes the top, and the top becomes the right.
+
+But let’s think in terms of which face ends up on top.
+
+Initial: Top = Red, Front = Yellow, Right = Purple
+
+Rolling right → the cube rotates 90° around the front-back axis, so the right face (Purple) goes down, and the top (Red) goes to the right.
+
+New orientation:
+
+- Top: Left face (which was opposite Purple → Orange)
+- Front: still Yellow (unchanged in this roll)
+- Right: Red (was top)
+- Bottom: Purple (was right)
+- Back: still Blue (opposite Yellow)
+- Left: now on top → Orange
+
+Wait — we don’t know the left face color yet.
+
+Alternative approach: simulate the roll step by step, keeping track of which face is on top, front, and right.
+
+Let’s define the cube state as:
+
+[Top, Front, Right]
+
+Initial state (at position 1): [Red, Yellow, Purple]
+
+Now, the cube rolls to the right → this means it rotates around the front-back axis, so the right face goes down, top goes to right, bottom goes to left, left goes to top.
+
+So new state:
+
+- Top = old Left
+- Front = old Front (unchanged)
+- Right = old Top
+
+But we don’t know old Left. So we need to deduce it.
+
+Alternatively, we can use the fact that when the cube rolls, we can track the sequence of top faces.
+
+Let’s look at the animation frames:
+
+At 0:14: cube is on first black square, top = Red
+
+At 0:15: cube rolls to next square → now top face is **Purple**? Wait, no.
+
+At 0:15: the cube has rolled forward? Let’s look carefully.
+
+Actually, from 0:14 to 0:15, the cube rolls to the right — the path goes right, then down, then left, then down, then left.
+
+Let’s trace the path:
+
+The path is:
+
+Start → right → down → left → down → left → end on red square.
+
+So 6 moves? Let’s count the black squares: there are 6 black squares, then the red square at the end.
+
+From 0:14 to 0:21, we see the cube moving across 6 black squares, ending on the red square.
+
+So the cube rolls 6 times to reach the red square.
+
+Let’s simulate each roll.
+
+---
+
+### Step 4: Simulate each roll
+
+We’ll track the top, front, and right faces after each roll.
+
+Initial state (on first black square):
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+
+We need to know the direction of each roll.
+
+From the path:
+
+1. Roll right (to second square)
+2. Roll down (to third square)
+3. Roll left (to fourth square)
+4. Roll down (to fifth square)
+5. Roll left (to sixth square)
+6. Roll left? Wait, the red square is to the left of the sixth black square? Let’s count.
+
+Actually, from 0:14 to 0:21:
+
+- 0:14: cube on first black square
+- 0:15: rolls right to second black square
+- 0:16: rolls down to third black square
+- 0:17: rolls left to fourth black square
+- 0:18: rolls down to fifth black square
+- 0:19: rolls left to sixth black square
+- 0:20: rolls left to red square? But the red square is to the left of the sixth black square? Let’s see.
+
+At 0:20, the cube is on the sixth black square, and the red square is to its left. So the seventh move is left to the red square.
+
+But the question says: "once it reaches the red square", so after 7 rolls? Or 6?
+
+Let’s count the moves:
+
+From start position to red square, there are 6 black squares and then the red square. So the cube rolls 6 times to get to the red square? Or 7?
+
+Actually, the cube starts on the first black square, then rolls to the second, third, ..., sixth black square, and then to the red square. So 6 rolls to reach the red square? No.
+
+If it starts on square 1 (black), then after 1 roll it’s on square 2, after 2 rolls on square 3, ..., after 6 rolls on square 7, which is the red square.
+
+Yes, there are 6 moves to reach the red square.
+
+Path: 1 (start) → 2 → 3 → 4 → 5 → 6 → 7 (red)
+
+So 6 rolls.
+
+Let’s simulate each roll.
+
+---
+
+#### Roll 1: to the right (from square 1 to 2)
+
+Rolling right: the cube rotates around the front-back axis.
+
+New top = old left
+
+New front = old front
+
+New right = old top
+
+But we don't know old left. So let's assign variables.
+
+Let’s denote the cube’s faces:
+
+Let’s define the six faces:
+
+- T: top
+- B: bottom
+- F: front
+- K: back (I'll use K for back to avoid confusion)
+- R: right
+- L: left
+
+Initial:
+
+T = Red
+
+F = Yellow
+
+R = Purple
+
+Then:
+
+B = ? (opposite T)
+
+K = ? (opposite F)
+
+L = ? (opposite R)
+
+From the color mapping, we have six colors: blue, red, green, yellow, orange, purple.
+
+We know:
+
+- T = Red
+- F = Yellow
+- R = Purple
+
+So the remaining colors are: blue, green, orange
+
+These must be B, K, L.
+
+Now, when we roll right, the new top is L, new front is F, new right is T.
+
+So after roll 1:
+
+T = L
+
+F = Yellow
+
+R = Red
+
+But we don't know L yet.
+
+Perhaps we can use the fact that in the animation, after rolling, we can see the top face.
+
+At 0:15, after rolling right, the top face is **Purple**? No, at 0:15, the cube is on the second square, and the top face appears to be **Purple**? Let's check.
+
+At 0:15: the cube has rolled, and the top face is now **Purple**? But Purple was on the right.
+
+When you roll right, the right face becomes the bottom, not the top.
+
+I think I have the direction wrong.
+
+Let’s think physically.
+
+If a cube is sitting on a surface, and you roll it to the right, the face that was on the right side will now be on the bottom, the face that was on the top will now be on the right side, the face that was on the bottom will now be on the left side, and the face that was on the left side will now be on the top.
+
+So:
+
+New top = old left
+
+New right = old top
+
+New bottom = old right
+
+New left = old bottom
+
+Front and back unchanged.
+
+So in our case:
+
+Initial:
+
+T = Red
+
+F = Yellow
+
+R = Purple
+
+L = ? (unknown)
+
+B = ? (unknown)
+
+K = ? (unknown)
+
+After roll right:
+
+T = L
+
+F = Yellow
+
+R = Red
+
+B = Purple
+
+L = B (old bottom)
+
+K = K (unchanged)
+
+But we still don't know L or B.
+
+Perhaps we can use the color mapping to find which colors are opposite.
+
+From the initial color mapping, we have no information about opposites, so we must track the rolls and use the fact that the cube has fixed colors.
+
+Another approach: at each roll, we can determine the new top face based on the direction of roll and the current orientation.
+
+Let’s list the sequence of rolls:
+
+1. Roll right
+2. Roll down
+3. Roll left
+4. Roll down
+5. Roll left
+6. Roll left (to red square)
+
+For each roll, we need to know how the top face changes.
+
+Let’s define the cube's orientation by the top and front faces, since the right can be deduced.
+
+Initial: Top = Red, Front = Yellow
+
+Roll 1: right
+
+When rolling right, the new top is the old left.
+
+But we don't know old left.
+
+Perhaps we can assume a standard cube where opposite faces are fixed, but we don't know that.
+
+Let’s look at the animation at 0:16.
+
+At 0:16, after rolling right and then down, the top face is **Green**? Let's see.
+
+At 0:16: the cube is on the third square, and the top face is **Green**.
+
+At 0:15: on second square, top face is **Orange**? Let's try to extract from frames.
+
+This is difficult from still frames.
+
+Perhaps there's a better way.
+
+Let’s consider the net of the cube or track the top face only.
+
+Another idea: the cube rolls along the path, and we can count how many times it rolls in each direction, and use that to determine the final top face.
+
+But we need the initial orientation.
+
+Let’s assume that the cube's faces are arranged as follows, based on the initial view:
+
+- Top: Red
+- Front: Yellow
+- Right: Purple
+- Bottom: Green (since Red and Green are often opposites, and from the color list, it's the only one left that makes sense)
+- Back: Blue (opposite Yellow)
+- Left: Orange (opposite Purple)
+
+This is a reasonable assumption, as the colors are paired as opposites in many such puzzles.
+
+Let’s assume:
+
+- Red opposite Green
+- Yellow opposite Blue
+- Purple opposite Orange
+
+This is consistent with the six colors.
+
+So initial state:
+
+- Top: Red
+- Bottom: Green
+- Front: Yellow
+- Back: Blue
+- Right: Purple
+- Left: Orange
+
+Now, simulate the rolls.
+
+---
+
+#### Roll 1: to the right (from square 1 to 2)
+
+Rolling right: the cube rotates 90° around the front-back axis.
+
+New top = old left = Orange
+
+New front = old front = Yellow
+
+New right = old top = Red
+
+New bottom = old right = Purple
+
+New back = old back = Blue
+
+New left = old bottom = Green
+
+So after roll 1:
+
+Top: Orange
+
+Front: Yellow
+
+Right: Red
+
+---
+
+#### Roll 2: down (from square 2 to 3)
+
+Rolling down: rotate 90° around the left-right axis.
+
+New top = old front = Yellow
+
+New front = old bottom = Purple
+
+New bottom = old back = Blue
+
+New back = old top = Orange
+
+Left and right unchanged: Left = Green, Right = Red
+
+So after roll 2:
+
+Top: Yellow
+
+Front: Purple
+
+Right: Red
+
+---
+
+#### Roll 3: left (from square 3 to 4)
+
+Rolling left: rotate 90° around the front-back axis, but to the left.
+
+When rolling left, the left face becomes the bottom, the bottom becomes the right, the right becomes the top, the top becomes the left.
+
+New top = old right = Red
+
+New front = old front = Purple
+
+New right = old bottom = Blue
+
+New bottom = old left = Green
+
+New back = old back = Orange
+
+New left = old top = Yellow
+
+So after roll 3:
+
+Top: Red
+
+Front: Purple
+
+Right: Blue
+
+---
+
+#### Roll 4: down (from square 4 to 5)
+
+Rolling down: rotate 90° around left-right axis.
+
+New top = old front = Purple
+
+New front = old bottom = Green
+
+New bottom = old back = Orange
+
+New back = old top = Red
+
+Left and right unchanged: Left = Yellow, Right = Blue
+
+So after roll 4:
+
+Top: Purple
+
+Front: Green
+
+Right: Blue
+
+---
+
+#### Roll 5: left (from square 5 to 6)
+
+Rolling left: rotate 90° around front-back axis.
+
+New top = old right = Blue
+
+New front = old front = Green
+
+New right = old bottom = Orange
+
+New bottom = old left = Yellow
+
+New back = old back = Red
+
+New left = old top = Purple
+
+So after roll 5:
+
+Top: Blue
+
+Front: Green
+
+Right: Orange
+
+---
+
+#### Roll 6: left (from square 6 to red square)
+
+Rolling left again.
+
+New top = old right = Orange
+
+New front = old front = Green
+
+New right = old bottom = Yellow
+
+New bottom = old left = Purple
+
+New back = old back = Red
+
+New left = old top = Blue
+
+So after roll 6, on the red square:
+
+Top: Orange
+
+---
+
+### Final Answer
+
+The color face on top once the cube reaches the red square is **orange**.
+
+\boxed{orange}

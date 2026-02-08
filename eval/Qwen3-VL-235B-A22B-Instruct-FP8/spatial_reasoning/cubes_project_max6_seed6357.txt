@@ -1,0 +1,389 @@
+We are shown a 3D structure made of small colored cubes, forming a larger cube-like shape. The question asks:
+
+> What is the maximum number of visible square faces that can be seen in a parallel 2D projection, considering only the side faces? Answer with a single integer.
+
+---
+
+### Step 1: Understand the structure
+
+From the animation (0:04–0:10), we see a 3D structure composed of small cubes. It appears to be a 3x3x3 cube, but with some cubes missing — specifically, it looks like the center cube of each face is missing, and possibly the very center cube of the entire structure is also missing. However, the structure is not fully solid.
+
+But note: the question is not asking for the number of visible faces *in the current view*, but the **maximum** number of visible square faces **that can be seen in a parallel 2D projection**, **considering only the side faces**.
+
+Also, it says “side faces” — this likely means **excluding the top and bottom faces**, and only counting the **front, back, left, right** faces — i.e., the four vertical sides.
+
+But wait — in 3D, “side faces” could be ambiguous. However, in the context of a 2D projection and “maximum visible”, it’s standard in such puzzles to interpret “side faces” as **the three mutually adjacent faces** visible in an isometric view — i.e., front, top, and side — but the question explicitly says “considering only the side faces”.
+
+Let’s re-read: “considering only the side faces”.
+
+In many such problems, “side faces” means **the lateral faces**, i.e., **excluding top and bottom**. So we are to count only the faces that are on the **front, back, left, and right** — but in a 2D projection, you can’t see all four at once.
+
+In a **parallel 2D projection** (like orthographic), you can see **at most three faces** of a cube: front, top, and side — but again, the question restricts us to “side faces”, which may mean **only the vertical faces**.
+
+This is ambiguous, but let’s consider the most reasonable interpretation.
+
+---
+
+### Step 2: Clarify “side faces”
+
+In many math puzzles, when they say “side faces” in the context of a cube, they mean the **four vertical faces** (excluding top and bottom). But in a 2D projection, you can only see **two** of them at once — for example, front and right side.
+
+However, the question asks for the **maximum** number of visible square faces **in a parallel 2D projection**, so we are to choose the viewing angle that maximizes the number of visible **side** (vertical) faces.
+
+In an orthographic projection, if you look at the cube from a corner, you can see **three faces**: front, top, and side. But if we are restricted to **only side faces** (vertical), then top and bottom are excluded.
+
+So perhaps “side faces” here means **the faces that are not top or bottom** — i.e., the four vertical faces: front, back, left, right.
+
+But in any single 2D projection, you can only see **two** of these at once — for example, front and right.
+
+Wait — but the structure is **not** a solid cube. It’s made of small cubes, and some are missing. So we need to count the **total number of small square faces** that are visible on the **side faces** (vertical faces) of the entire structure, from the best possible viewing angle.
+
+But the question says: “in a parallel 2D projection” — meaning we are projecting the 3D object onto a 2D plane, and counting how many small square faces are visible in that projection, **but only counting those that belong to the side faces** (vertical faces) of the object.
+
+This is tricky.
+
+Perhaps a better interpretation: We are to imagine projecting the entire 3D object onto a 2D plane (parallel projection), and count the number of **small square faces** that are visible in that projection, **but only those that are on the side faces** (i.e., not on the top or bottom of the object).
+
+But in a 2D projection, faces that are on the top or bottom might still be visible if the object is rotated — but the question says “considering only the side faces”, so we ignore any face that is on the top or bottom of the original object.
+
+So we need to:
+
+1. Identify all small cube faces that are on the **side faces** (vertical faces) of the entire structure.
+2. In a parallel 2D projection, from the best viewing angle, how many of these faces are visible without being occluded?
+
+But since it’s a parallel projection, and we want the **maximum** number, we can choose the viewing direction that maximizes the visible count.
+
+In parallel projection, if we look at the object from a direction that is not aligned with any face, we can see up to three faces of the object — but again, we are restricted to “side faces”.
+
+Let’s assume that “side faces” means the **four vertical faces** of the bounding box — front, back, left, right — and we are to count the small square faces on these four faces that are visible in the projection.
+
+But in a single 2D view, you can only see two of these four faces — for example, front and right.
+
+So the maximum number of visible side faces would be the sum of the visible small faces on the front and right faces, for example.
+
+But the structure is not solid — it has holes.
+
+Looking at the animation, the structure appears to be a 3x3x3 cube with the center cube of each face removed, and possibly the very center cube removed as well.
+
+Let’s try to reconstruct the structure.
+
+From the animation:
+
+- It looks like a 3x3x3 cube.
+- The center cube of each face is missing — so on each of the 6 faces, the center small cube is absent.
+- Also, the very center cube (the one at (2,2,2) if we index from 1) is missing.
+
+This is a common structure — it’s like a 3x3x3 cube with all center pieces removed.
+
+In such a structure, the number of small cubes remaining is:
+
+Total in 3x3x3: 27
+
+Minus the 7 center pieces: the 6 face centers and the very center — but wait, the very center is not on any face, so if we remove only the face centers, that’s 6 cubes, and if we also remove the very center, that’s 7.
+
+But in the animation, it looks like the very center is also missing, because there’s a hole through the middle.
+
+So let’s assume 27 - 7 = 20 small cubes remain.
+
+Now, we need to count, for the **side faces** (vertical faces), how many small square faces are visible in the best 2D projection.
+
+But again, “side faces” — let’s assume it means the four vertical faces: front, back, left, right.
+
+In a 3x3x3 cube, each face has 9 small faces.
+
+But with cubes missing, some of these are not present.
+
+Moreover, in a 2D projection, from a good angle, we can see two of these four faces — say, front and right.
+
+So we need to calculate the number of small square faces on the front and right faces that are visible, considering that some cubes are missing.
+
+Let’s define the structure.
+
+Assume the cube is oriented with x, y, z axes.
+
+Let’s say:
+
+- Front face: z=3 (if z=1,2,3)
+- Back face: z=1
+- Left face: x=1
+- Right face: x=3
+- Top: y=3
+- Bottom: y=1
+
+The question says “considering only the side faces”, so we care about front, back, left, right — i.e., the faces with constant x or z.
+
+But in a 2D projection, we can see at most two of these — for example, front (z=3) and right (x=3).
+
+So we need to maximize the number of visible small faces on these two faces.
+
+Now, for the front face (z=3): in a solid 3x3x3, there are 9 small faces.
+
+But if the center cube is missing, then the center small face on the front is missing.
+
+Similarly for the right face (x=3): 9 small faces, minus the center one.
+
+But also, if the very center cube is missing, that doesn't affect the front or right face directly, because the center cube is at (2,2,2), which is not on the front or right face.
+
+The front face is z=3, so cubes at (x,y,3) for x=1,2,3; y=1,2,3.
+
+The center of the front face is (2,2,3).
+
+Similarly, the right face is x=3, so cubes at (3,y,z) for y=1,2,3; z=1,2,3.
+
+The center of the right face is (3,2,2).
+
+If we remove the center cube of each face, then on the front face, the cube at (2,2,3) is missing, so the small face at that position is not there.
+
+Similarly, on the right face, the cube at (3,2,2) is missing.
+
+Also, if the very center cube (2,2,2) is missing, it doesn't affect the front or right face, since it's not on them.
+
+So for the front face, we have 9 - 1 = 8 small faces.
+
+For the right face, 9 - 1 = 8 small faces.
+
+But are all these visible in a 2D projection?
+
+In a parallel projection, if we look at the object from a direction that shows both front and right faces, then yes, all small faces on the front and right faces that are present should be visible, because there are no cubes in front of them — since we're looking at the outer surface.
+
+However, in this structure, because some cubes are missing, there might be holes, but since we're counting the faces that are on the surface and visible, and in a parallel projection, if a face is on the front or right and not occluded, it should be visible.
+
+But is there any occlusion? For example, if there is a cube behind, but in this case, for the front face, all small faces are on the very front, so no occlusion from behind in a parallel projection.
+
+Similarly for the right face.
+
+So for front face: 8 visible small faces.
+
+For right face: 8 visible small faces.
+
+Total: 16.
+
+But is that the maximum? Could we see more by choosing a different pair of faces?
+
+For example, front and left? But left face would also have 8, same as right.
+
+Or front and back? But in a 2D projection, you can't see both front and back at the same time — they are opposite.
+
+So maximum is two adjacent side faces.
+
+So 8 + 8 = 16.
+
+But wait — is there a way to see more than 16?
+
+Perhaps if we consider that when we look at the corner, we might see parts of other faces, but the question restricts to "side faces", so only vertical faces.
+
+Moreover, in the structure, are there any additional small faces exposed due to the missing cubes?
+
+For example, when we remove the center cube of the front face, we expose the face of the cube behind it, but that cube is at (2,2,2), which is not on the front face — it's inside.
+
+In a parallel projection, if we are looking at the front, we see the front face of the cubes on the front layer.
+
+If a cube is missing on the front layer, then we might see the face of the cube behind it — but that face is not on the "side face" of the object; it's an internal face.
+
+The question says "visible square faces" — but in the context, it probably means the faces that are on the surface of the object.
+
+Moreover, it says "considering only the side faces", which likely means only the faces that are part of the side (vertical) surfaces of the entire structure.
+
+So when a cube is missing, the face that is exposed might be considered, but only if it is on a side face.
+
+For example, if we remove the center cube of the front face, the cube behind it (at (2,2,2)) has its front face exposed, but that face is now part of the front surface of the object, so it should be counted as a visible face on the front side face.
+
+In other words, even though the cube at (2,2,3) is missing, the cube at (2,2,2) is still there, and its front face is now visible, so we should count that as a visible small face on the front side face.
+
+Similarly for other positions.
+
+So let's rethink.
+
+In the 3x3x3 cube, with the center cube of each face removed, and the very center cube removed.
+
+First, which cubes are present?
+
+The 3x3x3 has 27 positions.
+
+We remove:
+
+- The 6 face-center cubes: (2,2,1), (2,2,3), (2,1,2), (2,3,2), (1,2,2), (3,2,2)
+
+- And the very center cube: (2,2,2)
+
+So removed: 7 cubes.
+
+Remaining: 20 cubes.
+
+Now, for the front face (z=3): the small faces that are visible are the front faces of the cubes at (x,y,3) for x=1,2,3; y=1,2,3, but only if the cube is present.
+
+Cubes at z=3: (1,1,3), (1,2,3), (1,3,3), (2,1,3), (2,2,3), (2,3,3), (3,1,3), (3,2,3), (3,3,3)
+
+We removed (2,2,3) — the center.
+
+So the other 8 cubes are present.
+
+For each of these, their front face is visible, so 8 small faces on the front.
+
+But when (2,2,3) is removed, the cube at (2,2,2) is behind it. If (2,2,2) is also removed, then there is no cube behind, so no additional face is exposed.
+
+In this case, since (2,2,2) is removed, when we remove (2,2,3), there is no cube behind it, so no additional face is exposed.
+
+So for the front face, only the 8 cubes that are present have their front faces visible.
+
+Similarly for the right face (x=3): cubes at (3,y,z) for y=1,2,3; z=1,2,3.
+
+Removed: (3,2,2) — the center of the right face.
+
+Other 8 cubes are present, so 8 small faces on the right face.
+
+In a 2D projection showing both front and right, we can see all 8 + 8 = 16 small faces.
+
+But is there any overlap or occlusion? For example, the cube at (3,2,3) is on both front and right faces? No, each small cube has its own faces.
+
+The cube at (3,2,3) has a front face and a right face, but in the projection, we see both faces if we are looking at the corner.
+
+In a parallel projection from a direction that shows both front and right, we can see the front face of the front-layer cubes and the right face of the right-layer cubes.
+
+For a cube at the corner, like (3,2,3), we see both its front face and its right face in the projection.
+
+But the question is asking for "visible square faces", and each small face is a separate face.
+
+So for the cube at (3,2,3), if it is present, we can see its front face and its right face in the same projection.
+
+In our case, is (3,2,3) present? Yes, because we only removed (3,2,2) and (2,2,3), etc., but (3,2,3) is not removed.
+
+So for the front face, we have 8 small faces (from the 8 cubes on z=3, excluding (2,2,3)).
+
+For the right face, we have 8 small faces (from the 8 cubes on x=3, excluding (3,2,2)).
+
+But the cube at (3,2,3) is counted in both — but it contributes two different faces: one front and one right.
+
+So in the projection, we see both faces, so we should count both.
+
+So total visible small faces on side faces: 8 (front) + 8 (right) = 16.
+
+And there is no double-counting because each face is distinct.
+
+Moreover, are there any other small faces on the side faces that are visible? For example, on the left or back? But in this viewing angle, they are not visible.
+
+So 16 seems correct.
+
+But let's verify with the structure.
+
+Perhaps the structure is different. In the animation, when it rotates, we can see that there are holes, and it looks like a cube with all edge cubes and corner cubes, but centers missing.
+
+Another way: in a 3x3x3 cube with only the corner cubes and edge cubes, but no face centers and no center.
+
+The corner cubes: there are 8 corners.
+
+The edge cubes: each edge has one cube in the middle, and there are 12 edges, so 12 edge cubes.
+
+But in 3x3x3, the cubes are:
+
+- 8 corners
+
+- 12 edges (middle of each edge)
+
+- 6 face centers
+
+- 1 very center
+
+Total 27.
+
+If we remove the 6 face centers and the 1 very center, we have 8 + 12 = 20 cubes, as before.
+
+Now, for the front face (z=3): the small faces on this face are from the cubes at (x,y,3).
+
+The cubes present on z=3 are: the four corners: (1,1,3), (1,3,3), (3,1,3), (3,3,3), and the four edge centers: (1,2,3), (2,1,3), (2,3,3), (3,2,3) — but we removed (2,2,3), which is the face center.
+
+So the cubes on z=3 are: all except (2,2,3), so 8 cubes, as before.
+
+Each of these has a front face, so 8 small faces on front.
+
+Similarly for right face (x=3): cubes at (3,y,z): corners (3,1,1), (3,1,3), (3,3,1), (3,3,3), and edge centers (3,2,1), (3,2,3), (3,1,2), (3,3,2) — but we removed (3,2,2), so the cubes present are: (3,1,1), (3,1,3), (3,3,1), (3,3,3), (3,2,1), (3,2,3), (3,1,2), (3,3,2) — that's 8 cubes.
+
+Each has a right face, so 8 small faces on right.
+
+In the projection, when we look at the front-right corner, we can see the front faces of the front-layer cubes and the right faces of the right-layer cubes.
+
+For the cube at (3,2,3), it is on both layers, and we see both its front face and its right face.
+
+So total visible small faces on side faces: 8 + 8 = 16.
+
+Is there any face that is not visible? For example, the cube at (3,2,1) on the right face — its right face is visible, even though it's on the back, because in the projection, if we are looking from the front-right, we can see the right face of all cubes on the right layer, including those at the back.
+
+In a parallel projection, yes, because there is no perspective, so all faces on the right side are visible as long as they are not occluded by other cubes.
+
+In this case, for the right face, the cubes at (3,y,z) for all y,z, their right faces are on the surface, and since we are looking from a direction that shows the right side, and no cube is in front of them (because they are on the rightmost layer), so all 8 right faces are visible.
+
+Similarly for front.
+
+So 16.
+
+But let's think if we can see more.
+
+Suppose we look from a direction that is not aligned with the axes. In parallel projection, if we look from a direction that is at 45 degrees, we might see three faces, but the question restricts to "side faces", which we are interpreting as vertical faces.
+
+If "side faces" includes only the vertical ones, and we can see two of them, 16 is the maximum.
+
+Perhaps "side faces" means the faces that are not top or bottom, and in a 2D projection, we can see up to three faces: for example, front, right, and top — but the question says "considering only the side faces", so we exclude top and bottom.
+
+So only front, back, left, right.
+
+And in a single view, maximum two.
+
+So 16.
+
+But let's check if the very center cube is removed. In the animation, when it rotates, we can see through the center, so yes, (2,2,2) is removed.
+
+Also, the face centers are removed.
+
+So I think 16 is correct.
+
+But let's calculate the total number of small square faces on the side faces of the entire structure.
+
+For the front face: 8 small faces (as above).
+
+For the back face (z=1): similarly, cubes at (x,y,1), removed (2,2,1), so 8 small faces.
+
+For the left face (x=1): cubes at (1,y,z), removed (1,2,2), so 8 small faces.
+
+For the right face (x=3): 8 small faces.
+
+So total small faces on side faces: 8*4 = 32.
+
+But in a single 2D projection, we can see at most two of these faces, so at most 16.
+
+And since the structure is symmetric, 16 is achievable.
+
+So the maximum number is 16.
+
+But is there a viewing angle where we can see more than 16? For example, if we look at a corner, and see front, right, and also part of the top, but we are not counting top.
+
+Or if the missing cubes allow us to see additional faces, but as discussed, when a cube is missing, if there is a cube behind, its face might be exposed, but in this case, for the side faces, when we remove a face-center cube, the cube behind it is at (2,2,2), which is also removed, so no additional face is exposed.
+
+For example, on the front face, when we remove (2,2,3), there is no cube at (2,2,2), so no face is exposed behind it.
+
+Similarly for other face centers.
+
+So no additional faces.
+
+Therefore, the maximum number of visible square faces in a parallel 2D projection, considering only the side faces, is 16.
+
+So the answer should be \boxed{16}.
+
+But let's double-check with a different interpretation.
+
+Perhaps "side faces" means the three mutually adjacent faces in a corner view, but the question says "considering only the side faces", which might exclude top and bottom.
+
+In some contexts, "side faces" means the lateral faces, excluding top and bottom.
+
+Moreover, in the video, the structure is shown rotating, and in some views, we can see three faces, but the question specifies "only the side faces", so likely excluding top and bottom.
+
+Perhaps the answer is 18 or something, but I think 16 is correct.
+
+Another way: in a solid 3x3x3 cube, in a corner view, you can see 3 faces, each with 9 small faces, total 27, but with holes, less.
+
+But since we are restricted to side faces, and in a corner view, you see front, top, and right, but if we exclude top, then only front and right, 9+9=18 for solid, but with holes, 8+8=16.
+
+Yes.
+
+If the structure had no holes, it would be 18, but with holes, 16.
+
+So I think \boxed{16} is the answer.

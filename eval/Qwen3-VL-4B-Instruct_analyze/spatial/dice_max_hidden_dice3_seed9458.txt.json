@@ -1,0 +1,43 @@
+{
+  "question_name": "dice_max_hidden_dice3_seed9458.txt",
+  "question": "Observe the following cubes. Out of the faces currently hidden from the camera, which color appears most often? Answer with only the color name.",
+  "solution": "white",
+  "model_output": "To solve this problem, we need to analyze the three cubes shown in the video and determine which color appears most frequently on the faces that are currently hidden from the camera.\n\n### Step 1: Understand the color mapping\nThe video provides a color key:\n- Blue: cyan\n- Red: red\n- White: white\n- Green: green\n- Yellow: yellow\n- Purple: purple\n\n### Step 2: Observe the cubes\nWe are shown three cubes, each with different colored faces visible from the camera’s perspective.\n\n#### Cube 1 (left):\n- Top face: yellow\n- Front face: white\n- Right face: green\n\n#### Cube 2 (middle):\n- Top face: white\n- Front face: white\n- Right face: white\n\n#### Cube 3 (right):\n- Top face: purple\n- Front face: yellow\n- Right face: green\n\n### Step 3: Identify hidden faces\nFor each cube, we need to determine which faces are hidden from the camera. Since the cubes are shown from a specific angle, we can assume the following:\n\n#### Cube 1:\n- Hidden faces: bottom, left, back\n- Bottom face: white (since the top face is yellow)\n- Left face: green (since the right face is green, and the front is white)\n- Back face: white (since the front is white)\n\n#### Cube 2:\n- Hidden faces: bottom, left, back\n- Bottom face: white\n- Left face: white\n- Back face: white\n\n#### Cube 3:\n- Hidden faces: bottom, left, back\n- Bottom face: yellow (since the top face is purple)\n- Left face: green (since the right face is green, and the front is yellow)\n- Back face: green (since the front is yellow)\n\n### Step 4: Count the occurrences of each color on hidden faces\n- White: Cube 1 (bottom), Cube 2 (bottom, left, back) → 4 times\n- Green: Cube 1 (left), Cube 3 (left, back) → 3 times\n- Yellow: Cube 3 (bottom) → 1 time\n- Purple: Cube 3 (top) → 1 time\n\n### Step 5: Determine the most frequent color\nThe color that appears most frequently on the hidden faces is **white**, with 4 occurrences.\n\n### Final Answer\n\\boxed{white}",
+  "gt_reasoning_trace": "**Question:** Out of the faces currently hidden from the camera, which color appears most often? Answer with only the color name.\n\nLet's solve this step by step.\n\n### Scene Description\n\nAt 0:00, Title appears: 'Remember the following color names'\nAt 0:03, Color legend displayed with 6 colors: blue, red, white, green, yellow, purple\nAt 0:06, Color legend fades out\nAt 0:06, Prompt appears: 'Observe the following cubes'\nAt 0:09, Prompt fades out\nAt 0:10, Creating 3 cubes with random colors\nAt 0:10, All 3 cubes appear on screen\nAt 0:10, Cubes begin rotating to display orientation\nAt 0:13, Cubes finish rotation, hidden faces determined\nAt 0:15, All objects fade out before question display\nAt 0:17, Question text appears on screen\nAt 0:22, Question remains on screen\n\n### Step 1: Understand the cube configuration\nThere are **3 cube(s)** shown in the video.\n\n**Cube 1** has the following colors on its faces:\n- IN (back): purple\n- OUT (front): yellow\n- LEFT: red\n- RIGHT: blue\n- UP (top): purple\n- DOWN (bottom): yellow\n\n**Cube 2** has the following colors on its faces:\n- IN (back): yellow\n- OUT (front): green\n- LEFT: white\n- RIGHT: green\n- UP (top): green\n- DOWN (bottom): purple\n\n**Cube 3** has the following colors on its faces:\n- IN (back): red\n- OUT (front): red\n- LEFT: white\n- RIGHT: red\n- UP (top): white\n- DOWN (bottom): white\n\n### Step 2: Identify hidden faces\nFrom the camera angle, these faces are hidden: IN, LEFT, UP\n\nCube 1 hidden faces: purple, red, purple\nCube 2 hidden faces: yellow, white, green\nCube 3 hidden faces: red, white, white\n\n### Step 3: Count hidden face colors\n- **white**: 3 hidden face(s)\n- **purple**: 2 hidden face(s)\n- **red**: 2 hidden face(s)\n- **yellow**: 1 hidden face(s)\n- **green**: 1 hidden face(s)\n\n### Step 4: Find maximum\nThe maximum count is **3**, which corresponds to **white**.\n\n### Final Answer\n**white**\n\n\\boxed{white}",
+  "is_correct": true,
+  "analysis_result": {
+    "has_error": true,
+    "primary_error_category": "Wrong Identification + Hallucinations",
+    "errors": [
+      {
+        "category": "Wrong Identification + Hallucinations",
+        "subcategory": "Wrong Color",
+        "evidence_quote": "Cube 1 (left): Top face: yellow, Front face: white, Right face: green",
+        "description": "The model incorrectly assigned colors to visible faces of Cube 1. According to the ground truth, Cube 1’s visible faces are: front (yellow), right (blue), and top (purple). The model hallucinated white and green on visible faces, which contradicts the actual color mapping. This error cascades into incorrect assumptions about hidden faces.",
+        "severity": "major"
+      },
+      {
+        "category": "Wrong Identification + Hallucinations",
+        "subcategory": "Wrong Surface/Faces",
+        "evidence_quote": "Hidden faces: bottom, left, back ... Bottom face: white (since the top face is yellow) ... Left face: green (since the right face is green, and the front is white)",
+        "description": "The model incorrectly inferred hidden face colors based on flawed symmetry assumptions (e.g., assuming opposite faces are the same color). The ground truth shows no such symmetry — for example, Cube 1’s top is purple and bottom is yellow. The model’s heuristic of mirroring visible faces to infer hidden ones is invalid and leads to hallucinated color assignments.",
+        "severity": "major"
+      },
+      {
+        "category": "Wrong Identification + Hallucinations",
+        "subcategory": "Invents Things",
+        "evidence_quote": "Blue: cyan",
+        "description": "The model invented a color mapping not present in the scene. The video explicitly lists 'blue' as one of the six colors; the model hallucinated that 'blue' corresponds to 'cyan', which is not supported by any visual evidence or text in the video. This is a pure fabrication.",
+        "severity": "minor"
+      },
+      {
+        "category": "Bad Reasoning / Logic",
+        "subcategory": "Wrong Premise",
+        "evidence_quote": "Since the cubes are shown from a specific angle, we can assume the following: ... Hidden faces: bottom, left, back",
+        "description": "The model assumed a fixed camera perspective where 'bottom, left, back' are always hidden, but the ground truth specifies that hidden faces are IN (back), LEFT, and UP (top) — not bottom. This misalignment in spatial reasoning stems from an incorrect premise about camera orientation, leading to misidentification of which faces are actually hidden.",
+        "severity": "major"
+      }
+    ],
+    "analysis": "The model arrived at the correct final answer ('white') by coincidence, but its reasoning is fundamentally flawed. It hallucinated visible face colors, invented a non-existent color mapping ('blue: cyan'), and incorrectly assumed hidden faces based on invalid symmetry and camera perspective assumptions. These perception and reasoning errors would lead to incorrect answers in most other configurations. The correct answer was reached despite — not because of — the model’s reasoning process."
+  }
+}

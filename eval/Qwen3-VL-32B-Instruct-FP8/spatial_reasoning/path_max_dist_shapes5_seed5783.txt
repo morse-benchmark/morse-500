@@ -1,0 +1,88 @@
+We are asked to determine which color shape was the **furthest from the previous shape in the path**, based on the arrow trajectory shown in the video.
+
+---
+
+### Step 1: Understand the setup
+
+At the beginning, we are shown color-name mappings:
+
+- Blue → light blue square
+- Red → red square
+- Orange → orange circle
+- Green → green triangle
+- Yellow → yellow square
+- Purple → purple circle
+- White → white circle
+
+But in the trajectory phase, we see **five shapes**:
+
+- Yellow square (top-left)
+- Green triangle (top-center)
+- Orange circle (top-right)
+- Blue circle (bottom-left)
+- Purple circle (bottom-center)
+
+Note: The shapes shown in the trajectory are **not all squares** — some are circles, some are triangles. But we are to identify them by **color**, as per the instruction: “Answer with only the color name.”
+
+---
+
+### Step 2: Observe the arrow path
+
+The arrow traces a path connecting these shapes **in sequence**. Let’s reconstruct the path based on the video frames:
+
+1. The arrow starts at the **blue circle** (bottom-left).
+2. It moves to the **purple circle** (bottom-center).
+3. Then to the **orange circle** (top-right).
+4. Then to the **green triangle** (top-center).
+5. Then to the **yellow square** (top-left).
+
+So the path is:
+
+> Blue → Purple → Orange → Green → Yellow
+
+---
+
+### Step 3: Calculate distances between consecutive shapes
+
+We need to find which **pair of consecutive shapes** in the path has the **greatest Euclidean distance**, and then report the **color of the second shape** in that pair (i.e., the one that was furthest from the previous one).
+
+We can estimate positions on the screen (using coordinates for simplicity, assuming the screen is 1000x600 pixels):
+
+- **Blue circle**: approx. (100, 400)
+- **Purple circle**: approx. (300, 400)
+- **Orange circle**: approx. (800, 200)
+- **Green triangle**: approx. (500, 200)
+- **Yellow square**: approx. (100, 200)
+
+Now compute distances between consecutive pairs:
+
+1. **Blue → Purple**:  
+   Distance = √[(300-100)² + (400-400)²] = √[200²] = 200
+
+2. **Purple → Orange**:  
+   Distance = √[(800-300)² + (200-400)²] = √[500² + (-200)²] = √[250000 + 40000] = √290000 ≈ 538.5
+
+3. **Orange → Green**:  
+   Distance = √[(500-800)² + (200-200)²] = √[(-300)²] = 300
+
+4. **Green → Yellow**:  
+   Distance = √[(100-500)² + (200-200)²] = √[(-400)²] = 400
+
+---
+
+### Step 4: Identify the largest distance
+
+- Blue → Purple: 200
+- Purple → Orange: ≈538.5 ← **largest**
+- Orange → Green: 300
+- Green → Yellow: 400
+
+The largest distance is between **Purple → Orange**, which is approximately 538.5 units.
+
+Therefore, the **color shape that was furthest from the previous shape** is **orange**.
+
+---
+
+### ✅ Final Answer:
+
+\boxed{orange}

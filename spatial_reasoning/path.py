@@ -8,10 +8,10 @@ from pathlib import Path
 # ============================================================================
 # Setup directories for output files
 # ============================================================================
-Path("questions").mkdir(exist_ok=True)          # Video files
-Path("solutions").mkdir(exist_ok=True)          # Answer text files
-Path("question_text").mkdir(exist_ok=True)      # Question text files
-Path("reasoning_traces").mkdir(exist_ok=True)   # Step-by-step reasoning
+Path("questions").mkdir(exist_ok=True)  # Video files
+Path("solutions").mkdir(exist_ok=True)  # Answer text files
+Path("question_text").mkdir(exist_ok=True)  # Question text files
+Path("reasoning_traces").mkdir(exist_ok=True)  # Step-by-step reasoning
 
 # ============================================================================
 # Manim configuration
@@ -23,19 +23,21 @@ config.pixel_width = 1920
 config.frame_rate = 30
 config.preview = False
 
+
 def ordinal(n):
     """
     Convert number to ordinal string (1st, 2nd, 3rd, etc.).
-    
+
     Args:
         n: Integer to convert
-        
+
     Returns:
         String like "1st", "2nd", "3rd", "4th", etc.
     """
     if 11 <= (n % 100) <= 13:
         return f"{n}th"
     return f"{n}{  {1:'st', 2:'nd', 3:'rd'}.get(n%10, 'th')  }"
+
 
 class Paths(Scene):
     """
@@ -44,16 +46,16 @@ class Paths(Scene):
     - User must answer questions about order, distance, or time
     - Generates question video, solution, and detailed reasoning trace
     """
-    
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        
+
         # ====================================================================
         # Random seed for reproducibility
         # ====================================================================
         # Each video gets a unique seed but same seed produces same video
-        self.seed = random.randint(1000, 9999)
-        
+        self.seed = os.getenv("SEED", random.randint(1000, 9999))
+
         # ====================================================================
         # Parameters from environment variables (with defaults)
         # ====================================================================
@@ -63,7 +65,7 @@ class Paths(Scene):
         self.num_shapes = int(os.getenv("NUM_SHAPES", 4))
         # Max attempts to place shapes without overlap
         self.max_placement_tries = int(os.getenv("MAX_PLACEMENT_TRIES", 250))
-        
+
         # ====================================================================
         # Scene visual parameters
         # ====================================================================
@@ -81,10 +83,10 @@ class Paths(Scene):
         # ====================================================================
         # Maps Manim color objects to their string names
         self.VALID_COLORS = {
-            BLUE: "blue", 
-            RED: "red", 
+            BLUE: "blue",
+            RED: "red",
             ORANGE: "orange",
-            GREEN: "green", 
+            GREEN: "green",
             YELLOW: "yellow",
             PURPLE: "purple",
             WHITE: "white",
@@ -110,41 +112,38 @@ class Paths(Scene):
                 ],
                 "max_time": [
                     "Which color shape took the longest amount\nof time to reach from the previous shape?\nAnswer with only the color name."
-                ]
+                ],
             }
         }
-        
+
         # ====================================================================
         # Initialize tracking for reasoning trace
         # ====================================================================
         # This will store scene events with timestamps for detailed reasoning
         self.scene_events = []
-        
+
     def log_event(self, description):
         """
         Log a scene event with video timestamp.
         Uses Manim's internal renderer.time which tracks actual video playback time,
         not wall-clock execution time.
-        
+
         Args:
             description: String describing what happened in the scene
         """
         # Get current video time from Manim's renderer
         # self.renderer.time tracks the cumulative duration of all animations/waits
         current_time = self.renderer.time
-        
-        self.scene_events.append({
-            'time': current_time,
-            'description': description
-        })
+
+        self.scene_events.append({"time": current_time, "description": description})
 
     def format_time(self, seconds):
         """
         Format seconds as M:SS for display in reasoning trace.
-        
+
         Args:
             seconds: Time in seconds (float)
-            
+
         Returns:
             String formatted as "M:SS" (e.g., "2:37")
         """
@@ -152,30 +151,34 @@ class Paths(Scene):
         secs = int(seconds % 60)
         return f"{mins}:{secs:02d}"
 
-    def _non_overlapping_position(self, new_shape, existing, x_min, x_max, y_min, y_max):
+    def _non_overlapping_position(
+        self, new_shape, existing, x_min, x_max, y_min, y_max
+    ):
         """
         Find a random position for a shape that doesn't overlap with existing shapes.
-        
+
         Uses random sampling with collision detection. Tries up to max_placement_tries
         times before giving up.
-        
+
         Args:
             new_shape: The shape to position
             existing: VGroup of already-placed shapes
             x_min, x_max: Horizontal bounds for placement
             y_min, y_max: Vertical bounds for placement
-            
+
         Returns:
             True if successful placement found, False otherwise
         """
         for attempt in range(self.max_placement_tries):
             # Try a random position within bounds
-            new_shape.move_to([
-                random.uniform(x_min, x_max),
-                random.uniform(y_min, y_max),
-                0,
-            ])
-            
+            new_shape.move_to(
+                [
+                    random.uniform(x_min, x_max),
+                    random.uniform(y_min, y_max),
+                    0,
+                ]
+            )
+
             # Check if this position overlaps with any existing shape
             # Shapes must be separated by at least 55% of their combined width
             if all(
@@ -184,35 +187,37 @@ class Paths(Scene):
                 for s in existing
             ):
                 return True  # Found valid position
-                
+
         return False  # Failed to find position after max attempts
 
     def _random_point_outside_shapes(self, shapes, x_min, x_max, y_min, y_max):
         """
         Find a random point that doesn't overlap with any shapes.
-        
+
         This is used for the arrow's starting position.
-        
+
         Args:
             shapes: VGroup of shapes to avoid
             x_min, x_max: Horizontal bounds
             y_min, y_max: Vertical bounds
-            
+
         Returns:
             Numpy array [x, y, 0] representing the point
         """
         attempts = 0
         while attempts < 100:  # Prevent infinite loop
             attempts += 1
-            p = np.array([
-                random.uniform(x_min, x_max),
-                random.uniform(y_min, y_max),
-                0,
-            ])
+            p = np.array(
+                [
+                    random.uniform(x_min, x_max),
+                    random.uniform(y_min, y_max),
+                    0,
+                ]
+            )
             # Point must be at least 60% of shape width away from all shapes
             if all(np.linalg.norm(p - s.get_center()) > s.width * 0.6 for s in shapes):
                 return p
-                
+
         # Fallback if no good position found (shouldn't happen often)
         return np.array([0, 0, 0])
 
@@ -220,9 +225,9 @@ class Paths(Scene):
         """
         Display color legend at the beginning of the video.
         Shows colored squares with arrows pointing to their names in two columns.
-        
+
         This helps viewers learn the color-to-name mapping before the puzzle begins.
-        
+
         Args:
             colors: List of Manim color objects
             names: List of color name strings (parallel to colors)
@@ -289,21 +294,29 @@ class Paths(Scene):
         # Animation sequence: title -> squares -> arrows -> labels
         self.log_event("Title appears: 'Remember the following color names'")
         self.play(Write(title))
-        
+
         self.play(
             Succession(
                 FadeIn(squares1, squares2),
-                AnimationGroup(*([GrowArrow(ar) for ar in arrows1]+[GrowArrow(ar) for ar in arrows2]), lag_ratio=0.1),
-                FadeIn(labels1, labels2)
+                AnimationGroup(
+                    *(
+                        [GrowArrow(ar) for ar in arrows1]
+                        + [GrowArrow(ar) for ar in arrows2]
+                    ),
+                    lag_ratio=0.1,
+                ),
+                FadeIn(labels1, labels2),
             ),
-            run_time=1.5
+            run_time=1.5,
         )
         self.wait(2)
-        
+
         # Log which colors were shown
         color_list = ", ".join(names)
-        self.log_event(f"Color legend displayed with {len(colors)} colors: {color_list}")
-        
+        self.log_event(
+            f"Color legend displayed with {len(colors)} colors: {color_list}"
+        )
+
         # Clean up legend
         self.play(FadeOut(title, both))
         self.wait(0.5)
@@ -318,7 +331,7 @@ class Paths(Scene):
         # Use the seed set in __init__ for reproducible randomness
         # ====================================================================
         random.seed(self.seed)
-        
+
         # ====================================================================
         # Create animated gradient background
         # ====================================================================
@@ -331,33 +344,35 @@ class Paths(Scene):
             .set_z_index(-2)  # Ensure it stays in background
         )
         self.add(bg)
-        
+
         # ====================================================================
         # Show color legend
         # ====================================================================
-        self.show_colors(list(self.VALID_COLORS.keys()), list(self.VALID_COLORS.values()))
-        
+        self.show_colors(
+            list(self.VALID_COLORS.keys()), list(self.VALID_COLORS.values())
+        )
+
         # ====================================================================
         # Display instruction prompt
         # ====================================================================
         prompt = Text(
             "Observe the trajectory of the arrow", color=WHITE, font_size=36
         ).move_to(ORIGIN)
-        
+
         self.log_event("Instruction prompt appears")
         self.play(FadeIn(prompt), run_time=0.5)
         self.wait(1.5)
         self.play(FadeOut(prompt), run_time=0.5)
         self.wait(1)
         self.log_event("Instruction prompt fades out")
-        
+
         # ====================================================================
         # Calculate frame bounds (inner safe zone with margins)
         # ====================================================================
         x_min = -config.frame_width / 2 + self.MARGIN
-        x_max =  config.frame_width / 2 - self.MARGIN
+        x_max = config.frame_width / 2 - self.MARGIN
         y_min = -config.frame_height / 2 + self.MARGIN
-        y_max =  config.frame_height / 2 - self.MARGIN
+        y_max = config.frame_height / 2 - self.MARGIN
 
         # ====================================================================
         # Create random non-overlapping shapes
@@ -365,20 +380,24 @@ class Paths(Scene):
         shapes = VGroup()
         shape_colors = list(self.VALID_COLORS.keys())
         random.shuffle(shape_colors)  # Randomize color assignment
-        
+
         # Store shape details for reasoning trace
         self.shape_details = []
-        
+
         for i in range(self.num_shapes):
             # Randomly choose shape type
-            shape_cls = random.choice([
-                Circle,
-                Square,
-                Triangle,
-                lambda: RegularPolygon(n=random.randint(5, 8)),  # Pentagon to octagon
-            ])
+            shape_cls = random.choice(
+                [
+                    Circle,
+                    Square,
+                    Triangle,
+                    lambda: RegularPolygon(
+                        n=random.randint(5, 8)
+                    ),  # Pentagon to octagon
+                ]
+            )
             shp = shape_cls()
-            
+
             # Assign color (cycle through colors if more shapes than colors)
             color = shape_colors[i % len(shape_colors)]
             shp.set_fill(opacity=0).set_stroke(width=4, color=color)
@@ -388,22 +407,26 @@ class Paths(Scene):
             if self._non_overlapping_position(shp, shapes, x_min, x_max, y_min, y_max):
                 shapes.add(shp)
                 # Store details for reasoning trace
-                self.shape_details.append({
-                    'number': i + 1,
-                    'type': type(shp).__name__,
-                    'color': self.VALID_COLORS[color],
-                    'position': shp.get_center().copy(),
-                    'placed': True
-                })
+                self.shape_details.append(
+                    {
+                        "number": i + 1,
+                        "type": type(shp).__name__,
+                        "color": self.VALID_COLORS[color],
+                        "position": shp.get_center().copy(),
+                        "placed": True,
+                    }
+                )
             else:
                 # Failed to place shape (shouldn't happen often)
-                self.shape_details.append({
-                    'number': i + 1,
-                    'type': type(shp).__name__,
-                    'color': self.VALID_COLORS[color],
-                    'position': None,
-                    'placed': False
-                })
+                self.shape_details.append(
+                    {
+                        "number": i + 1,
+                        "type": type(shp).__name__,
+                        "color": self.VALID_COLORS[color],
+                        "position": None,
+                        "placed": False,
+                    }
+                )
 
         # ====================================================================
         # Scale shapes to fit screen nicely
@@ -414,21 +437,21 @@ class Paths(Scene):
         h_prop, v_prop = 0.1, 0.2  # Buffer proportions
         h_buf = frame_width * h_prop
         v_buf = frame_height * v_prop
-        max_w = frame_width - 2*h_buf
-        max_h = frame_height - 2*v_buf
-        
+        max_w = frame_width - 2 * h_buf
+        max_h = frame_height - 2 * v_buf
+
         # Scale to fit within available space
         scale = min(max_w / shapes.width, max_h / shapes.height)
         shapes.scale(scale).move_to(ORIGIN)
-        
+
         # Reverse individual shape scaling to maintain stroke width
         for shape in shapes:
-            shape.scale(1/scale)
+            shape.scale(1 / scale)
 
         # Update positions in shape_details after scaling
         for i, shape in enumerate(shapes):
             if i < len(self.shape_details):
-                self.shape_details[i]['position'] = shape.get_center().copy()
+                self.shape_details[i]["position"] = shape.get_center().copy()
 
         # ====================================================================
         # Animate shape creation
@@ -443,21 +466,23 @@ class Paths(Scene):
         # ====================================================================
         # Arrow starts from a random point outside all shapes
         start_pt = self._random_point_outside_shapes(shapes, x_min, x_max, y_min, y_max)
-        
+
         # Randomly shuffle which order to visit shapes
         visit_order = random.sample(list(shapes), len(shapes))
-        
+
         # Store visit order for reasoning trace
         self.visit_order_details = []
         for i, shape in enumerate(visit_order):
             color_name = self.VALID_COLORS[shape.stroke_color]
             shape_type = type(shape).__name__
-            self.visit_order_details.append({
-                'position': i + 1,
-                'color': color_name,
-                'type': shape_type,
-                'center': shape.get_center().copy()
-            })
+            self.visit_order_details.append(
+                {
+                    "position": i + 1,
+                    "color": color_name,
+                    "type": shape_type,
+                    "center": shape.get_center().copy(),
+                }
+            )
 
         # ====================================================================
         # Create smooth path through shape centers
@@ -480,7 +505,7 @@ class Paths(Scene):
             max_tip_length_to_length_ratio=0.2,
             stroke_width=0,  # No visible shaft
         )
-        
+
         # Make only the tip visible
         if hasattr(arrow, "body"):
             arrow.body.set_stroke(width=0)
@@ -495,10 +520,7 @@ class Paths(Scene):
         # ====================================================================
         # Trail fades out after 0.7 seconds (dissipating effect)
         trail = TracedPath(
-            arrow.get_end,
-            dissipating_time=0.7,
-            stroke_color=WHITE,
-            stroke_width=2
+            arrow.get_end, dissipating_time=0.7, stroke_color=WHITE, stroke_width=2
         )
         self.add(trail)
 
@@ -511,7 +533,7 @@ class Paths(Scene):
         def orient_arrow(mob):
             """
             Update arrow orientation to point along path tangent.
-            
+
             Uses the path's tangent vector at the current position to determine
             which direction the arrow should point.
             """
@@ -520,7 +542,7 @@ class Paths(Scene):
 
             # Calculate tangent vector using finite differences
             delta = 1e-3  # Small step for numerical derivative
-            
+
             if alpha < delta:
                 # Near start: use forward difference
                 q = path.point_from_proportion(alpha + delta)
@@ -552,12 +574,14 @@ class Paths(Scene):
         # ====================================================================
         # Create different animation speeds for each segment
         hops = len(visit_order)
-        
+
         # First hop (start to first shape) is always 1.9s
         # Remaining hops use exponentially increasing times, then shuffle
-        durations = [1.9] + [self.min_time*(self.time_step**i) for i in range(hops-1)]
+        durations = [1.9] + [
+            self.min_time * (self.time_step**i) for i in range(hops - 1)
+        ]
         random.shuffle(durations)  # Randomize which hop gets which duration
-        
+
         # Each hop covers 1/hops of the total path
         alpha_step = 1 / hops
 
@@ -568,26 +592,30 @@ class Paths(Scene):
         # Animate arrow movement along path
         # ====================================================================
         self.log_event(f"Arrow begins moving from start point toward first shape")
-        
+
         for i, dur in enumerate(durations):
             # Move tracker from current position to next position
             target_alpha = (i + 1) * alpha_step
-            
+
             # Log before animation starts
             if i == 0:
                 target_color = self.VALID_COLORS[visit_order[i].stroke_color]
-                self.log_event(f"Arrow moving to first shape ({target_color}) - duration: {dur:.2f}s")
+                self.log_event(
+                    f"Arrow moving to first shape ({target_color}) - duration: {dur:.2f}s"
+                )
             else:
-                prev_color = self.VALID_COLORS[visit_order[i-1].stroke_color]
+                prev_color = self.VALID_COLORS[visit_order[i - 1].stroke_color]
                 target_color = self.VALID_COLORS[visit_order[i].stroke_color]
-                self.log_event(f"Arrow moving from {prev_color} to {target_color} - duration: {dur:.2f}s")
-            
+                self.log_event(
+                    f"Arrow moving from {prev_color} to {target_color} - duration: {dur:.2f}s"
+                )
+
             self.play(
                 tracker.animate.set_value(target_alpha),
                 run_time=dur,
                 rate_func=linear,  # Constant speed
             )
-            
+
             # Log after animation completes
             if i == 0:
                 self.log_event(f"Arrow reaches first shape ({target_color})")
@@ -600,9 +628,9 @@ class Paths(Scene):
         tracker.set_value(1)
         orient_arrow(arrow)  # Manual final orientation update
         arrow.remove_updater(orient_arrow)  # Stop automatic updates
-        
+
         self.log_event("Arrow completes its journey through all shapes")
-        
+
         # ====================================================================
         # Calculate distances and prepare answer data
         # ====================================================================
@@ -610,48 +638,56 @@ class Paths(Scene):
         centers = np.array([poly.get_center() for poly in list(visit_order)])
         deltas = centers[1:] - centers[:-1]  # Vector differences
         dists = list(np.linalg.norm(deltas, axis=1))  # Euclidean distances
-        
+
         # Get colors of visited shapes (for answer calculation)
         shape_colors = [poly.stroke_color for poly in list(visit_order)]
-        
+
         # Store for reasoning trace
         self.distances = dists
         self.shape_colors_visited = [self.VALID_COLORS[c] for c in shape_colors]
-        
+
         # ====================================================================
         # Calculate answer based on problem type
         # ====================================================================
         N = random.randint(1, self.num_shapes)  # Random position for "order" questions
-        
-        if self.p_type == "order": 
+
+        if self.p_type == "order":
             # Which shape was visited Nth?
-            self.answer = self.VALID_COLORS[shape_colors[N-1]]
+            self.answer = self.VALID_COLORS[shape_colors[N - 1]]
             self.answer_detail = f"The {ordinal(N)} shape visited was {self.answer}"
-            
+
         elif self.p_type == "min_dist":
             # Which shape was closest to its predecessor?
             idx = dists.index(min(dists))
-            self.answer = self.VALID_COLORS[shape_colors[idx+1]]
-            self.answer_detail = f"Closest shape (min distance {min(dists):.2f}): {self.answer}"
-            
+            self.answer = self.VALID_COLORS[shape_colors[idx + 1]]
+            self.answer_detail = (
+                f"Closest shape (min distance {min(dists):.2f}): {self.answer}"
+            )
+
         elif self.p_type == "max_dist":
             # Which shape was furthest from its predecessor?
             idx = dists.index(max(dists))
-            self.answer = self.VALID_COLORS[shape_colors[idx+1]]
-            self.answer_detail = f"Furthest shape (max distance {max(dists):.2f}): {self.answer}"
-            
+            self.answer = self.VALID_COLORS[shape_colors[idx + 1]]
+            self.answer_detail = (
+                f"Furthest shape (max distance {max(dists):.2f}): {self.answer}"
+            )
+
         elif self.p_type == "min_time":
             # Which shape took shortest time to reach?
             idx = durations[1:].index(min(durations[1:]))
-            self.answer = self.VALID_COLORS[shape_colors[idx]]
-            self.answer_detail = f"Shortest time (min {min(durations[1:]):.2f}s): {self.answer}"
-            
+            self.answer = self.VALID_COLORS[shape_colors[idx + 1]]
+            self.answer_detail = (
+                f"Shortest time (min {min(durations[1:]):.2f}s): {self.answer}"
+            )
+
         elif self.p_type == "max_time":
             # Which shape took longest time to reach?
             idx = durations[1:].index(max(durations[1:]))
-            self.answer = self.VALID_COLORS[shape_colors[idx]]
-            self.answer_detail = f"Longest time (max {max(durations[1:]):.2f}s): {self.answer}"
-        
+            self.answer = self.VALID_COLORS[shape_colors[idx + 1]]
+            self.answer_detail = (
+                f"Longest time (max {max(durations[1:]):.2f}s): {self.answer}"
+            )
+
         # Store N for reasoning trace
         self.ordinal_N = N
 
@@ -660,51 +696,53 @@ class Paths(Scene):
         # ====================================================================
         self.wait(2)
         self.log_event("All objects begin fading out")
-        self.play(*[FadeOut(mob) for mob in self.mobjects if mob!=bg])
+        self.play(*[FadeOut(mob) for mob in self.mobjects if mob != bg])
         self.log_event("Scene cleared except background")
-        
+
         # ====================================================================
         # Display the question
         # ====================================================================
         title_text = random.choice(self.cfg["text"][self.p_type])
         title_text = title_text.replace("<N>", ordinal(N))
-        lines = title_text.split('\n')
-        
-        para = Paragraph(
-            *lines, alignment="center", font_size=36, line_spacing=0.8
-        )
+        lines = title_text.split("\n")
+
+        para = Paragraph(*lines, alignment="center", font_size=36, line_spacing=0.8)
         para.move_to(ORIGIN)
-        
+
         # Scale if too wide for screen
-        if para.width > 0.9*config.frame_width:
+        if para.width > 0.9 * config.frame_width:
             para.scale_to_fit_width(config.frame_width * 0.9)
-        
+
         self.log_event("Question text appears on screen")
         self.play(Write(para), run_time=1.5)
         self.wait(3)
         self.log_event("Question remains displayed for viewer to read")
 
         # Create question text (for output file)
-        self.question_text = f"Observe the trajectory of the arrow. {title_text.replace(chr(10), ' ')}"
-        
+        self.question_text = (
+            f"Observe the trajectory of the arrow. {title_text.replace(chr(10), ' ')}"
+        )
+
         # ====================================================================
         # Build comprehensive reasoning trace
         # ====================================================================
         self.build_reasoning_trace()
-        
+
         # ====================================================================
         # Save output files
         # ====================================================================
         # Solution file (just the answer)
-        solution_filename = f"solutions/path_{self.p_type}_shapes{self.num_shapes}_seed{self.seed}.txt"
+        solution_filename = (
+            f"solutions/path_{self.p_type}_shapes{self.num_shapes}_seed{self.seed}.txt"
+        )
         with open(solution_filename, "w") as f:
             f.write(str(self.answer))
-        
+
         # Question text file
         question_filename = f"question_text/path_{self.p_type}_shapes{self.num_shapes}_seed{self.seed}.txt"
         with open(question_filename, "w") as f:
             f.write(self.question_text)
-            
+
         # Detailed reasoning trace file
         trace_filename = f"reasoning_traces/path_{self.p_type}_shapes{self.num_shapes}_seed{self.seed}.txt"
         with open(trace_filename, "w") as f:
@@ -714,11 +752,11 @@ class Paths(Scene):
         """
         Build a comprehensive, step-by-step reasoning trace.
         This explains how to solve the puzzle systematically.
-        
+
         Similar structure to CubeRollScene for consistency.
         """
         self.reasoning_trace = []
-        
+
         # ====================================================================
         # Introduction with question
         # ====================================================================
@@ -726,29 +764,31 @@ class Paths(Scene):
         self.reasoning_trace.append("")
         self.reasoning_trace.append("Let's solve this step by step.")
         self.reasoning_trace.append("")
-        
+
         # ====================================================================
         # Scene description with timestamps
         # ====================================================================
         self.reasoning_trace.append("### Scene Description")
         self.reasoning_trace.append("")
-        
+
         for event in self.scene_events:
-            time_str = self.format_time(event['time'])
+            time_str = self.format_time(event["time"])
             self.reasoning_trace.append(f"At {time_str}, {event['description']}")
-        
+
         self.reasoning_trace.append("")
-        
+
         # ====================================================================
         # Step 1: Understand the shapes
         # ====================================================================
         self.reasoning_trace.append("### Step 1: Understand the shapes in the scene")
-        self.reasoning_trace.append(f"The scene contains **{self.num_shapes} colored shapes** positioned randomly:")
+        self.reasoning_trace.append(
+            f"The scene contains **{self.num_shapes} colored shapes** positioned randomly:"
+        )
         self.reasoning_trace.append("")
-        
+
         for detail in self.shape_details:
-            if detail['placed']:
-                pos = detail['position']
+            if detail["placed"]:
+                pos = detail["position"]
                 self.reasoning_trace.append(
                     f"- Shape {detail['number']}: {detail['color']} {detail['type']} "
                     f"at position ({pos[0]:.2f}, {pos[1]:.2f})"
@@ -757,9 +797,9 @@ class Paths(Scene):
                 self.reasoning_trace.append(
                     f"- Shape {detail['number']}: Failed to place (overlapping)"
                 )
-        
+
         self.reasoning_trace.append("")
-        
+
         # ====================================================================
         # Step 2: Track the arrow's path
         # ====================================================================
@@ -769,25 +809,27 @@ class Paths(Scene):
             "The visit sequence is:"
         )
         self.reasoning_trace.append("")
-        
+
         for detail in self.visit_order_details:
-            center = detail['center']
+            center = detail["center"]
             self.reasoning_trace.append(
                 f"{detail['position']}. **{detail['color']}** {detail['type']} "
                 f"at ({center[0]:.2f}, {center[1]:.2f})"
             )
-        
+
         self.reasoning_trace.append("")
-        
+
         # ====================================================================
         # Step 3: Analyze distances between consecutive shapes
         # ====================================================================
-        self.reasoning_trace.append("### Step 3: Analyze distances between consecutive shapes")
+        self.reasoning_trace.append(
+            "### Step 3: Analyze distances between consecutive shapes"
+        )
         self.reasoning_trace.append(
             "The Euclidean distance between each pair of consecutive shapes is:"
         )
         self.reasoning_trace.append("")
-        
+
         for i in range(len(self.distances)):
             from_color = self.shape_colors_visited[i]
             to_color = self.shape_colors_visited[i + 1]
@@ -795,16 +837,22 @@ class Paths(Scene):
             self.reasoning_trace.append(
                 f"- From **{from_color}** to **{to_color}**: {dist:.2f} units"
             )
-        
+
         self.reasoning_trace.append("")
-        
+
         # Add summary statistics
         if self.distances:
-            self.reasoning_trace.append(f"- **Minimum distance**: {min(self.distances):.2f} units")
-            self.reasoning_trace.append(f"- **Maximum distance**: {max(self.distances):.2f} units")
-            self.reasoning_trace.append(f"- **Average distance**: {np.mean(self.distances):.2f} units")
+            self.reasoning_trace.append(
+                f"- **Minimum distance**: {min(self.distances):.2f} units"
+            )
+            self.reasoning_trace.append(
+                f"- **Maximum distance**: {max(self.distances):.2f} units"
+            )
+            self.reasoning_trace.append(
+                f"- **Average distance**: {np.mean(self.distances):.2f} units"
+            )
             self.reasoning_trace.append("")
-        
+
         # ====================================================================
         # Step 4: Analyze animation timing
         # ====================================================================
@@ -813,12 +861,12 @@ class Paths(Scene):
             "The time taken for the arrow to travel between shapes varies:"
         )
         self.reasoning_trace.append("")
-        
+
         # First segment (start to first shape)
         self.reasoning_trace.append(
             f"- From **start** to **{self.shape_colors_visited[0]}**: {self.durations[0]:.2f} seconds"
         )
-        
+
         # Subsequent segments
         for i in range(1, len(self.durations)):
             from_color = self.shape_colors_visited[i - 1]
@@ -827,40 +875,46 @@ class Paths(Scene):
             self.reasoning_trace.append(
                 f"- From **{from_color}** to **{to_color}**: {duration:.2f} seconds"
             )
-        
+
         self.reasoning_trace.append("")
-        
+
         # Add timing summary
         if len(self.durations) > 1:
-            self.reasoning_trace.append(f"- **Shortest time** (excluding start): {min(self.durations[1:]):.2f} seconds")
-            self.reasoning_trace.append(f"- **Longest time** (excluding start): {max(self.durations[1:]):.2f} seconds")
+            self.reasoning_trace.append(
+                f"- **Shortest time** (excluding start): {min(self.durations[1:]):.2f} seconds"
+            )
+            self.reasoning_trace.append(
+                f"- **Longest time** (excluding start): {max(self.durations[1:]):.2f} seconds"
+            )
             self.reasoning_trace.append("")
-        
+
         # ====================================================================
         # Step 5: Solve based on problem type
         # ====================================================================
         self.reasoning_trace.append("### Step 5: Determine the answer")
-        
+
         if self.p_type == "order":
             self.reasoning_trace.append(
                 f"The question asks for the color of the **{ordinal(self.ordinal_N)}** shape visited."
             )
             self.reasoning_trace.append("")
             self.reasoning_trace.append("Looking at the visit sequence:")
-            for i, detail in enumerate(self.visit_order_details[:self.ordinal_N + 1]):
+            for i, detail in enumerate(self.visit_order_details[: self.ordinal_N + 1]):
                 marker = " ← **This is the answer**" if i == self.ordinal_N - 1 else ""
-                self.reasoning_trace.append(f"{detail['position']}. {detail['color']}{marker}")
+                self.reasoning_trace.append(
+                    f"{detail['position']}. {detail['color']}{marker}"
+                )
             self.reasoning_trace.append("")
             self.reasoning_trace.append(
                 f"The {ordinal(self.ordinal_N)} shape visited was **{self.answer}**."
             )
-            
+
         elif self.p_type == "min_dist":
             min_dist = min(self.distances)
             idx = self.distances.index(min_dist)
             from_color = self.shape_colors_visited[idx]
             to_color = self.shape_colors_visited[idx + 1]
-            
+
             self.reasoning_trace.append(
                 "The question asks which shape was **closest** to its previous shape."
             )
@@ -869,13 +923,13 @@ class Paths(Scene):
                 f"The minimum distance is **{min_dist:.2f} units**, which occurs when moving "
                 f"from **{from_color}** to **{to_color}**."
             )
-            
+
         elif self.p_type == "max_dist":
             max_dist = max(self.distances)
             idx = self.distances.index(max_dist)
             from_color = self.shape_colors_visited[idx]
             to_color = self.shape_colors_visited[idx + 1]
-            
+
             self.reasoning_trace.append(
                 "The question asks which shape was **furthest** from its previous shape."
             )
@@ -884,13 +938,13 @@ class Paths(Scene):
                 f"The maximum distance is **{max_dist:.2f} units**, which occurs when moving "
                 f"from **{from_color}** to **{to_color}**."
             )
-            
+
         elif self.p_type == "min_time":
             min_time = min(self.durations[1:])
             idx = self.durations[1:].index(min_time)
             from_color = self.shape_colors_visited[idx]
             to_color = self.shape_colors_visited[idx + 1]
-            
+
             self.reasoning_trace.append(
                 "The question asks which shape took the **shortest time** to reach."
             )
@@ -899,13 +953,13 @@ class Paths(Scene):
                 f"The minimum time (excluding the start) is **{min_time:.2f} seconds**, "
                 f"which occurs when moving from **{from_color}** to **{to_color}**."
             )
-            
+
         elif self.p_type == "max_time":
             max_time = max(self.durations[1:])
             idx = self.durations[1:].index(max_time)
             from_color = self.shape_colors_visited[idx]
             to_color = self.shape_colors_visited[idx + 1]
-            
+
             self.reasoning_trace.append(
                 "The question asks which shape took the **longest time** to reach."
             )
@@ -914,9 +968,9 @@ class Paths(Scene):
                 f"The maximum time (excluding the start) is **{max_time:.2f} seconds**, "
                 f"which occurs when moving from **{from_color}** to **{to_color}**."
             )
-        
+
         self.reasoning_trace.append("")
-        
+
         # ====================================================================
         # Final answer
         # ====================================================================
@@ -924,6 +978,7 @@ class Paths(Scene):
         self.reasoning_trace.append(f"The answer is **{self.answer}**.")
         self.reasoning_trace.append("")
         self.reasoning_trace.append(f"\\boxed{{{self.answer}}}")
+
 
 # ============================================================================
 # Main execution
@@ -941,9 +996,15 @@ if __name__ == "__main__":
         filename = f"path_{scene.p_type}_shapes{scene.num_shapes}_seed{scene.seed}.mp4"
         shutil.move(str(output), f"questions/{filename}")
         print(f"✓ Video saved: questions/{filename}")
-        print(f"✓ Solution saved: solutions/path_{scene.p_type}_shapes{scene.num_shapes}_seed{scene.seed}.txt")
-        print(f"✓ Question saved: question_text/path_{scene.p_type}_shapes{scene.num_shapes}_seed{scene.seed}.txt")
-        print(f"✓ Reasoning saved: reasoning_traces/path_{scene.p_type}_shapes{scene.num_shapes}_seed{scene.seed}.txt")
+        print(
+            f"✓ Solution saved: solutions/path_{scene.p_type}_shapes{scene.num_shapes}_seed{scene.seed}.txt"
+        )
+        print(
+            f"✓ Question saved: question_text/path_{scene.p_type}_shapes{scene.num_shapes}_seed{scene.seed}.txt"
+        )
+        print(
+            f"✓ Reasoning saved: reasoning_traces/path_{scene.p_type}_shapes{scene.num_shapes}_seed{scene.seed}.txt"
+        )
     else:
         # Debug: Print what files actually exist
         print("ERROR: Expected output file not found!")

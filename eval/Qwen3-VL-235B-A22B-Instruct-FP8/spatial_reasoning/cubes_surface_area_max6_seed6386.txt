@@ -1,0 +1,191 @@
+We are given a 3D structure made of small unit cubes (each side = 1 unit), and we are to find the **total surface area** of the entire figure.
+
+---
+
+### Step 1: Understand the structure
+
+From the video frames (0:04–0:10), we see a 3D structure composed of small colored cubes. The structure starts as a solid 3x3x3 cube (27 cubes), and then cubes are removed from the interior, leaving a kind of hollow or “skeletal” structure.
+
+At 0:07–0:10, we can clearly see that the structure is **not solid** — many cubes are missing from the interior, and we can see through it. This suggests we are dealing with a **3x3x3 cube with the center cube removed**.
+
+But wait — let’s look more carefully.
+
+At 0:04, it looks like a solid 3x3x3 cube.
+
+At 0:05–0:06, it starts to “dissolve” — cubes are being removed.
+
+At 0:07–0:10, we see a structure that looks like a **3x3x3 cube with the very center cube removed**, and possibly some others? But actually, if you look closely, it appears that **only the center cube is missing**, and the rest are intact.
+
+Let’s confirm:
+
+- A 3x3x3 cube has 27 small cubes.
+- If only the center cube is removed, we have 26 cubes left.
+
+But in the animation, it looks like more than just the center is removed — for example, at 0:09, we can see holes on multiple faces. Actually, looking again, it seems that **all the cubes that are not on the outer layer are removed** — meaning, only the **outer shell** remains.
+
+That is, we have a **hollow 3x3x3 cube**, with only the surface cubes present — the 26 cubes that are on the surface, and the very center cube is missing.
+
+Wait — in a 3x3x3 cube, the **only cube not on the surface is the very center one**. So removing it leaves 26 cubes — all of which are on the surface.
+
+But in the animation, at 0:09, we can see through the structure — meaning, there are holes not just in the center, but also on the faces? Actually, no — in a 3x3x3 cube, if you remove only the center cube, you can see through it along the axes, because the center is gone.
+
+So yes — the structure is a **3x3x3 cube with the center cube removed**.
+
+Thus, total cubes = 26.
+
+---
+
+### Step 2: Calculate surface area
+
+Each small cube has 6 faces, each of area 1 unit².
+
+If all 26 cubes were isolated, total surface area = 26 × 6 = 156.
+
+But when cubes are adjacent, they share faces, and those shared faces are **not** part of the external surface area.
+
+So we must subtract the area of the **internal faces** — the faces where two cubes are touching.
+
+---
+
+### Step 3: Count the number of shared faces
+
+In the 3x3x3 cube with center removed, we need to count how many pairs of cubes are adjacent (i.e., share a face).
+
+We can think of the original 3x3x3 cube (27 cubes) and subtract the shared faces that are lost when we remove the center cube.
+
+But perhaps easier: count the number of adjacent pairs in the final structure.
+
+Let’s consider the structure: it’s a 3x3x3 cube with only the center cube missing.
+
+So, the remaining 26 cubes form a “shell”.
+
+In a solid 3x3x3 cube, the number of shared faces can be calculated as follows:
+
+- In x-direction: for each y,z, there are 2 shared faces per row (between 3 cubes). There are 3 y and 3 z → 3×3×2 = 18 shared faces in x-direction.
+- Similarly, in y-direction: 3 x, 3 z, 2 per column → 3×3×2 = 18.
+- In z-direction: 3 x, 3 y, 2 per stack → 3×3×2 = 18.
+
+Total shared faces in solid 3x3x3: 18+18+18 = 54.
+
+Each shared face is counted once (between two cubes), so total internal faces = 54.
+
+Now, when we remove the center cube, we remove all the faces that were shared with it.
+
+The center cube (at position (2,2,2) if we index 1,2,3) was adjacent to 6 cubes: front, back, left, right, top, bottom.
+
+So, it had 6 shared faces.
+
+When we remove it, we lose those 6 shared faces — meaning, those 6 faces are no longer internal; they become external.
+
+But also, the center cube itself had 6 faces, all of which were internal (shared with neighbors). When we remove it, those 6 faces are gone, but the 6 faces of the neighboring cubes that were adjacent to it are now exposed.
+
+So, net effect:
+
+- We remove the center cube: it contributed 6 faces to the total (but all were internal, so not part of surface area).
+- We remove 6 shared faces (between center and its neighbors).
+- But now, the 6 neighbors each have one face exposed that was previously covered.
+
+So, compared to the solid cube:
+
+- Solid cube surface area: each cube has 6 faces, 27 cubes → 162 faces.
+- Minus 2×54 = 108 internal faces (since each shared face is counted twice in the 162, but should be subtracted once? Wait, no.
+
+Standard way: total surface area = total faces of all cubes minus 2 times the number of shared faces (because each shared face is counted twice in the total, but should not be counted at all in surface area).
+
+So for solid 3x3x3:
+
+Total faces = 27 × 6 = 162.
+
+Number of shared faces = 54 (as calculated).
+
+Each shared face is shared by two cubes, so we subtract 2 × 54 = 108.
+
+Surface area = 162 - 108 = 54.
+
+Which makes sense: a 3x3x3 cube has surface area 6 × (3×3) = 54.
+
+Now, when we remove the center cube:
+
+- We remove 1 cube → total faces now: 26 × 6 = 156.
+- We remove the 6 shared faces that involved the center cube. But each of those shared faces was counted in the 54, so now the number of shared faces is 54 - 6 = 48.
+- So we subtract 2 × 48 = 96.
+
+Surface area = 156 - 96 = 60.
+
+Alternatively, think about what changes:
+
+- Removing the center cube: we lose its 6 faces, but all were internal, so no change to surface area from that.
+- But we expose 6 new faces (the faces of the 6 neighbors that were adjacent to the center cube).
+
+So surface area increases by 6.
+
+Original solid cube: 54.
+
+After removing center: 54 + 6 = 60.
+
+Yes.
+
+But wait — is that correct? In the solid cube, the center cube's faces are all internal, so not part of surface area. When we remove it, the 6 faces of the adjacent cubes that were touching it are now exposed — so yes, we add 6 to the surface area.
+
+So surface area = 54 + 6 = 60.
+
+But let me verify with another method.
+
+---
+
+### Step 4: Direct count of exposed faces
+
+We can count the number of exposed faces by considering each cube in the structure and counting how many of its faces are exposed.
+
+The structure has 26 cubes: all except the center.
+
+Each of these 26 cubes is on the surface of the original 3x3x3 cube.
+
+In a 3x3x3 cube, the cubes can be classified:
+
+- Corner cubes: 8 cubes, each has 3 faces exposed.
+- Edge cubes (not corner): each edge has 1 such cube (since 3 cubes per edge, minus 2 corners), and there are 12 edges → 12 cubes, each with 2 faces exposed.
+- Face-center cubes: 6 faces, each has 1 center cube → 6 cubes, each with 1 face exposed.
+- Center cube: 1, with 0 faces exposed.
+
+Total: 8 + 12 + 6 + 1 = 27.
+
+Now, we remove the center cube. So we have the other 26.
+
+But in the original solid cube, the surface area is:
+
+- 8 corners × 3 = 24
+- 12 edges × 2 = 24
+- 6 face-centers × 1 = 6
+- Total = 24+24+6 = 54 — correct.
+
+Now, when we remove the center cube, what happens?
+
+The center cube was adjacent to the 6 face-center cubes.
+
+Each of those 6 face-center cubes had only 1 face exposed (the outer face). The other 5 faces were adjacent to other cubes: 4 to edge cubes and 1 to the center cube.
+
+When we remove the center cube, each of these 6 face-center cubes now has an additional face exposed — the one that was facing the center.
+
+So, each of these 6 cubes now has 2 faces exposed instead of 1.
+
+So, their contribution changes from 6 × 1 = 6 to 6 × 2 = 12.
+
+The other cubes (corners and edges) are unaffected — they still have the same number of exposed faces.
+
+So new surface area:
+
+- Corners: 8 × 3 = 24
+- Edges: 12 × 2 = 24
+- Face-centers: 6 × 2 = 12
+- Total = 24 + 24 + 12 = 60.
+
+Perfect.
+
+---
+
+### Final Answer
+
+The surface area is 60 square units.
+
+\boxed{60}

@@ -1,0 +1,308 @@
+We are asked to compute the **sum of the distance of all shifts that happened to the letter 'C'** across all word moves.
+
+Let’s carefully track the position of the letter **'C'** through each word transition.
+
+---
+
+We are given a sequence of word transformations:
+
+1. **PRINCESS**
+2. **PRISCENE**
+3. **NSCERPRC I** → This seems malformed. Let’s look at the sequence again carefully.
+
+Actually, looking at the video frames:
+
+- Frame 0: Question only
+- Frame 1: **PRINCESS**
+- Frame 2: **PRISCENE**
+- Frame 3: **NSCERPRC I** → This seems like a typo or misrendering. Let’s look at the next one.
+- Frame 4: **SCSREPNI** → This is 8 letters, same as PRINCESS.
+- Frame 5: **ENRSISCP** → 8 letters
+- Frame 6: **CRESINSP** → 8 letters
+- Frame 7: **SHINCCES** → 8 letters? Wait, “SHINCCES” has 8 letters? S-H-I-N-C-C-E-S → 8 letters, but two C’s? That’s odd.
+
+Wait — let’s re-express the frames with accurate transcriptions:
+
+From the video:
+
+- 0: Question
+- 1: PRINCESS
+- 2: PRISCENE
+- 3: NSCERPRC I → This is likely **NSCERPRCI**? But that’s 9 letters. Maybe it’s **NSCERPRC I** with space? Doesn’t make sense.
+
+Actually, looking at frame 7: **SHINCCES** — that’s 8 letters: S H I N C C E S — two C’s? But original word PRINCESS has only one C.
+
+Wait — PRINCESS: P-R-I-N-C-E-S-S → positions 1-8: C is at position 5.
+
+Let’s list all the words as they appear in the video, carefully:
+
+1. **PRINCESS** → letters: P R I N C E S S → C at index 5 (1-based: 5th letter)
+
+2. **PRISCENE** → P R I S C E N E → C at index 5
+
+3. **NSCERPRC I** → This seems corrupted. Maybe it’s **NSCERPRCI**? But that’s 9 letters. Alternatively, perhaps it’s **NSCERPRC** and then I is separate? Not clear.
+
+Wait — let’s look at frame 4: **SCSREPNI**
+
+Frame 5: **ENRSISCP**
+
+Frame 6: **CRESINSP**
+
+Frame 7: **SHINCCES**
+
+Frame 8: **CSSNPIRE**
+
+Wait — perhaps the video is showing **anagrams** or **rearrangements** of the letters of "PRINCESS", and we are to track the position of the letter **'C'** as it moves from one word to the next.
+
+Let’s assume the sequence is:
+
+1. PRINCESS → C at position 5 (1-based)
+
+2. PRISCENE → C at position 5 → no shift? Distance = 0
+
+3. Next word: **NSCERPRC I** — this is likely a misrendering. Looking at frame 7: **SHINCCES** — that has two C’s? That can’t be right.
+
+Wait — perhaps the video is showing **each step** of a transformation, and we are to track the **movement of the letter 'C'** from its position in one word to the next.
+
+Let’s list the words as they appear, with positions (1-based):
+
+---
+
+**Step 1: PRINCESS**
+
+Positions:  
+1:P, 2:R, 3:I, 4:N, 5:C, 6:E, 7:S, 8:S  
+→ C is at position **5**
+
+---
+
+**Step 2: PRISCENE**
+
+Positions:  
+1:P, 2:R, 3:I, 4:S, 5:C, 6:E, 7:N, 8:E  
+→ C is at position **5**  
+→ Shift distance = |5 - 5| = **0**
+
+---
+
+**Step 3: NSCERPRC I** — this is problematic. Let’s look at the next frame: **SCSREPNI**
+
+Wait — perhaps the third word is **NSCERPRC** and then "I" is a typo? Or maybe it’s **NSCERPRCI**? But that’s 9 letters.
+
+Alternatively, perhaps the video has a typo, and we should look at the sequence as:
+
+After PRISCENE → next is **NSCERPRC I** — maybe it’s **NSCERPRC** and then "I" is part of the next? Not clear.
+
+Wait — let’s look at frame 4: **SCSREPNI**
+
+Letters: S C S R E P N I → 8 letters
+
+C is at position **2**
+
+So from step 2 (C at 5) to step 3 (C at 2) → distance = |5 - 2| = **3**
+
+But what is step 3? The video shows at 0:07: **NSCERPRC I** — perhaps it’s **NSCERPRC** and then "I" is a mistake? Or maybe it’s **NSCERPRC I** as in "NSCERPRC" + space + "I" — doesn't make sense.
+
+Alternatively, perhaps the third word is **NSCERPRC** (8 letters: N S C E R P R C) — but that has two C’s? Original word has only one C.
+
+This is confusing.
+
+Wait — let’s look at the entire sequence as shown in the video:
+
+- Frame 1: PRINCESS
+- Frame 2: PRISCENE
+- Frame 3: NSCERPRC I → perhaps it’s **NSCERPRC** and the "I" is a glitch? Or maybe it’s **NSCERPRCI** — 9 letters? Not matching.
+
+Alternatively, perhaps the video is showing the word being rearranged, and we are to track the position of the letter 'C' in each rearrangement.
+
+Let’s assume the sequence is:
+
+1. PRINCESS → C at 5
+
+2. PRISCENE → C at 5 → shift 0
+
+3. SCSREPNI → C at 2 → shift from 5 to 2: |5-2| = 3
+
+4. ENRSISCP → E N R S I S C P → C at position 7 → shift from 2 to 7: |2-7| = 5
+
+5. CRESINSP → C R E S I N S P → C at position 1 → shift from 7 to 1: |7-1| = 6
+
+6. SHINCCES → S H I N C C E S → two C’s? This is a problem. Original word has only one C. So this must be a mistake.
+
+Wait — perhaps "SHINCCES" is meant to be "SHINCES" or something else? But it's 8 letters.
+
+Alternatively, maybe the letter 'C' is being tracked, and in "SHINCCES", there are two C’s, so which one is the original C? This is ambiguous.
+
+Looking at frame 8: **CSSNPIRE** → C S S N P I R E → C at position 1
+
+So from step 5: CRESINSP → C at 1
+
+Step 6: SHINCCES → if we assume the first C is the one we're tracking, then C at position 5? S H I N C C E S → positions: 1:S, 2:H, 3:I, 4:N, 5:C, 6:C, 7:E, 8:S → so if we track the first C, it's at 5, but in previous step it was at 1, so shift = |1-5| = 4
+
+Then step 7: CSSNPIRE → C at 1 → shift from 5 to 1: |5-1| = 4
+
+But this is getting messy, and we have two C’s in "SHINCCES", which shouldn't be there.
+
+Perhaps the video has a typo, and "SHINCCES" is meant to be "SHINCES" or "SHINCES", but it's written as "SHINCCES".
+
+Alternatively, let's count the letters in "PRINCESS": 8 letters, and all subsequent words are 8 letters, so "SHINCCES" has 8 letters, but with two C’s, which is impossible if we are just rearranging the letters of "PRINCESS" which has only one C.
+
+PRINCESS: P,R,I,N,C,E,S,S — letters: P, R, I, N, C, E, S, S — so two S’s, one C.
+
+So any anagram should have exactly one C.
+
+Therefore, "SHINCCES" must be a mistake. Perhaps it's "SHINCES" but that's 7 letters.
+
+Wait — perhaps it's "SHINC E S" but that doesn't help.
+
+Another possibility: the word is "SHINCES" with a typo, but it's shown as 8 letters.
+
+Let’s look back at the video frames:
+
+At 0:12: **SHINCCES** — clearly written as S H I N C C E S — 8 letters, two C’s.
+
+This is likely an error in the video.
+
+Perhaps we should skip that step or assume it's "SHINCES" with an extra C by mistake.
+
+But that's not rigorous.
+
+Alternatively, perhaps the letter 'C' is being tracked, and in "SHINCCES", we consider the position of the first C or the last C? But that's arbitrary.
+
+Let’s try to see the sequence from the beginning with a different approach.
+
+Maybe the video is showing the word being transformed by moving letters, and we are to track the cumulative distance the letter 'C' has moved.
+
+Let’s list the words as they appear, and assume that "NSCERPRC I" is a misrendering of "NSCERPRC" or something else.
+
+Looking at frame 3: **NSCERPRC I** — perhaps it's "NSCERPRC" and the "I" is a separate character or a typo.
+
+But "NSCERPRC" is 8 letters: N S C E R P R C — again, two C’s.
+
+This is consistent with "SHINCCES" having two C’s, so perhaps the video has a mistake, and we should assume that the letter 'C' is unique, and in words with two C’s, we track the position of the C that was originally in PRINCESS.
+
+But that's not specified.
+
+Perhaps the video is not about anagrams, but about the letter 'C' being shifted in a word, and the word is being changed, but we only care about the position of 'C'.
+
+Let's try to extract the position of 'C' in each word as shown:
+
+1. PRINCESS: C at 5
+
+2. PRISCENE: C at 5 → distance 0
+
+3. NSCERPRC I: if we take "NSCERPRC" as 8 letters: N S C E R P R C — C at 3 and 8. Which one to choose? Perhaps the first C? At position 3.
+
+From 5 to 3: |5-3| = 2
+
+4. SCSREPNI: S C S R E P N I — C at 2 → from 3 to 2: |3-2| = 1
+
+5. ENRSISCP: E N R S I S C P — C at 7 → from 2 to 7: |2-7| = 5
+
+6. CRESINSP: C R E S I N S P — C at 1 → from 7 to 1: |7-1| = 6
+
+7. SHINCCES: S H I N C C E S — C at 5 and 6. Let's assume we take the first C at 5. From 1 to 5: |1-5| = 4
+
+8. CSSNPIRE: C S S N P I R E — C at 1 → from 5 to 1: |5-1| = 4
+
+Now sum the distances:
+
+- 0 (from 1 to 2)
+- 2 (from 2 to 3)
+- 1 (from 3 to 4)
+- 5 (from 4 to 5)
+- 6 (from 5 to 6)
+- 4 (from 6 to 7)
+- 4 (from 7 to 8)
+
+Sum = 0 + 2 + 1 + 5 + 6 + 4 + 4 = 22
+
+But this is based on assumptions about which C to choose in words with two C’s.
+
+Perhaps in "NSCERPRC", the C at position 3 is the one to track, and in "SHINCCES", the C at position 5 is the one, as it's the first C.
+
+Alternatively, maybe the video intends for us to track the letter 'C' as it appears in the word, and in cases of two C’s, it's an error, but we have to proceed.
+
+Another idea: perhaps "NSCERPRC I" is meant to be "NSCERPRC" and the "I" is a separator or something, but it's not clear.
+
+Let's look at the final word: **CSSNPIRE** — C at 1
+
+And the first word: PRINCESS — C at 5
+
+But we need the sum of all shifts, not just net.
+
+Perhaps the video has a specific sequence, and we should use the positions as given.
+
+Let's list the words with their 'C' positions, assuming we take the leftmost C if there are multiple:
+
+1. PRINCESS: C at 5
+
+2. PRISCENE: C at 5 → shift 0
+
+3. NSCERPRC I: if we consider "NSCERPRC" as the word, C at 3 (first C) → shift |5-3| = 2
+
+4. SCSREPNI: C at 2 → shift |3-2| = 1
+
+5. ENRSISCP: C at 7 → shift |2-7| = 5
+
+6. CRESINSP: C at 1 → shift |7-1| = 6
+
+7. SHINCCES: C at 5 (first C) → shift |1-5| = 4
+
+8. CSSNPIRE: C at 1 → shift |5-1| = 4
+
+Sum = 0+2+1+5+6+4+4 = 22
+
+But let's verify the word at step 3: "NSCERPRC I" — if we include the "I", it might be "NSCERPRC I" as 9 characters, but that doesn't make sense.
+
+Perhaps it's "NSCERPRC" and the "I" is a typo for the next word.
+
+Another possibility: the third word is "NSCERPRC" and it's 8 letters, with C at 3 and 8, but we track the first C.
+
+Similarly for "SHINCCES", C at 5 and 6, track first C at 5.
+
+So sum is 22.
+
+But let's see if there's a better way.
+
+Perhaps the video is showing the word being sorted or something, but that doesn't help.
+
+Another thought: maybe "all word moves" means from the first word to the last, but the question says "across all word moves", implying between consecutive words.
+
+So we have 7 moves (from word 1 to 2, 2 to 3, ..., 7 to 8).
+
+With 8 words, 7 shifts.
+
+Sum of distances for each shift.
+
+With the positions:
+
+- Word 1: C at 5
+
+- Word 2: C at 5 → diff 0
+
+- Word 3: assume C at 3 → diff |5-3| = 2
+
+- Word 4: C at 2 → diff |3-2| = 1
+
+- Word 5: C at 7 → diff |2-7| = 5
+
+- Word 6: C at 1 → diff |7-1| = 6
+
+- Word 7: C at 5 → diff |1-5| = 4
+
+- Word 8: C at 1 → diff |5-1| = 4
+
+Sum = 0+2+1+5+6+4+4 = 22
+
+Perhaps in word 3, "NSCERPRC I", if we consider it as "NSCERPRC" and the "I" is not part of it, then it's 8 letters.
+
+Similarly, "SHINCCES" is 8 letters with two C's, but we take the first.
+
+So I think 22 is the answer.
+
+But let's double-check the word at step 3: in the video at 0:07, it shows "NSCERPRC I" — perhaps it's "NSCERPRC" and "I" is a mistake, or perhaps it's "NSCERPRC" with a space, but we can ignore the "I".
+
+Similarly, at step 7: "SHINCCES" — we'll assume it's correct and take the first C at position 5.
+
+So final answer: \boxed{22}

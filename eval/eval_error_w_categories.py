@@ -12,37 +12,70 @@ from tqdm.asyncio import tqdm
 #  NEW PROMPT DEFINITION
 # =============================================================================
 
-ANALYSIS_PROMPT = """You are an expert evaluator analyzing vision-language model errors.
+ANALYSIS_PROMPT = """You are an expert forensic analyst evaluating the performance of a Vision-Language Model (VLM).
 
-Given:
-- Question: {question}
-- Ground Truth Reasoning: {gt_reasoning}
-- Ground Truth Answer: {gt_answer}
-- Model Reasoning: {model_reasoning}
-- Model Answer: {model_answer}
+### THE SCENARIO
+A VLM was presented with a video.
+1.  **The Reality:** The video content is definitively described in the `Scene Description` below. (The VLM saw the pixels, not this text).
+2.  **The Task:** The VLM was asked the `Question`.
+3.  **The Process:** The VLM generated a `Model Reasoning` trace and a final `Model Answer`.
+4.  **The Benchmark:** A human expert provided the `Ground Truth Reasoning` and `Ground Truth Answer`.
 
-ERROR CATEGORIES:
+### YOUR GOAL
+Diagnose *why* the model failed (or succeeded). 
 
+### INPUT DATA
+- **Scene Description (Visual Facts):** {scene_description}
+- **Question:** {question}
+- **Ground Truth Reasoning (Reference Logic):** {gt_reasoning}
+- **Ground Truth Answer:** {gt_answer}
+- **Model Reasoning:** {model_reasoning}
+- **Model Answer:** {model_answer}
+
+### ERROR CATEGORIES
 {categories}
+(Use "Unknown" for category/subcategory if the error does not fit the schema.)
 
-OUTPUT FORMAT (JSON):
+### ANALYSIS GUIDELINES (CRITICAL)
+
+**1. Respect Valid Alternative Paths (Do Not Nitpick)**
+   - The Ground Truth Reasoning is *one way* to solve the problem, not the *only* way.
+   - **Do not** mark the model as wrong just because it used a different method than the Ground Truth.
+   - *Example:* If the GT counts grid cells to identify a shape, but the model identifies the shape by its overall contour/silhouette, **this is valid**. Do not output an error saying "Model failed to count grid cells." Only flag it if the *result* of the model's method was factually wrong.
+
+**2. Isolate the Root Cause (Avoid Error Snowballing)**
+   - If the model makes a Perception error (e.g., sees "Blue" instead of "Red"), it will likely get the subsequent math or logic wrong.
+   - **Do not** flag the resulting math/logic as separate errors if they follow consistent logic based on the initial hallucination.
+   - *Example:* If the model mistakenly sees 0 red cubes, and therefore concludes "Total Red = 0", this is **one** error (Wrong Identification), not two errors (Wrong Identification + Math Mistake).
+
+**3. No "God Mode" Assumptions**
+   - The VLM **only saw the video**. It did not read the Scene Description or the Ground Truth.
+   - **Do not** criticize the model for missing invisible metadata (e.g., "The model failed to note the random seed was 1980").
+   - **Do not** criticize the model for making reasonable heuristic assumptions if the video was ambiguous.
+   - *Example:* If the video has no timer, and the model assumes "shorter distance = shorter time" (constant speed), **this is a valid assumption**. Do not mark it as "Bad Logic" just because the Ground Truth had invisible timestamp data saying otherwise.
+
+**4. Interpretive Explanations**
+   - Your descriptions should explain the *cognitive failure*, not just state the difference.
+   - *Bad:* "Model said the block was red, GT says green."
+   - *Good:* "The model failed to distinguish the target block from the background, likely conflating the red floor color with the green block object."
+
+### OUTPUT FORMAT (JSON)
 {{
   "has_error": true/false,
-  "primary_error_category": [category name from list of categories],
+  "primary_error_category": "Category Name" or "Unknown",
   "errors": [
     {{
-      "category": [category name from list of categories],
-      "subcategory": [subcategory name from list of subcategories under assigned category],
-      "evidence_quote": [quoted line(s) from model reasoning],
-      "description": [explanation of how it's wrong according to the ground truth reasoning],
-      "severity": [if it's a major or minor mistake]
-    }}, 
-    ...
+      "category": "Category Name" or "Unknown",
+      "subcategory": "Subcategory Name" or "Unknown",
+      "evidence_quote": "Exact quote from model reasoning",
+      "description": "Interpretative explanation of the failure (Root causes only).",
+      "severity": "major" or "minor"
+    }}
   ],
-  "analysis": [concise summary of errors]
+  "analysis": "Concise synthesis of the model's performance."
 }}
 
-Now analyze:
+Now analyze the model's performance based on the Scene Description and Ground Truth:
 """
 
 # =============================================================================
@@ -193,6 +226,17 @@ async def query_llm(
     return None
 
 
+def extract_scene_description(gt_text):
+    if "### Scene Description" in gt_text:
+        # split by header and take the part after it, then split by next header
+        part = gt_text.split("### Scene Description")[1]
+        # Assuming the next section starts with "###" or it ends
+        if "###" in part:
+            return part.split("###")[0].strip()
+        return part.strip()
+    return "No scene description provided."
+
+
 async def label_example(
     entry: Dict,
     rate_limiter: AsyncRateLimiter,
@@ -217,6 +261,7 @@ async def label_example(
     )
     # Fill the prompt template
     prompt = ANALYSIS_PROMPT.format(
+        scene_description=extract_scene_description(entry["gt_reasoning_trace"]),
         question=entry["question"],
         gt_reasoning=entry["gt_reasoning_trace"],
         gt_answer=entry["solution"],
@@ -352,6 +397,7 @@ async def process_single_question(
         )
 
         entry["analysis_result"] = label_result
+        del entry["categories"]
 
         # Save result
         output_folder.mkdir(parents=True, exist_ok=True)
@@ -389,7 +435,9 @@ async def analyze_model_predictions(
     client = AsyncOpenAI(api_key=openai_api_key, base_url=openai_api_base)
     rate_limiter = AsyncRateLimiter(calls_per_minute=calls_per_minute)
 
-    output_folder = Path(f"{prediction_folder.stem}_analyze")
+    output_folder = (
+        prediction_folder / "analysis"
+    )  # Path(f"{prediction_folder.stem}_analyze")
     output_folder.mkdir(exist_ok=True)
 
     question_files = list(prediction_folder.glob("*.txt"))
@@ -462,7 +510,7 @@ async def analyze_model_predictions(
     print("\n" + "=" * 80)
     print(f"Model: {prediction_folder.stem}")
     print(
-        f"Accuracy (Exact Match Logic): {correct_count}/{total_count} = {correct_count/total_count*100:.2f}%"
+        f"Accuracy (Exact Match Logic): {correct_count}/{total_count} = {(0 if total_count == 0 else correct_count/total_count*100):.2f}%"
     )
 
     print(f"\nPrimary Error Categories:")
@@ -495,11 +543,12 @@ async def analyze_model_predictions(
 # =============================================================================
 
 # Config
-PREDICTION_FOLDER = Path("Qwen3-VL-8B-Instruct")
-CATEGORIES_FILE = Path("Qwen3-VL-8B-Instruct_analyze/simplified_categories.json")
-QUESTION_TEXT_FOLDER = Path("../spatial_reasoning/question_text")
-GROUND_TRUTH_FOLDER = Path("../spatial_reasoning/reasoning_traces")
-SOLUTIONS_FOLDER = Path("../spatial_reasoning/solutions")
+CATEGORY_NAME = "temporal_reasoning"
+PREDICTION_FOLDER = Path(f"Qwen3-VL-8B-Instruct/{CATEGORY_NAME}")
+CATEGORIES_FILE = Path(f"final_categories.json")
+QUESTION_TEXT_FOLDER = Path(f"../{CATEGORY_NAME}/question_text")
+GROUND_TRUTH_FOLDER = Path(f"../{CATEGORY_NAME}/reasoning_traces")
+SOLUTIONS_FOLDER = Path(f"../{CATEGORY_NAME}/solutions")
 EVALUATOR_MODEL = "Qwen/Qwen3-VL-235B-A22B-Instruct-FP8"
 EVALUATOR_PORT = 8000
 TEMPERATURE = 0.7
@@ -513,8 +562,7 @@ if __name__ == "__main__":
     import sys
 
     model_name_arg = sys.argv[1] if len(sys.argv) > 1 else "Qwen3-VL-8B-Instruct"
-    PREDICTION_FOLDER = Path(model_name_arg)
-    CATEGORIES_FILE = Path(f"{model_name_arg}_analyze/simplified_categories.json")
+    PREDICTION_FOLDER = Path(f"{model_name_arg}/{CATEGORY_NAME}")
 
     asyncio.run(
         analyze_model_predictions(

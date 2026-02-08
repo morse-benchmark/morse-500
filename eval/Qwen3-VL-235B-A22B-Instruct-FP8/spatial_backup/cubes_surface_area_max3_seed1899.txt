@@ -1,0 +1,359 @@
+We are shown a 3D structure made of small cubes, and we are to find its **surface area**, assuming each small cube has side length 1 unit.
+
+---
+
+### Step 1: Understand the structure
+
+From the rotating 3D model (frames 0:04–0:10), we can observe that the structure is made of **6 small cubes**.
+
+It appears to be a 2x2x2 cube with **two cubes missing** — specifically, the top-front-right and top-back-left cubes (or similar configuration). But let’s verify by counting visible faces and reasoning carefully.
+
+Alternatively, we can count the number of **exposed faces**.
+
+Each cube has 6 faces. If cubes are glued together, the glued faces are **not** part of the surface area.
+
+So, total surface area = (Total faces of all cubes) - 2 × (number of glued faces)
+
+---
+
+### Step 2: Count total cubes
+
+From the animation, we can clearly see **6 cubes**.
+
+So total faces if separate: 6 cubes × 6 faces = **36 faces**
+
+---
+
+### Step 3: Count the number of glued (shared) faces
+
+We need to count how many pairs of cubes are adjacent (i.e., sharing a face).
+
+Let’s try to reconstruct the structure.
+
+From the rotating views, it looks like:
+
+- A base layer of 4 cubes in a 2x2 square.
+- On top of that, only 2 cubes: one on the front-left and one on the back-right (diagonally opposite).
+
+So the structure is:
+
+- Bottom layer: 4 cubes (positions: front-left, front-right, back-left, back-right)
+- Top layer: 2 cubes (on front-left and back-right)
+
+Now, count shared faces:
+
+#### Within bottom layer:
+
+- Each cube in the 2x2 layer shares faces with its neighbors.
+
+In a 2x2 square:
+
+- Each internal edge is shared by 2 cubes.
+
+There are:
+
+- 2 horizontal shared faces (between front-left/front-right and back-left/back-right)
+- 2 vertical shared faces (between front-left/back-left and front-right/back-right)
+
+→ **4 shared faces** in bottom layer.
+
+#### Between bottom and top:
+
+- Top-front-left cube sits on bottom-front-left → 1 shared face
+- Top-back-right cube sits on bottom-back-right → 1 shared face
+
+→ **2 shared faces**
+
+#### Within top layer:
+
+The two top cubes are **not adjacent** — they are diagonally opposite, so they don’t share a face.
+
+→ **0 shared faces**
+
+Total shared (glued) faces = 4 (bottom) + 2 (between layers) = **6**
+
+Each shared face means 2 faces are hidden (one from each cube), so total hidden faces = 6 × 2 = **12**
+
+---
+
+### Step 4: Compute surface area
+
+Total faces if separate: 6 cubes × 6 = 36
+
+Minus hidden faces: 36 - 12 = **24**
+
+---
+
+### Step 5: Verify by direct counting (optional)
+
+We can also try to count exposed faces from different views.
+
+But since the structure is symmetric and we’ve reasoned carefully, 24 is consistent.
+
+Another way: each cube contributes 6 faces, minus 2 for each adjacency.
+
+Each cube has a certain number of neighbors:
+
+- Bottom-front-left: neighbors: right, back, and top → 3 neighbors → 3 shared faces → exposed faces: 6 - 3×2? Wait, no.
+
+Actually, for each cube, number of exposed faces = 6 - (number of adjacent cubes)
+
+Because each adjacent cube hides 1 face.
+
+So:
+
+- Bottom-front-left: adjacent to bottom-front-right, bottom-back-left, and top-front-left → 3 neighbors → 6 - 3 = **3 exposed faces**
+
+- Bottom-front-right: adjacent to bottom-front-left and bottom-back-right → 2 neighbors → 6 - 2 = **4 exposed**
+
+- Bottom-back-left: adjacent to bottom-front-left and bottom-back-right → 2 neighbors → **4 exposed**
+
+- Bottom-back-right: adjacent to bottom-back-left and top-back-right → 2 neighbors → **4 exposed**
+
+- Top-front-left: adjacent to bottom-front-left → 1 neighbor → **5 exposed**
+
+- Top-back-right: adjacent to bottom-back-right → 1 neighbor → **5 exposed**
+
+Total exposed faces = 3 + 4 + 4 + 4 + 5 + 5 = **25**
+
+Wait! That’s 25, not 24.
+
+There’s a discrepancy.
+
+Let’s double-check.
+
+Top-front-left cube: adjacent only to bottom-front-left? Yes.
+
+But is it also adjacent to any other top cube? No — they’re diagonal.
+
+So 1 neighbor → 5 exposed.
+
+Similarly for top-back-right.
+
+Now bottom-front-left: adjacent to:
+
+- bottom-front-right (right)
+
+- bottom-back-left (back)
+
+- top-front-left (up)
+
+→ 3 neighbors → 3 exposed faces.
+
+Bottom-front-right: adjacent to:
+
+- bottom-front-left (left)
+
+- bottom-back-right (back)
+
+→ 2 neighbors → 4 exposed.
+
+Bottom-back-left: adjacent to:
+
+- bottom-front-left (front)
+
+- bottom-back-right (right)
+
+→ 2 neighbors → 4 exposed.
+
+Bottom-back-right: adjacent to:
+
+- bottom-back-left (left)
+
+- top-back-right (up)
+
+→ 2 neighbors → 4 exposed.
+
+Top-front-left: 1 neighbor → 5 exposed.
+
+Top-back-right: 1 neighbor → 5 exposed.
+
+Sum: 3 + 4 + 4 + 4 + 5 + 5 = **25**
+
+But earlier method gave 24.
+
+Where’s the error?
+
+Ah! In the first method, I said 6 shared faces → 12 hidden faces → 36 - 12 = 24.
+
+But if we have 6 cubes, and total adjacencies are:
+
+Let’s count the number of **adjacent pairs** (each pair shares one face).
+
+From above:
+
+- Bottom layer: 4 adjacencies (as in 2x2 grid: 2 horizontal, 2 vertical)
+
+- Between layers: 2 adjacencies (top-front-left with bottom-front-left; top-back-right with bottom-back-right)
+
+Total adjacent pairs: 4 + 2 = **6**
+
+Each adjacent pair hides **2 faces** (one from each cube), so total hidden faces = 6 × 2 = 12
+
+Total surface area = 36 - 12 = 24
+
+But direct counting gives 25.
+
+This suggests an error in direct counting.
+
+Let’s re-examine the bottom-front-left cube.
+
+It has 3 neighbors: right, back, and top.
+
+So it should have 6 - 3 = 3 exposed faces.
+
+Similarly, others.
+
+But 3+4+4+4+5+5=25.
+
+Perhaps one of the top cubes is adjacent to something else?
+
+Look at the animation again (especially 0:09–0:10).
+
+At 0:09, we see the structure from a side angle.
+
+The top-front-left cube is only touching the bottom-front-left cube.
+
+Similarly, top-back-right only touches bottom-back-right.
+
+No other adjacencies.
+
+But then why the discrepancy?
+
+Wait — perhaps I miscounted the number of cubes?
+
+Let me count cubes from the animation.
+
+At 0:04: full view — looks like 6 cubes.
+
+At 0:05: rotated — still 6.
+
+At 0:06: side view — 6 cubes.
+
+At 0:07: another angle — 6.
+
+At 0:08: 6.
+
+At 0:09: 6.
+
+At 0:10: 6.
+
+Yes, 6 cubes.
+
+Perhaps the direct counting is wrong because of perspective? No, we’re counting based on adjacency, not view.
+
+Another possibility: when two cubes are adjacent, we subtract 1 face per cube, so total exposed faces = sum over cubes of (6 - number of neighbors).
+
+That should be correct.
+
+So 3+4+4+4+5+5 = 25.
+
+But 6 shared faces × 2 = 12 hidden, 36-12=24.
+
+The only explanation is that I miscounted the number of shared faces.
+
+Let’s list all adjacent pairs:
+
+1. Bottom-front-left — bottom-front-right
+
+2. Bottom-front-left — bottom-back-left
+
+3. Bottom-front-right — bottom-back-right
+
+4. Bottom-back-left — bottom-back-right
+
+5. Bottom-front-left — top-front-left
+
+6. Bottom-back-right — top-back-right
+
+That’s 6 pairs.
+
+Each pair hides 2 faces.
+
+Total hidden: 12.
+
+Total surface area: 36 - 12 = 24.
+
+But direct counting gives 25.
+
+Unless... is there a seventh adjacency?
+
+Look at the top cubes: are they adjacent to each other? No, they are diagonal.
+
+Perhaps the bottom layer has only 3 adjacencies? No, 2x2 grid has 4 adjacencies.
+
+Let’s draw it:
+
+Label the bottom layer:
+
+A B
+
+C D
+
+Top layer: A' on A, D' on D.
+
+Adjacencies:
+
+A-B, A-C, B-D, C-D → 4 in bottom.
+
+A-A', D-D' → 2 between layers.
+
+Total 6.
+
+Now, for each cube:
+
+- A: neighbors B, C, A' → 3 → exposed: 3
+
+- B: neighbors A, D → 2 → exposed: 4
+
+- C: neighbors A, D → 2 → exposed: 4
+
+- D: neighbors B, C, D' → 3 → exposed: 3? Wait, I said 4 earlier.
+
+Mistake here!
+
+Bottom-back-right is D.
+
+Neighbors: B (front-right), C (back-left), and D' (top).
+
+So 3 neighbors → exposed faces: 6 - 3 = 3
+
+Earlier I said 4, which is wrong.
+
+Similarly, bottom-front-right is B: neighbors A and D → 2 → 4 exposed.
+
+Bottom-back-left is C: neighbors A and D → 2 → 4 exposed.
+
+Top-front-left A': neighbor A → 1 → 5 exposed.
+
+Top-back-right D': neighbor D → 1 → 5 exposed.
+
+Now sum:
+
+A: 3
+
+B: 4
+
+C: 4
+
+D: 3
+
+A': 5
+
+D': 5
+
+Total: 3+4+4+3+5+5 = **24**
+
+Yes! I miscounted D earlier.
+
+Bottom-back-right (D) has 3 neighbors: B, C, and D' — so 3 exposed faces.
+
+Previously I said 4, but it's 3.
+
+So total is 24.
+
+---
+
+### Final Answer:
+
+\boxed{24}

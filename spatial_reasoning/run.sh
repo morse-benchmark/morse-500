@@ -93,36 +93,36 @@ retry_until_file_exists() {
     fi
 }
 
-# CUBES - MAX_SIZE from 3-6
-for MAX_SIZE in 3 4 5 6; do
-    echo "=== Generating cubes with MAX_SIZE=$MAX_SIZE ==="
-    P_TYPE=count MAX_SIZE=$MAX_SIZE python cubes.py 
-    P_TYPE=missing MAX_SIZE=$MAX_SIZE python cubes.py 
-    P_TYPE=surface_area MAX_SIZE=$MAX_SIZE python cubes.py
-    P_TYPE=exposed MAX_SIZE=$MAX_SIZE python cubes.py
-    P_TYPE=colors MAX_SIZE=$MAX_SIZE python cubes.py
-    retry_until_file_exists "P_TYPE=max_color MAX_SIZE=$MAX_SIZE python cubes.py" "cubes_max_color_max${MAX_SIZE}"
-    P_TYPE=project MAX_SIZE=$MAX_SIZE python cubes.py
-    P_TYPE=missing_shape MAX_SIZE=$MAX_SIZE python cubes.py
-    P_TYPE=matching MAX_SIZE=$MAX_SIZE python cubes.py
-done
+# # CUBES - MAX_SIZE from 3-6
+# for MAX_SIZE in 3 4 5 6; do
+#     echo "=== Generating cubes with MAX_SIZE=$MAX_SIZE ==="
+#     P_TYPE=count MAX_SIZE=$MAX_SIZE python cubes.py 
+#     P_TYPE=missing MAX_SIZE=$MAX_SIZE python cubes.py 
+#     P_TYPE=surface_area MAX_SIZE=$MAX_SIZE python cubes.py
+#     P_TYPE=exposed MAX_SIZE=$MAX_SIZE python cubes.py
+#     P_TYPE=colors MAX_SIZE=$MAX_SIZE python cubes.py
+#     retry_until_file_exists "P_TYPE=max_color MAX_SIZE=$MAX_SIZE python cubes.py" "cubes_max_color_max${MAX_SIZE}"
+#     P_TYPE=project MAX_SIZE=$MAX_SIZE python cubes.py
+#     P_TYPE=missing_shape MAX_SIZE=$MAX_SIZE python cubes.py
+#     P_TYPE=matching MAX_SIZE=$MAX_SIZE python cubes.py
+# done
 
-# CUBE_PATH - PATH_LENGTH from 5-8
-for PATH_LENGTH in 5 6 7 8; do
-    echo "=== Generating cube_path with PATH_LENGTH=$PATH_LENGTH ==="
-    PATH_LENGTH=$PATH_LENGTH python cube_path.py
-done
+# # CUBE_PATH - PATH_LENGTH from 5-8
+# for PATH_LENGTH in 5 6 7 8; do
+#     echo "=== Generating cube_path with PATH_LENGTH=$PATH_LENGTH ==="
+#     PATH_LENGTH=$PATH_LENGTH python cube_path.py
+# done
 
-# DICE - NUM_DICE from 3-6
-for NUM_DICE in 3 4 5 6; do
-    echo "=== Generating dice with NUM_DICE=$NUM_DICE ==="
-    P_TYPE=hidden NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py
-    retry_until_file_exists "P_TYPE=max_hidden NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py" "dice_max_hidden_dice${NUM_DICE}"
-    P_TYPE=match NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py
-    P_TYPE=roll NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py
-    P_TYPE=n_roll NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py
-    P_TYPE=fold NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py
-done
+# # DICE - NUM_DICE from 3-6
+# for NUM_DICE in 3 4 5 6; do
+#     echo "=== Generating dice with NUM_DICE=$NUM_DICE ==="
+#     P_TYPE=hidden NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py
+#     retry_until_file_exists "P_TYPE=max_hidden NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py" "dice_max_hidden_dice${NUM_DICE}"
+#     P_TYPE=match NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py
+#     P_TYPE=roll NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py
+#     P_TYPE=n_roll NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py
+#     P_TYPE=fold NUM_DICE=$NUM_DICE N_ROLL=5 python dice.py
+# done
 
 # PATH - NUM_SHAPES from 3-6
 for NUM_SHAPES in 3 4 5 6; do
@@ -135,12 +135,12 @@ for NUM_SHAPES in 3 4 5 6; do
 done
 
 # ROPES - NUM_ROPES from 4-7
-for NUM_ROPES in 4 5 6 7; do
-    echo "=== Generating ropes with NUM_ROPES=$NUM_ROPES ==="
-    P_TYPE=count NUM_ROPES=$NUM_ROPES BENDS_PER_ROPE=3 python ropes.py
-    P_TYPE=cut NUM_ROPES=$NUM_ROPES BENDS_PER_ROPE=3 python ropes.py
-    P_TYPE=closed NUM_ROPES=$NUM_ROPES BENDS_PER_ROPE=3 python ropes.py
-    P_TYPE=order NUM_ROPES=$NUM_ROPES BENDS_PER_ROPE=3 python ropes.py
-done
+# for NUM_ROPES in 4 5 6 7; do
+#     echo "=== Generating ropes with NUM_ROPES=$NUM_ROPES ==="
+#     P_TYPE=count NUM_ROPES=$NUM_ROPES BENDS_PER_ROPE=3 python ropes.py
+#     P_TYPE=cut NUM_ROPES=$NUM_ROPES BENDS_PER_ROPE=3 python ropes.py
+#     P_TYPE=closed NUM_ROPES=$NUM_ROPES BENDS_PER_ROPE=3 python ropes.py
+#     P_TYPE=order NUM_ROPES=$NUM_ROPES BENDS_PER_ROPE=3 python ropes.py
+# done
 
 echo "=== All generations complete ==="
