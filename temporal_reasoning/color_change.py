@@ -8,10 +8,10 @@ from pathlib import Path
 # ============================================================================
 # Setup directories for output files
 # ============================================================================
-Path("questions").mkdir(exist_ok=True)          # Video files
-Path("solutions").mkdir(exist_ok=True)          # Answer text files
-Path("question_text").mkdir(exist_ok=True)      # Question text files
-Path("reasoning_traces").mkdir(exist_ok=True)   # Step-by-step reasoning
+Path("questions").mkdir(exist_ok=True)  # Video files
+Path("solutions").mkdir(exist_ok=True)  # Answer text files
+Path("question_text").mkdir(exist_ok=True)  # Question text files
+Path("reasoning_traces").mkdir(exist_ok=True)  # Step-by-step reasoning
 
 # ============================================================================
 # Manim configuration
@@ -22,6 +22,7 @@ config.pixel_height = 1080
 config.pixel_width = 1920
 config.frame_rate = 30
 config.preview = False
+
 
 # NUM_TRANSFORMS=[3-8] python3 color_change.py
 class color_change(Scene):
@@ -68,10 +69,7 @@ class color_change(Scene):
         # self.renderer.time tracks the cumulative duration of all animations/waits
         current_time = self.renderer.time
 
-        self.scene_events.append({
-            'time': current_time,
-            'description': description
-        })
+        self.scene_events.append({"time": current_time, "description": description})
 
     def format_time(self, seconds):
         """
@@ -95,9 +93,6 @@ class color_change(Scene):
         # ====================================================================
         # Setup: Validate and constrain parameters
         # ====================================================================
-        # Ensure we have a reasonable number of transformations (between 2 and 8)
-        # This prevents degenerate cases and keeps the video at a reasonable length
-        count = max(2, min(self.num_transforms, 8))
 
         # ====================================================================
         # Shape and color libraries
@@ -109,22 +104,28 @@ class color_change(Scene):
             (Square(), "square"),
             (Triangle(), "triangle"),
             (RegularPolygon(5), "pentagon"),
-            (Square().rotate(PI/4), "diamond"),
+            (Square().rotate(PI / 4), "diamond"),
             (RegularPolygon(6), "hexagon"),
             (RegularPolygon(8), "octagon"),
             (Star(5), "star"),
-            (Ellipse(width=2, height=1), "oval")
+            (Ellipse(width=2, height=1), "oval"),
         ]
+
+        count = max(1, min(self.num_transforms, len(all_shapes_with_names)))
 
         # Color palette and their corresponding names
         # These must be in matching order for correct name lookup
-        all_colors = [
-            YELLOW, WHITE, BLUE, GREEN, RED,
-            PURPLE, ORANGE, TEAL, PINK
-        ]
+        all_colors = [YELLOW, WHITE, BLUE, GREEN, RED, PURPLE, ORANGE, TEAL, PINK]
         color_names = [
-            "yellow", "white", "blue", "green", "red",
-            "purple", "orange", "teal", "pink"
+            "yellow",
+            "white",
+            "blue",
+            "green",
+            "red",
+            "purple",
+            "orange",
+            "teal",
+            "pink",
         ]
 
         # ====================================================================
@@ -133,9 +134,16 @@ class color_change(Scene):
         # Predefined pool of positions creates visual variety and spatial context
         # This helps make each transformation more distinct and memorable
         positions_pool = [
-            LEFT * 2, RIGHT * 2, UP * 2, DOWN * 2,
-            LEFT * 3, RIGHT * 3, UP * 1.5, DOWN * 1.5,
-            LEFT * 1, RIGHT * 1
+            LEFT * 2,
+            RIGHT * 2,
+            UP * 2,
+            DOWN * 2,
+            LEFT * 3,
+            RIGHT * 3,
+            UP * 1.5,
+            DOWN * 1.5,
+            LEFT * 1,
+            RIGHT * 1,
         ]
 
         # ====================================================================
@@ -144,16 +152,36 @@ class color_change(Scene):
         # Randomly select shapes, colors, and positions for the transform chain
         # Using random.sample ensures no duplicates within each category
         # This creates a unique puzzle each time with different seed
-        chosen_shape_indices = random.sample(range(len(all_shapes_with_names)), count)
-        chosen_color_indices = random.sample(range(len(all_colors)), count)
+        chosen_shape_indices = []
+        last_shape = None
+
+        for _ in range(count):
+            # Filter out the shape used in the previous step
+            choices = [
+                i
+                for i in range(len(all_shapes_with_names))
+                if not last_shape or i != last_shape
+            ]
+
+            current_shape = random.choice(choices)
+            chosen_shape_indices.append(current_shape)
+
+            # Update the tracker for the next iteration
+            last_shape = current_shape
+
+        chosen_color_indices = random.choices(range(len(all_colors)), k=count)
         chosen_positions = random.sample(positions_pool, count)
 
         # ====================================================================
         # Create the initial shape
         # ====================================================================
         # Extract the first shape from our random selection
-        initial_shape, initial_shape_name = all_shapes_with_names[chosen_shape_indices[0]]
-        initial_shape = initial_shape.copy()  # Make a copy to avoid reference issues with Manim objects
+        initial_shape, initial_shape_name = all_shapes_with_names[
+            chosen_shape_indices[0]
+        ]
+        initial_shape = (
+            initial_shape.copy()
+        )  # Make a copy to avoid reference issues with Manim objects
         initial_color = all_colors[chosen_color_indices[0]]
 
         # Style the shape with fill and stroke
@@ -166,7 +194,13 @@ class color_change(Scene):
         # ====================================================================
         # Store the complete sequence for answer calculation and reasoning trace
         # Each entry is a tuple: (shape_name, color_name, position_vector)
-        shape_sequence = [(initial_shape_name, color_names[chosen_color_indices[0]], chosen_positions[0])]
+        shape_sequence = [
+            (
+                initial_shape_name,
+                color_names[chosen_color_indices[0]],
+                chosen_positions[0],
+            )
+        ]
 
         # ====================================================================
         # Helper function to describe position in natural language
@@ -215,7 +249,9 @@ class color_change(Scene):
         position_desc = describe_position(chosen_positions[0])
 
         # Log BEFORE animation starts
-        self.log_event(f"A {color_names[chosen_color_indices[0]]} {initial_shape_name} appears at {position_desc}")
+        self.log_event(
+            f"A {color_names[chosen_color_indices[0]]} {initial_shape_name} appears at {position_desc}"
+        )
         self.play(Create(initial_shape))
         self.wait(0.5)
         # Log AFTER animation completes
@@ -229,7 +265,9 @@ class color_change(Scene):
         for i in range(1, count):
             # Prepare the next shape in the sequence
             next_shape, next_shape_name = all_shapes_with_names[chosen_shape_indices[i]]
-            next_shape = next_shape.copy()  # Make a copy to avoid reference issues with Manim objects
+            next_shape = (
+                next_shape.copy()
+            )  # Make a copy to avoid reference issues with Manim objects
             next_color = all_colors[chosen_color_indices[i]]
 
             # Apply visual styling to the new shape
@@ -241,21 +279,31 @@ class color_change(Scene):
             # Record this transformation in our sequence
             # ================================================================
             # Store in sequence with position for detailed reasoning trace
-            shape_sequence.append((next_shape_name, color_names[chosen_color_indices[i]], chosen_positions[i]))
+            shape_sequence.append(
+                (
+                    next_shape_name,
+                    color_names[chosen_color_indices[i]],
+                    chosen_positions[i],
+                )
+            )
 
             # ================================================================
             # Animate the transformation
             # ================================================================
             # Log transformation event BEFORE animation starts
             position_desc = describe_position(chosen_positions[i])
-            self.log_event(f"Shape begins transforming into a {color_names[chosen_color_indices[i]]} {next_shape_name} at {position_desc}")
+            self.log_event(
+                f"Shape begins transforming into a {color_names[chosen_color_indices[i]]} {next_shape_name} at {position_desc}"
+            )
 
             # Execute the transform animation (morphs current shape into next shape)
             self.play(Transform(initial_shape, next_shape))
             self.wait(0.5)
 
             # Log transformation event AFTER animation completes
-            self.log_event(f"Transformation to {color_names[chosen_color_indices[i]]} {next_shape_name} is complete")
+            self.log_event(
+                f"Transformation to {color_names[chosen_color_indices[i]]} {next_shape_name} is complete"
+            )
 
         # ====================================================================
         # Fade out the final shape
@@ -273,7 +321,7 @@ class color_change(Scene):
         # ====================================================================
         # Ask about the color of the shape that appeared N turns before the final shape
         # This tests memory of the temporal sequence
-        turns_back = random.randint(2, min(count-1, 4))  # At least 2 turns back, max 4
+        turns_back = random.randint(0, count - 1)
         target_index = count - 1 - turns_back  # Index of the target shape (0-indexed)
         answer = shape_sequence[target_index][1]  # Color name (index 1 in tuple)
 
@@ -286,17 +334,16 @@ class color_change(Scene):
         self.target_index = target_index
         self.answer = answer
         self.count = count
-        
+
         # ====================================================================
         # Display the question
         # ====================================================================
         # Build the question text based on the final shape and selected offset
-        final_shape_name = shape_sequence[-1][0]
         question_lines = [
             f"What was the color of the shape that ",
-            f"appeared {turns_back} turns before the {final_shape_name}?",
+            f"appeared {turns_back} turns before the final shape?",
             "",
-            "Output in lower case"
+            "Output in lower case",
         ]
 
         # ====================================================================
@@ -339,19 +386,27 @@ class color_change(Scene):
         # 3. Reasoning trace file (detailed solution walkthrough)
 
         # Solution file (just the answer)
-        with open(f"solutions/color_change_n{self.num_transforms}_seed{self.seed}.txt", "w") as f:
+        with open(
+            f"solutions/color_change_n{self.num_transforms}_seed{self.seed}.txt", "w"
+        ) as f:
             f.write(answer)
 
         # Question text file
         question_text_content = (
-            f"What was the color of the shape that appeared {turns_back} turns before the {final_shape_name}?\n"
+            f"What was the color of the shape that appeared {turns_back} turns before the final shape?\n"
             "Output in lower case"
         )
-        with open(f"question_text/color_change_n{self.num_transforms}_seed{self.seed}.txt", "w") as f:
+        with open(
+            f"question_text/color_change_n{self.num_transforms}_seed{self.seed}.txt",
+            "w",
+        ) as f:
             f.write(question_text_content)
 
         # Reasoning trace file
-        with open(f"reasoning_traces/color_change_n{self.num_transforms}_seed{self.seed}.txt", "w") as f:
+        with open(
+            f"reasoning_traces/color_change_n{self.num_transforms}_seed{self.seed}.txt",
+            "w",
+        ) as f:
             f.write("\n".join(self.reasoning_trace))
 
     def build_reasoning_trace(self):
@@ -365,8 +420,11 @@ class color_change(Scene):
         # ====================================================================
         # Introduction
         # ====================================================================
-        self.reasoning_trace.append("**Question:** What was the color of the shape that appeared {} turns before the {}?".format(
-            self.turns_back, self.shape_sequence[-1][0]))
+        self.reasoning_trace.append(
+            "**Question:** What was the color of the shape that appeared {} turns before the {}?".format(
+                self.turns_back, self.shape_sequence[-1][0]
+            )
+        )
         self.reasoning_trace.append("")
         self.reasoning_trace.append("Let's solve this step by step.")
         self.reasoning_trace.append("")
@@ -381,13 +439,15 @@ class color_change(Scene):
         self.reasoning_trace.append(f"**Random Seed:** {self.seed}")
         self.reasoning_trace.append("")
         self.reasoning_trace.append("**What happens in the video:**")
-        self.reasoning_trace.append(f"A shape appears on screen and goes through {self.count} different forms, changing both its shape and color with each transformation. After all transformations are complete, the shape disappears and a question is presented asking about the color of a specific shape in the sequence.")
+        self.reasoning_trace.append(
+            f"A shape appears on screen and goes through {self.count} different forms, changing both its shape and color with each transformation. After all transformations are complete, the shape disappears and a question is presented asking about the color of a specific shape in the sequence."
+        )
         self.reasoning_trace.append("")
         self.reasoning_trace.append("**Timeline of Events:**")
         self.reasoning_trace.append("")
 
         for event in self.scene_events:
-            time_str = self.format_time(event['time'])
+            time_str = self.format_time(event["time"])
             self.reasoning_trace.append(f"At {time_str}, {event['description']}")
 
         self.reasoning_trace.append("")
@@ -397,53 +457,62 @@ class color_change(Scene):
         # ====================================================================
         self.reasoning_trace.append("### Step 1: Understand the complete sequence")
         self.reasoning_trace.append("")
-        self.reasoning_trace.append(f"The video shows a series of {self.count} transformations. Each transformation changes both the shape and color.")
-        self.reasoning_trace.append("To solve this problem, we need to track the entire sequence from beginning to end.")
+        self.reasoning_trace.append(
+            f"The video shows a series of {self.count} transformations. Each transformation changes both the shape and color."
+        )
+        self.reasoning_trace.append(
+            "To solve this problem, we need to track the entire sequence from beginning to end."
+        )
         self.reasoning_trace.append("")
         self.reasoning_trace.append("**Complete sequence in chronological order:**")
         self.reasoning_trace.append("")
 
-        for idx, (shape_name, color_name, position) in enumerate(self.shape_sequence, 1):
-            self.reasoning_trace.append(f"{idx}. **{color_name.capitalize()} {shape_name}**")
+        for idx, (shape_name, color_name, position) in enumerate(
+            self.shape_sequence, 1
+        ):
+            self.reasoning_trace.append(
+                f"{idx}. **{color_name.capitalize()} {shape_name}**"
+            )
 
         self.reasoning_trace.append("")
 
         # ====================================================================
-        # Step 2: Identify the final shape
+        # Step 2: Count backwards to find target
         # ====================================================================
-        self.reasoning_trace.append("### Step 2: Identify the final shape")
+        self.reasoning_trace.append(
+            "### Step 2: Count backwards to find the target shape"
+        )
         self.reasoning_trace.append("")
-        final_shape_name = self.shape_sequence[-1][0]
-        final_color_name = self.shape_sequence[-1][1]
-        self.reasoning_trace.append(f"The final shape (the last one shown before fading out) is the **{final_color_name} {final_shape_name}**.")
-        self.reasoning_trace.append(f"This appears at position **{self.count}** in the sequence (the last position).")
+        self.reasoning_trace.append(
+            f'The question asks: "What was the color of the shape that appeared **{self.turns_back} turns before** the final_shape?"'
+        )
         self.reasoning_trace.append("")
-
-        # ====================================================================
-        # Step 3: Count backwards to find target
-        # ====================================================================
-        self.reasoning_trace.append("### Step 3: Count backwards to find the target shape")
-        self.reasoning_trace.append("")
-        self.reasoning_trace.append(f"The question asks: \"What was the color of the shape that appeared **{self.turns_back} turns before** the {final_shape_name}?\"")
-        self.reasoning_trace.append("")
-        self.reasoning_trace.append("To find this, we need to count backwards from the final shape:")
+        self.reasoning_trace.append(
+            "To find this, we need to count backwards from the final shape:"
+        )
         self.reasoning_trace.append("")
         self.reasoning_trace.append(f"- Final shape position: **{self.count}**")
         self.reasoning_trace.append(f"- Count back: **{self.turns_back} turns**")
-        self.reasoning_trace.append(f"- Calculation: {self.count} - {self.turns_back} = **{self.target_index + 1}**")
+        self.reasoning_trace.append(
+            f"- Calculation: {self.count} - {self.turns_back} = **{self.target_index + 1}**"
+        )
         self.reasoning_trace.append("")
-        self.reasoning_trace.append(f"So we need to find the shape at position **{self.target_index + 1}** in our sequence.")
+        self.reasoning_trace.append(
+            f"So we need to find the shape at position **{self.target_index + 1}** in our sequence."
+        )
         self.reasoning_trace.append("")
 
         # ====================================================================
-        # Step 4: Determine the answer
+        # Step 3: Determine the answer
         # ====================================================================
-        self.reasoning_trace.append("### Step 4: Determine the answer")
+        self.reasoning_trace.append("### Step 3: Determine the answer")
         self.reasoning_trace.append("")
         target_shape_name = self.shape_sequence[self.target_index][0]
         target_color_name = self.shape_sequence[self.target_index][1]
 
-        self.reasoning_trace.append(f"Looking at position {self.target_index + 1} in our sequence:")
+        self.reasoning_trace.append(
+            f"Looking at position {self.target_index + 1} in our sequence:"
+        )
         self.reasoning_trace.append("")
 
         # Show context (shapes before and after)
@@ -453,20 +522,28 @@ class color_change(Scene):
         for idx in range(context_start, context_end):
             shape_name, color_name, _ = self.shape_sequence[idx]
             if idx == self.target_index:
-                self.reasoning_trace.append(f"{idx + 1}. **{color_name.capitalize()} {shape_name}** ← This is our target!")
+                self.reasoning_trace.append(
+                    f"{idx + 1}. **{color_name.capitalize()} {shape_name}** ← This is our target!"
+                )
             else:
-                self.reasoning_trace.append(f"{idx + 1}. {color_name.capitalize()} {shape_name}")
+                self.reasoning_trace.append(
+                    f"{idx + 1}. {color_name.capitalize()} {shape_name}"
+                )
 
         self.reasoning_trace.append("")
-        self.reasoning_trace.append(f"At position {self.target_index + 1}, we find a **{target_color_name} {target_shape_name}**.")
+        self.reasoning_trace.append(
+            f"At position {self.target_index + 1}, we find a **{target_color_name} {target_shape_name}**."
+        )
         self.reasoning_trace.append("")
 
         # ====================================================================
-        # Step 5: Verification
+        # Step 4: Verification
         # ====================================================================
-        self.reasoning_trace.append("### Step 5: Verify the answer")
+        self.reasoning_trace.append("### Step 4: Verify the answer")
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("Let's verify by counting forward from our target to the final shape:")
+        self.reasoning_trace.append(
+            "Let's verify by counting forward from our target to the final shape:"
+        )
         self.reasoning_trace.append("")
 
         verification_steps = []
@@ -474,17 +551,25 @@ class color_change(Scene):
             shape_name, color_name, _ = self.shape_sequence[i]
             turns_from_target = i - self.target_index
             if i == self.target_index:
-                verification_steps.append(f"- Position {i + 1}: {color_name} {shape_name} (our target, 0 turns ahead)")
+                verification_steps.append(
+                    f"- Position {i + 1}: {color_name} {shape_name} (our target, 0 turns ahead)"
+                )
             elif i == len(self.shape_sequence) - 1:
-                verification_steps.append(f"- Position {i + 1}: {color_name} {shape_name} (final shape, {turns_from_target} turns ahead)")
+                verification_steps.append(
+                    f"- Position {i + 1}: {color_name} {shape_name} (final shape, {turns_from_target} turns ahead)"
+                )
             else:
-                verification_steps.append(f"- Position {i + 1}: {color_name} {shape_name} ({turns_from_target} turn{'s' if turns_from_target > 1 else ''} ahead)")
+                verification_steps.append(
+                    f"- Position {i + 1}: {color_name} {shape_name} ({turns_from_target} turn{'s' if turns_from_target > 1 else ''} ahead)"
+                )
 
         for step in verification_steps:
             self.reasoning_trace.append(step)
 
         self.reasoning_trace.append("")
-        self.reasoning_trace.append(f"Counting from position {self.target_index + 1} to position {self.count}, we have exactly **{self.turns_back} turns**, confirming our answer.")
+        self.reasoning_trace.append(
+            f"Counting from position {self.target_index + 1} to position {self.count}, we have exactly **{self.turns_back} turns**, confirming our answer."
+        )
         self.reasoning_trace.append("")
 
         # ====================================================================
@@ -492,7 +577,9 @@ class color_change(Scene):
         # ====================================================================
         self.reasoning_trace.append("### Final Answer")
         self.reasoning_trace.append("")
-        self.reasoning_trace.append(f"The color of the shape that appeared {self.turns_back} turns before the {final_shape_name} is **{self.answer}**.")
+        self.reasoning_trace.append(
+            f"The color of the shape that appeared {self.turns_back} turns before the final shape is **{self.answer}**."
+        )
         self.reasoning_trace.append("")
         self.reasoning_trace.append(f"\\boxed{{{self.answer}}}")
 

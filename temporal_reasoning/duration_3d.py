@@ -8,10 +8,10 @@ from pathlib import Path
 # ============================================================================
 # Setup directories for output files
 # ============================================================================
-Path("questions").mkdir(exist_ok=True)          # Video files
-Path("solutions").mkdir(exist_ok=True)          # Answer text files
-Path("question_text").mkdir(exist_ok=True)      # Question text files
-Path("reasoning_traces").mkdir(exist_ok=True)   # Step-by-step reasoning
+Path("questions").mkdir(exist_ok=True)  # Video files
+Path("solutions").mkdir(exist_ok=True)  # Answer text files
+Path("question_text").mkdir(exist_ok=True)  # Question text files
+Path("reasoning_traces").mkdir(exist_ok=True)  # Step-by-step reasoning
 
 # ============================================================================
 # Manim configuration
@@ -22,6 +22,7 @@ config.pixel_height = 1080
 config.pixel_width = 1920
 config.frame_rate = 30
 config.preview = False
+
 
 class duration_3d(ThreeDScene):
     """
@@ -64,10 +65,7 @@ class duration_3d(ThreeDScene):
         # which is exactly what appears in the final video
         current_time = self.renderer.time
 
-        self.scene_events.append({
-            'time': current_time,
-            'description': description
-        })
+        self.scene_events.append({"time": current_time, "description": description})
 
     def format_time(self, seconds):
         """
@@ -100,47 +98,81 @@ class duration_3d(ThreeDScene):
         # ====================================================================
         # Initialize scene parameters
         # ====================================================================
-        # WHY: Constrain count to 1-10 to keep puzzle manageable and video length reasonable
-        # More than 10 shapes would make duration tracking too difficult for viewers
-        count = max(1, min(self.num_shapes, 10))
-
         # WHY: Use diverse, easily distinguishable 3D shapes
         # Each shape has a unique silhouette to minimize confusion
         all_shapes = [
-            Sphere, Cube, Cylinder, Cone, Torus,
-            Tetrahedron, Octahedron, Dodecahedron, Icosahedron, Star
+            Sphere,
+            Cube,
+            Cylinder,
+            Cone,
+            Torus,
+            Tetrahedron,
+            Octahedron,
+            Dodecahedron,
+            Icosahedron,
+            Star,
         ]
         # WHY: Each shape gets a unique color for additional differentiation
         # Colors are chosen to be visually distinct even in different lighting
         all_colors = [
-            BLUE, GREEN, RED, YELLOW, PURPLE,
-            ORANGE, TEAL, PINK, MAROON, GOLD
+            BLUE,
+            GREEN,
+            RED,
+            YELLOW,
+            PURPLE,
+            ORANGE,
+            TEAL,
+            PINK,
+            MAROON,
+            GOLD,
         ]
 
         # Color names for reasoning trace and event logging
         color_names = {
-            BLUE: "blue", GREEN: "green", RED: "red", YELLOW: "yellow", PURPLE: "purple",
-            ORANGE: "orange", TEAL: "teal", PINK: "pink", MAROON: "maroon", GOLD: "gold"
+            BLUE: "blue",
+            GREEN: "green",
+            RED: "red",
+            YELLOW: "yellow",
+            PURPLE: "purple",
+            ORANGE: "orange",
+            TEAL: "teal",
+            PINK: "pink",
+            MAROON: "maroon",
+            GOLD: "gold",
         }
 
         # Predefined pool of 10 candidate positions in 3D space
         # These are distributed across the visible frame
         positions_pool = [
-            LEFT * 4 + DOWN, RIGHT * 4 + DOWN,
-            LEFT * 2 + UP, RIGHT * 2 + UP,
-            ORIGIN, LEFT * 4 + UP,
-            RIGHT * 4 + UP, RIGHT * 2 + DOWN,
-            LEFT * 2 + DOWN, DOWN * 3
+            LEFT * 4 + DOWN,
+            RIGHT * 4 + DOWN,
+            LEFT * 2 + UP,
+            RIGHT * 2 + UP,
+            ORIGIN,
+            LEFT * 4 + UP,
+            RIGHT * 4 + UP,
+            RIGHT * 2 + DOWN,
+            LEFT * 2 + DOWN,
+            DOWN * 3,
         ]
 
         # Human-readable position descriptions for reasoning trace
         position_names = [
-            "far left lower area", "far right lower area",
-            "mid-left upper area", "mid-right upper area",
-            "center of the scene", "far left upper area",
-            "far right upper area", "mid-right lower area",
-            "mid-left lower area", "bottom center"
+            "far left lower area",
+            "far right lower area",
+            "mid-left upper area",
+            "mid-right upper area",
+            "center of the scene",
+            "far left upper area",
+            "far right upper area",
+            "mid-right lower area",
+            "mid-left lower area",
+            "bottom center",
         ]
+
+        # WHY: Constrain count to 1-10 to keep puzzle manageable and video length reasonable
+        # More than 10 shapes would make duration tracking too difficult for viewers
+        count = max(1, min(self.num_shapes, 10))
 
         # ====================================================================
         # Generate puzzle data
@@ -174,16 +206,22 @@ class duration_3d(ThreeDScene):
             shape_name = ShapeClass.__name__.lower()
             color_name = color_names[color]
             # Use numpy array comparison instead of list.index() to avoid ambiguous truth value error
-            pos_idx = next(i for i, pos in enumerate(positions_pool) if (pos == chosen_positions[idx]).all())
+            pos_idx = next(
+                i
+                for i, pos in enumerate(positions_pool)
+                if (pos == chosen_positions[idx]).all()
+            )
             pos_name = position_names[pos_idx]
 
-            self.shape_details.append({
-                'index': idx,
-                'shape_name': shape_name,
-                'color_name': color_name,
-                'position_name': pos_name,
-                'duration': durations[idx]
-            })
+            self.shape_details.append(
+                {
+                    "index": idx,
+                    "shape_name": shape_name,
+                    "color_name": color_name,
+                    "position_name": pos_name,
+                    "duration": durations[idx],
+                }
+            )
 
         # ====================================================================
         # Animate the scene
@@ -199,7 +237,11 @@ class duration_3d(ThreeDScene):
             shape_name = ShapeClass.__name__.lower()
             color_name = color_names[color]
             # Use numpy array comparison instead of list.index() to avoid ambiguous truth value error
-            pos_idx = next(i for i, pos in enumerate(positions_pool) if (pos == chosen_positions[idx]).all())
+            pos_idx = next(
+                i
+                for i, pos in enumerate(positions_pool)
+                if (pos == chosen_positions[idx]).all()
+            )
             pos_name = position_names[pos_idx]
 
             # Create the shape with appropriate styling
@@ -209,26 +251,34 @@ class duration_3d(ThreeDScene):
             shape.move_to(chosen_positions[idx])
 
             # WHY: Log BEFORE animation starts to mark the exact beginning timestamp
-            self.log_event(f"Shape {idx + 1}/{count}: {color_name.capitalize()} {shape_name} begins to appear in {pos_name}")
+            self.log_event(
+                f"Shape {idx + 1}/{count}: {color_name.capitalize()} {shape_name} begins to appear in {pos_name}"
+            )
 
             # WHY: Brief creation animation (0.1s) makes appearance smooth without adding significant time
             self.play(Create(shape), run_time=0.1)
 
             # WHY: Log AFTER animation completes - this marks when timing measurement starts
-            self.log_event(f"{color_name.capitalize()} {shape_name} is now fully visible and stable")
+            self.log_event(
+                f"{color_name.capitalize()} {shape_name} is now fully visible and stable"
+            )
 
             # WHY: This wait() is the actual duration we're measuring!
             # It's the time between "fully visible" and "begins to fade"
             self.wait(durations[idx])
 
             # WHY: Log BEFORE fade out begins - this marks when timing measurement ends
-            self.log_event(f"{color_name.capitalize()} {shape_name} begins to fade out (was visible for {durations[idx]:.2f}s)")
+            self.log_event(
+                f"{color_name.capitalize()} {shape_name} begins to fade out (was visible for {durations[idx]:.2f}s)"
+            )
 
             # WHY: Fade out animation (0.2s) provides smooth exit
             self.play(FadeOut(shape), run_time=0.2)
 
             # WHY: Log AFTER fade completes to mark the shape's complete lifecycle
-            self.log_event(f"{color_name.capitalize()} {shape_name} has completely disappeared from view")
+            self.log_event(
+                f"{color_name.capitalize()} {shape_name} has completely disappeared from view"
+            )
 
         # ====================================================================
         # Display the question
@@ -244,7 +294,7 @@ class duration_3d(ThreeDScene):
             "with comma-separated values.",
             "",
             "The shape names are: Sphere, Cube, Cylinder, Cone, Torus,",
-            "Tetrahedron, Octahedron, Dodecahedron, Icosahedron, Star."
+            "Tetrahedron, Octahedron, Dodecahedron, Icosahedron, Star.",
         ]
 
         # Create question text objects for each line
@@ -268,13 +318,11 @@ class duration_3d(ThreeDScene):
 
         # Show instruction text
         instruction_text = Text(
-            "Return the answer as comma-separated values.",
-            font_size=24,
-            color=YELLOW
+            "Return the answer as comma-separated values.", font_size=24, color=YELLOW
         ).move_to(DOWN * 2.5)
 
         self.add_fixed_in_frame_mobjects(instruction_text)
-        self.play(FadeIn(instruction_text, shift=UP*0.3), run_time=0.8)
+        self.play(FadeIn(instruction_text, shift=UP * 0.3), run_time=0.8)
         self.log_event("Instruction text displayed")
         self.wait(3)
 
@@ -292,7 +340,9 @@ class duration_3d(ThreeDScene):
         # Save output files
         # ====================================================================
         # Solution file (just the answer)
-        with open(f"solutions/duration_3d_n{self.num_shapes}_seed{self.seed}.txt", "w") as f:
+        with open(
+            f"solutions/duration_3d_n{self.num_shapes}_seed{self.seed}.txt", "w"
+        ) as f:
             f.write(self.answer_string)
 
         # Question text file
@@ -301,11 +351,15 @@ class duration_3d(ThreeDScene):
             "The shape names are: Sphere, Cube, Cylinder, Cone, Torus, Tetrahedron, Octahedron, Dodecahedron, Icosahedron, Star.\n"
             "Return the answer as comma-separated values."
         )
-        with open(f"question_text/duration_3d_n{self.num_shapes}_seed{self.seed}.txt", "w") as f:
+        with open(
+            f"question_text/duration_3d_n{self.num_shapes}_seed{self.seed}.txt", "w"
+        ) as f:
             f.write(question_text_content)
 
         # Reasoning trace file
-        with open(f"reasoning_traces/duration_3d_n{self.num_shapes}_seed{self.seed}.txt", "w") as f:
+        with open(
+            f"reasoning_traces/duration_3d_n{self.num_shapes}_seed{self.seed}.txt", "w"
+        ) as f:
             f.write("\n".join(self.reasoning_trace))
 
     def build_reasoning_trace(self):
@@ -327,9 +381,13 @@ class duration_3d(ThreeDScene):
         # ====================================================================
         # Introduction
         # ====================================================================
-        self.reasoning_trace.append("**Question:** List the order of shapes that appeared longest to shortest with comma-separated values.")
+        self.reasoning_trace.append(
+            "**Question:** List the order of shapes that appeared longest to shortest with comma-separated values."
+        )
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("Let's solve this step by step by carefully tracking the duration each shape appears on screen.")
+        self.reasoning_trace.append(
+            "Let's solve this step by step by carefully tracking the duration each shape appears on screen."
+        )
         self.reasoning_trace.append("")
 
         # ====================================================================
@@ -337,11 +395,13 @@ class duration_3d(ThreeDScene):
         # ====================================================================
         self.reasoning_trace.append("### Scene Description")
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("The video shows a 3D scene viewed from an elevated angle. Different colored shapes appear one at a time, remain visible for varying durations, then disappear. Here's the chronological timeline:")
+        self.reasoning_trace.append(
+            "The video shows a 3D scene viewed from an elevated angle. Different colored shapes appear one at a time, remain visible for varying durations, then disappear. Here's the chronological timeline:"
+        )
         self.reasoning_trace.append("")
 
         for event in self.scene_events:
-            time_str = self.format_time(event['time'])
+            time_str = self.format_time(event["time"])
             self.reasoning_trace.append(f"At {time_str}, {event['description']}")
 
         self.reasoning_trace.append("")
@@ -351,29 +411,49 @@ class duration_3d(ThreeDScene):
         # ====================================================================
         self.reasoning_trace.append("### Step 1: Understand the task")
         self.reasoning_trace.append("")
-        self.reasoning_trace.append(f"The video displays **{len(self.shape_details)} different 3D shapes**, each appearing sequentially. Each shape:")
-        self.reasoning_trace.append("- Appears with a brief creation animation (~0.1 seconds)")
-        self.reasoning_trace.append("- Remains visible for a specific duration (this is what we need to track)")
-        self.reasoning_trace.append("- Disappears with a fade-out animation (~0.2 seconds)")
+        self.reasoning_trace.append(
+            f"The video displays **{len(self.shape_details)} different 3D shapes**, each appearing sequentially. Each shape:"
+        )
+        self.reasoning_trace.append(
+            "- Appears with a brief creation animation (~0.1 seconds)"
+        )
+        self.reasoning_trace.append(
+            "- Remains visible for a specific duration (this is what we need to track)"
+        )
+        self.reasoning_trace.append(
+            "- Disappears with a fade-out animation (~0.2 seconds)"
+        )
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("**Key insight:** The critical measurement is the time between when the shape becomes fully visible and when it begins to fade out. The creation and fade-out animations are constant across all shapes, so they don't affect the relative ordering.")
+        self.reasoning_trace.append(
+            "**Key insight:** The critical measurement is the time between when the shape becomes fully visible and when it begins to fade out. The creation and fade-out animations are constant across all shapes, so they don't affect the relative ordering."
+        )
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("My task is to determine which shapes appeared for the longest durations and order them from longest to shortest.")
+        self.reasoning_trace.append(
+            "My task is to determine which shapes appeared for the longest durations and order them from longest to shortest."
+        )
         self.reasoning_trace.append("")
 
         # ====================================================================
         # Step 2: Track each shape's duration
         # ====================================================================
-        self.reasoning_trace.append("### Step 2: Track each shape's appearance duration")
+        self.reasoning_trace.append(
+            "### Step 2: Track each shape's appearance duration"
+        )
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("Let me carefully observe and record how long each shape remains fully visible on screen. I'll note both the shape's visual characteristics and its display duration:")
+        self.reasoning_trace.append(
+            "Let me carefully observe and record how long each shape remains fully visible on screen. I'll note both the shape's visual characteristics and its display duration:"
+        )
         self.reasoning_trace.append("")
 
         for idx, detail in enumerate(self.shape_details, 1):
-            self.reasoning_trace.append(f"**Shape {idx}: {detail['shape_name'].capitalize()}**")
+            self.reasoning_trace.append(
+                f"**Shape {idx}: {detail['shape_name'].capitalize()}**"
+            )
             self.reasoning_trace.append(f"  - **Color**: {detail['color_name']}")
             self.reasoning_trace.append(f"  - **Location**: {detail['position_name']}")
-            self.reasoning_trace.append(f"  - **Duration visible**: {detail['duration']:.2f} seconds")
+            self.reasoning_trace.append(
+                f"  - **Duration visible**: {detail['duration']:.2f} seconds"
+            )
             self.reasoning_trace.append("")
 
         # ====================================================================
@@ -381,7 +461,9 @@ class duration_3d(ThreeDScene):
         # ====================================================================
         self.reasoning_trace.append("### Step 3: Compare and sort by duration")
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("Now I'll organize the shapes by their display durations from longest to shortest. This ranking determines the final answer:")
+        self.reasoning_trace.append(
+            "Now I'll organize the shapes by their display durations from longest to shortest. This ranking determines the final answer:"
+        )
         self.reasoning_trace.append("")
 
         # Create a summary table
@@ -389,8 +471,12 @@ class duration_3d(ThreeDScene):
         self.reasoning_trace.append("|------|-------|-------|----------|")
         for rank, (name, duration) in enumerate(self.sorted_by_duration, 1):
             # Find the color for this shape
-            color_name = next(d['color_name'] for d in self.shape_details if d['shape_name'] == name)
-            self.reasoning_trace.append(f"| {rank} | {name.capitalize()} | {color_name} | {duration:.2f}s |")
+            color_name = next(
+                d["color_name"] for d in self.shape_details if d["shape_name"] == name
+            )
+            self.reasoning_trace.append(
+                f"| {rank} | {name.capitalize()} | {color_name} | {duration:.2f}s |"
+            )
         self.reasoning_trace.append("")
 
         # ====================================================================
@@ -398,16 +484,22 @@ class duration_3d(ThreeDScene):
         # ====================================================================
         self.reasoning_trace.append("### Step 4: Verify the ordering")
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("Let me verify this ordering by comparing adjacent ranks:")
+        self.reasoning_trace.append(
+            "Let me verify this ordering by comparing adjacent ranks:"
+        )
         self.reasoning_trace.append("")
 
         for i in range(len(self.sorted_by_duration) - 1):
             curr_name, curr_dur = self.sorted_by_duration[i]
             next_name, next_dur = self.sorted_by_duration[i + 1]
             diff = curr_dur - next_dur
-            self.reasoning_trace.append(f"- {curr_name.capitalize()} ({curr_dur:.2f}s) appeared {diff:.2f}s longer than {next_name.capitalize()} ({next_dur:.2f}s)")
+            self.reasoning_trace.append(
+                f"- {curr_name.capitalize()} ({curr_dur:.2f}s) appeared {diff:.2f}s longer than {next_name.capitalize()} ({next_dur:.2f}s)"
+            )
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("The ordering is confirmed: each shape in the list appeared longer than the next.")
+        self.reasoning_trace.append(
+            "The ordering is confirmed: each shape in the list appeared longer than the next."
+        )
         self.reasoning_trace.append("")
 
         # ====================================================================
@@ -415,11 +507,15 @@ class duration_3d(ThreeDScene):
         # ====================================================================
         self.reasoning_trace.append("### Step 5: Construct the final answer")
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("Based on the duration tracking and verification, the shapes ordered from longest to shortest display time are:")
+        self.reasoning_trace.append(
+            "Based on the duration tracking and verification, the shapes ordered from longest to shortest display time are:"
+        )
         self.reasoning_trace.append("")
 
         for rank, (name, duration) in enumerate(self.sorted_by_duration, 1):
-            self.reasoning_trace.append(f"{rank}. {name.capitalize()} ({duration:.2f}s)")
+            self.reasoning_trace.append(
+                f"{rank}. {name.capitalize()} ({duration:.2f}s)"
+            )
         self.reasoning_trace.append("")
 
         # ====================================================================
@@ -427,7 +523,9 @@ class duration_3d(ThreeDScene):
         # ====================================================================
         self.reasoning_trace.append("### Final Answer")
         self.reasoning_trace.append("")
-        self.reasoning_trace.append(f"The order of shapes from longest to shortest display time is: **{self.answer_string}**")
+        self.reasoning_trace.append(
+            f"The order of shapes from longest to shortest display time is: **{self.answer_string}**"
+        )
         self.reasoning_trace.append("")
         self.reasoning_trace.append(f"\\boxed{{{self.answer_string}}}")
 
@@ -451,8 +549,12 @@ if __name__ == "__main__":
         filename = f"duration_3d_n{scene.num_shapes}_seed{scene.seed}.mp4"
         shutil.move(str(output), f"questions/{filename}")
         print(f"✓ Video saved: questions/{filename}")
-        print(f"✓ Solution saved: solutions/duration_3d_n{scene.num_shapes}_seed{scene.seed}.txt")
-        print(f"✓ Reasoning trace saved: reasoning_traces/duration_3d_n{scene.num_shapes}_seed{scene.seed}.txt")
+        print(
+            f"✓ Solution saved: solutions/duration_3d_n{scene.num_shapes}_seed{scene.seed}.txt"
+        )
+        print(
+            f"✓ Reasoning trace saved: reasoning_traces/duration_3d_n{scene.num_shapes}_seed{scene.seed}.txt"
+        )
     else:
         # Debug: Print directory structure to diagnose rendering issues
         print("❌ Error: Expected output video not found")

@@ -8,10 +8,10 @@ from pathlib import Path
 # ============================================================================
 # Setup directories for output files
 # ============================================================================
-Path("questions").mkdir(exist_ok=True)          # Video files
-Path("solutions").mkdir(exist_ok=True)          # Answer text files
-Path("question_text").mkdir(exist_ok=True)      # Question text files
-Path("reasoning_traces").mkdir(exist_ok=True)   # Step-by-step reasoning
+Path("questions").mkdir(exist_ok=True)  # Video files
+Path("solutions").mkdir(exist_ok=True)  # Answer text files
+Path("question_text").mkdir(exist_ok=True)  # Question text files
+Path("reasoning_traces").mkdir(exist_ok=True)  # Step-by-step reasoning
 
 # ============================================================================
 # Manim configuration
@@ -27,6 +27,7 @@ config.preview = False
 # Usage: NUM_SHAPES [2-8] range for difficulty adjustment
 # Example: NUM_SHAPES=2 python duration_2d.py
 # ============================================================================
+
 
 class duration_2d(ThreeDScene):
     """
@@ -70,10 +71,7 @@ class duration_2d(ThreeDScene):
         # self.renderer.time tracks the cumulative duration of all animations/waits
         current_time = self.renderer.time
 
-        self.scene_events.append({
-            'time': current_time,
-            'description': description
-        })
+        self.scene_events.append({"time": current_time, "description": description})
 
     def format_time(self, seconds):
         """
@@ -99,11 +97,7 @@ class duration_2d(ThreeDScene):
         # ====================================================================
         self.set_camera_orientation(phi=75 * DEGREES, theta=45 * DEGREES)
 
-        # ====================================================================
-        # Constrain shape count to reasonable bounds (2-8 shapes)
-        # This prevents cognitive overload while maintaining challenge
-        # ====================================================================
-        count = max(2, min(self.num_shapes, 8))
+        count = self.num_shapes
 
         # ====================================================================
         # Define shape library with human-readable names
@@ -114,40 +108,55 @@ class duration_2d(ThreeDScene):
             (Square(side_length=2), "square"),
             (Triangle().scale(1.5), "triangle"),
             (RegularPolygon(5).scale(1.2), "pentagon"),
-            (Square(side_length=2).rotate(PI/4), "diamond"),
+            (Square(side_length=2).rotate(PI / 4), "diamond"),
             (RegularPolygon(6).scale(1.1), "hexagon"),
             (RegularPolygon(8).scale(1.1), "octagon"),
-            (Star(5).scale(1.2), "star")
+            (Star(5).scale(1.2), "star"),
         ]
 
         # ====================================================================
         # Color palette for shapes
         # Using distinctive colors to make shapes easily identifiable
         # ====================================================================
-        all_colors = [
-            WHITE, DARK_BROWN, RED, GREEN, PINK,
-            BLUE, YELLOW, PURPLE, ORANGE
-        ]
+        all_colors = [WHITE, DARK_BROWN, RED, GREEN, PINK, BLUE, YELLOW, PURPLE, ORANGE]
 
         # ====================================================================
         # Predefined position pool for shape placement
         # Ensures shapes don't overlap and are well-distributed on screen
         # ====================================================================
         positions_pool = [
-            LEFT * 3 + DOWN, RIGHT * 4 + DOWN,
-            LEFT * 2 + UP, RIGHT * 2 + UP,
-            ORIGIN, LEFT * 4 + UP,
-            RIGHT * 4 + UP, RIGHT * 2 + DOWN,
-            LEFT * 2 + DOWN, DOWN * 3,
-            UP * 3, LEFT * 4
+            LEFT * 3 + DOWN,
+            RIGHT * 4 + DOWN,
+            LEFT * 2 + UP,
+            RIGHT * 2 + UP,
+            ORIGIN,
+            LEFT * 4 + UP,
+            RIGHT * 4 + UP,
+            RIGHT * 2 + DOWN,
+            LEFT * 2 + DOWN,
+            DOWN * 3,
+            UP * 3,
+            LEFT * 4,
         ]
 
         # ====================================================================
         # Randomly select shapes, colors, and positions
         # Using random.sample ensures no duplicates
         # ====================================================================
-        chosen_shape_indices = random.sample(range(len(all_shapes_with_names)), count)
-        chosen_color_indices = random.sample(range(len(all_colors)), count)
+        chosen_shape_indices = []
+        last_shape = None
+
+        for _ in range(count):
+            # Filter out the shape used in the previous step
+            choices = [i for i in range(len(all_shapes_with_names)) if i != last_shape]
+
+            current_shape = random.choice(choices)
+            chosen_shape_indices.append(current_shape)
+
+            # Update the tracker for the next iteration
+            last_shape = current_shape
+
+        chosen_color_indices = random.choices(range(len(all_colors)), k=count)
         chosen_positions = random.sample(positions_pool, count)
 
         # ====================================================================
@@ -171,7 +180,9 @@ class duration_2d(ThreeDScene):
         # Each shape appears for its designated duration, then disappears
         # ====================================================================
         for idx in range(count):
-            shape_original, shape_name = all_shapes_with_names[chosen_shape_indices[idx]]
+            shape_original, shape_name = all_shapes_with_names[
+                chosen_shape_indices[idx]
+            ]
             shape = shape_original.copy()  # Copy to avoid modifying the template
             color = all_colors[chosen_color_indices[idx]]
             duration = durations[idx]
@@ -202,7 +213,9 @@ class duration_2d(ThreeDScene):
             # ================================================================
             # Log event AFTER animation completes
             # ================================================================
-            self.log_event(f"Shape {idx+1} ({shape_name}) finishes drawing (duration: {duration:.1f}s)")
+            self.log_event(
+                f"Shape {idx+1} ({shape_name}) finishes drawing (duration: {duration:.1f}s)"
+            )
 
         # ====================================================================
         # Transition to question
@@ -222,7 +235,7 @@ class duration_2d(ThreeDScene):
             "(from the start of drawing).",
             "",
             "Answer to 1 decimal point and list them with comma separated values:",
-            "e.g., 3.2s, 1.5s, 1.0s"
+            "e.g., 3.2s, 1.5s, 1.0s",
         ]
 
         # ====================================================================
@@ -257,15 +270,15 @@ class duration_2d(ThreeDScene):
         instruction_text = Text(
             "List the durations in the order the shapes appeared.",
             font_size=22,
-            color=YELLOW
+            color=YELLOW,
         ).move_to(DOWN * 2.8)
 
         self.add_fixed_in_frame_mobjects(instruction_text)
         self.log_event("Instruction reminder appears")
-        self.play(FadeIn(instruction_text, shift=UP*0.3), run_time=0.8)
+        self.play(FadeIn(instruction_text, shift=UP * 0.3), run_time=0.8)
         self.wait(3)
         self.log_event("Question and instruction remain on screen for review")
-        
+
         # ====================================================================
         # Generate answer: durations in order of appearance
         # ====================================================================
@@ -282,7 +295,9 @@ class duration_2d(ThreeDScene):
         # Save output files
         # ====================================================================
         # Solution file (just the answer)
-        with open(f"solutions/duration2d_n{self.num_shapes}_seed{self.seed}.txt", "w") as f:
+        with open(
+            f"solutions/duration2d_n{self.num_shapes}_seed{self.seed}.txt", "w"
+        ) as f:
             f.write(answer_string)
 
         # Question text file
@@ -291,11 +306,15 @@ class duration_2d(ThreeDScene):
             "Answer to 1 decimal point and list them with comma separated values: e.g., 3.2s, 1.5s, 1.0s\n"
             "List the durations in the order the shapes appeared."
         )
-        with open(f"question_text/duration2d_n{self.num_shapes}_seed{self.seed}.txt", "w") as f:
+        with open(
+            f"question_text/duration2d_n{self.num_shapes}_seed{self.seed}.txt", "w"
+        ) as f:
             f.write(question_text_content)
 
         # Reasoning trace file
-        with open(f"reasoning_traces/duration2d_n{self.num_shapes}_seed{self.seed}.txt", "w") as f:
+        with open(
+            f"reasoning_traces/duration2d_n{self.num_shapes}_seed{self.seed}.txt", "w"
+        ) as f:
             f.write("\n".join(self.reasoning_trace))
 
     def build_reasoning_trace(self, shape_duration_pairs, answer_string):
@@ -312,7 +331,9 @@ class duration_2d(ThreeDScene):
         # ====================================================================
         # Introduction with question statement
         # ====================================================================
-        self.reasoning_trace.append("**Question:** List the duration of each of the shapes from the beginning (from the start of drawing). Answer to 1 decimal point and list them with comma separated values.")
+        self.reasoning_trace.append(
+            "**Question:** List the duration of each of the shapes from the beginning (from the start of drawing). Answer to 1 decimal point and list them with comma separated values."
+        )
         self.reasoning_trace.append("")
         self.reasoning_trace.append("Let's solve this step by step.")
         self.reasoning_trace.append("")
@@ -323,11 +344,13 @@ class duration_2d(ThreeDScene):
         # ====================================================================
         self.reasoning_trace.append("### Scene Description")
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("The video shows a sequence of 2D shapes appearing one at a time. Each shape is drawn over a specific duration, then the scene clears before the next shape appears.")
+        self.reasoning_trace.append(
+            "The video shows a sequence of 2D shapes appearing one at a time. Each shape is drawn over a specific duration, then the scene clears before the next shape appears."
+        )
         self.reasoning_trace.append("")
 
         for event in self.scene_events:
-            time_str = self.format_time(event['time'])
+            time_str = self.format_time(event["time"])
             self.reasoning_trace.append(f"At {time_str}, {event['description']}")
 
         self.reasoning_trace.append("")
@@ -336,21 +359,35 @@ class duration_2d(ThreeDScene):
         # Step 1: Understand the task
         # ====================================================================
         self.reasoning_trace.append("### Step 1: Understand what we need to track")
-        self.reasoning_trace.append(f"This video tests our ability to track the duration of multiple shapes appearing sequentially.")
+        self.reasoning_trace.append(
+            f"This video tests our ability to track the duration of multiple shapes appearing sequentially."
+        )
         self.reasoning_trace.append(f"")
         self.reasoning_trace.append(f"Key observations:")
-        self.reasoning_trace.append(f"- There are **{len(shape_duration_pairs)} shapes** in total")
-        self.reasoning_trace.append(f"- Each shape appears one at a time (never simultaneously)")
-        self.reasoning_trace.append(f"- Each shape is drawn over a specific time period")
-        self.reasoning_trace.append(f"- We need to track how long each drawing animation takes")
+        self.reasoning_trace.append(
+            f"- There are **{len(shape_duration_pairs)} shapes** in total"
+        )
+        self.reasoning_trace.append(
+            f"- Each shape appears one at a time (never simultaneously)"
+        )
+        self.reasoning_trace.append(
+            f"- Each shape is drawn over a specific time period"
+        )
+        self.reasoning_trace.append(
+            f"- We need to track how long each drawing animation takes"
+        )
         self.reasoning_trace.append("")
 
         # ====================================================================
         # Step 2: Track each shape's duration
         # ====================================================================
-        self.reasoning_trace.append("### Step 2: Observe and record each shape's duration")
+        self.reasoning_trace.append(
+            "### Step 2: Observe and record each shape's duration"
+        )
         self.reasoning_trace.append("")
-        self.reasoning_trace.append("Let's go through each shape in the order they appeared:")
+        self.reasoning_trace.append(
+            "Let's go through each shape in the order they appeared:"
+        )
         self.reasoning_trace.append("")
 
         cumulative_time = 0.0
@@ -369,7 +406,9 @@ class duration_2d(ThreeDScene):
         # ====================================================================
         # Step 3: Format the answer
         # ====================================================================
-        self.reasoning_trace.append("### Step 3: Format the answer according to requirements")
+        self.reasoning_trace.append(
+            "### Step 3: Format the answer according to requirements"
+        )
         self.reasoning_trace.append("")
         self.reasoning_trace.append("The question asks for:")
         self.reasoning_trace.append("- Durations to 1 decimal point")
@@ -381,9 +420,13 @@ class duration_2d(ThreeDScene):
 
         for i, (shape_name, duration) in enumerate(shape_duration_pairs):
             if i < len(shape_duration_pairs) - 1:
-                self.reasoning_trace.append(f"  - Shape {i+1} ({shape_name}): {duration:.1f}s, (add comma)")
+                self.reasoning_trace.append(
+                    f"  - Shape {i+1} ({shape_name}): {duration:.1f}s, (add comma)"
+                )
             else:
-                self.reasoning_trace.append(f"  - Shape {i+1} ({shape_name}): {duration:.1f}s (last entry, no comma)")
+                self.reasoning_trace.append(
+                    f"  - Shape {i+1} ({shape_name}): {duration:.1f}s (last entry, no comma)"
+                )
 
         self.reasoning_trace.append("")
 
@@ -392,7 +435,9 @@ class duration_2d(ThreeDScene):
         # ====================================================================
         self.reasoning_trace.append("### Final Answer")
         self.reasoning_trace.append("")
-        self.reasoning_trace.append(f"Listing all durations in order: **{answer_string}**")
+        self.reasoning_trace.append(
+            f"Listing all durations in order: **{answer_string}**"
+        )
         self.reasoning_trace.append("")
         self.reasoning_trace.append(f"\\boxed{{{answer_string}}}")
 
