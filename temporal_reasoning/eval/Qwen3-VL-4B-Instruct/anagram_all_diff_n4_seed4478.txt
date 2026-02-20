@@ -1,0 +1,276 @@
+We are given a sequence of word moves, starting from "COMPUTER" and transforming it through a series of steps. We need to find the sum of the distance of all shifts that happened to the letter 'P' across all word moves.
+
+Let’s break this down step by step.
+
+---
+
+**Step 1: Initial word — "COMPUTER"**
+
+Positions (0-based indexing from left to right):
+
+C O M P U T E R  
+0 1 2 3 4 5 6 7
+
+The letter 'P' is at position 3.
+
+---
+
+**Step 2: First move — "COMPUTE R" → "COMPUTE R" is just "COMPUTER" with a space, but we ignore spaces. So still "COMPUTER".**
+
+No change to 'P'. So shift = 0.
+
+---
+
+**Step 3: Second move — "EPCMOU TR" → "EPCMOUTR"**
+
+Wait — the word is shown as "EPCMOU TR" → "EPCMOUTR" — so we are moving the 'P' from position 3 to position 1.
+
+Original: C O M P U T E R → positions 0-7  
+New: E P C M O U T R → positions 0-7
+
+In the new word, 'P' is at position 1.
+
+So shift = 1 - 3 = -2 (i.e., moved left by 2 positions).
+
+But the question asks for the **distance** of shifts — so we take absolute value? Or is it signed?
+
+The question says: "sum of the distance of all shifts". Distance typically implies absolute value. But let’s check the context.
+
+In cryptography or word games, sometimes shifts are signed (positive = right, negative = left). But the question says "distance", which usually means absolute value.
+
+However, let’s see what the video might imply. Since it’s asking for "sum of the distance", and not "sum of the shifts", we should assume absolute values.
+
+So shift distance = |1 - 3| = 2.
+
+---
+
+**Step 4: Third move — "PECOURMT"**
+
+From "EPCMOUTR" → "PECOURMT"
+
+Original: E P C M O U T R  
+New: P E C O U R M T
+
+So 'P' moves from position 1 to position 0.
+
+Shift = 0 - 1 = -1 → distance = 1.
+
+---
+
+**Step 5: Fourth move — "ERMOTC U" → "ERMO TCU" → "ERMO TCU" is "ERMO TCU" — wait, the word is shown as "ERMOTC U" → "ERMOTCU" — but actually, it's "ERMOTCU" → "ERMO TCU" → "ERMOTCU" — let's look at the text.
+
+Actually, the video shows: "E R M P O T C U" → "E R M P O T C U" — wait, no.
+
+Let’s read carefully:
+
+At 0:08: "E R M P O T C U" — then at 0:09: "E T P M C R U O" — wait, this is confusing.
+
+Actually, the video shows:
+
+At 0:07: "P E C O U R M T" — then at 0:08: "E R M P O T C U" — then at 0:09: "E T P M C R U O"
+
+Wait — perhaps it's a typo or misalignment. Let’s re-read the video transcript.
+
+Actually, the video shows:
+
+- Start: "COMPUTER"
+- Then: "COMPUTE R" — no change
+- Then: "EPCMOU TR" → "EPCMOUTR"
+- Then: "PECOURMT"
+- Then: "ERMOTC U" → "ERMOTCU" — but it's shown as "ERMOTC U" → "ERMOTCU" — then "E R M P O T C U" → "E R M P O T C U" — then "E T P M C R U O"
+
+Wait — let’s parse the moves properly.
+
+Actually, the video shows:
+
+1. "COMPUTER" → "COMPUTE R" → no change → "COMPUTER" (same)
+2. "COMPUTER" → "EPCMOUTR" — so 'P' moved from position 3 to position 1 (shift = -2)
+3. "EPCMOUTR" → "PECOURMT" — 'P' moved from position 1 to position 0 (shift = -1)
+4. "PECOURMT" → "ERMOTC U" — but "ERMOTC U" is "ERMOTCU" — 'P' is now at position 4? Let’s see:
+
+Original: P E C O U R M T → positions 0-7
+
+New: E R M O T C U — wait, the word is "ERMOTCU" — 7 letters? "ERMOTCU" is 7 letters? E-R-M-O-T-C-U — 7 letters.
+
+Wait — "PECOURMT" is 8 letters: P-E-C-O-U-R-M-T
+
+Then "ERMOTCU" — 7 letters? That doesn’t make sense.
+
+Actually, the video shows:
+
+At 0:07: "PECOURMT" — 8 letters
+
+At 0:08: "ERMOTC U" — 7 letters? That can’t be.
+
+Wait — perhaps it’s a typo. Let’s look at the text:
+
+At 0:08: "E R M P O T C U" — 8 letters — this is "ERM P O T C U" — "ERM P O T C U" — that’s "ERM P O T C U" — "ERM P O T C U" — 8 letters: E-R-M-P-O-T-C-U
+
+Then at 0:09: "E T P M C R U O" — 8 letters: E-T-P-M-C-R-U-O
+
+So let’s assume the moves are:
+
+1. "COMPUTER" → "COMPUTE R" → no change → "COMPUTER" (same)
+2. "COMPUTER" → "EPCMOUTR" — 'P' from 3 to 1 → shift = -2 → distance = 2
+3. "EPCMOUTR" → "PECOURMT" — 'P' from 1 to 0 → shift = -1 → distance = 1
+4. "PECOURMT" → "ERM P O T C U" — wait, "ERM P O T C U" — this is "ERM P O T C U" — 8 letters — 'P' is at position 3 (since E-R-M-P-O-T-C-U → positions 0-7: P is at 3)
+
+Wait — original: P E C O U R M T → positions 0-7
+
+After move: E R M P O T C U → positions 0-7
+
+So 'P' was at position 0 → now at position 3 → shift = +3 → distance = 3
+
+Then at 0:09: "E T P M C R U O" — E-T-P-M-C-R-U-O → 'P' is at position 2 → shift = 2 - 3 = -1 → distance = 1
+
+Wait — let’s list all moves clearly.
+
+Actually, the video shows:
+
+- "COMPUTER" → "COMPUTE R" → "COMPUTER" (no change)
+- "COMPUTER" → "EPCMOUTR" — 'P' moves from position 3 to position 1 → shift = -2 → distance = 2
+- "EPCMOUTR" → "PECOURMT" — 'P' moves from position 1 to position 0 → shift = -1 → distance = 1
+- "PECOURMT" → "ERM P O T C U" — 'P' moves from position 0 to position 3 → shift = +3 → distance = 3
+- "ERM P O T C U" → "E T P M C R U O" — 'P' moves from position 3 to position 2 → shift = -1 → distance = 1
+
+Wait — but "ERM P O T C U" is "ERM P O T C U" — 8 letters: E-R-M-P-O-T-C-U — so 'P' is at position 3.
+
+Then "E T P M C R U O" — E-T-P-M-C-R-U-O — 8 letters: E-T-P-M-C-R-U-O — 'P' is at position 2.
+
+So shift = 2 - 3 = -1 → distance = 1.
+
+But is that correct? Let’s verify the positions.
+
+Actually, let’s list the positions of 'P' after each move:
+
+1. Initial: "COMPUTER" — 'P' at position 3
+2. After first move: "EPCMOUTR" — 'P' at position 1 → shift = -2 → distance = 2
+3. After second move: "PECOURMT" — 'P' at position 0 → shift = -1 → distance = 1
+4. After third move: "ERM P O T C U" — 'P' at position 3 → shift = +3 → distance = 3
+5. After fourth move: "E T P M C R U O" — 'P' at position 2 → shift = -1 → distance = 1
+
+Wait — but the fourth move is from "PECOURMT" to "ERM P O T C U" — that’s 8 letters: E-R-M-P-O-T-C-U — 'P' at position 3.
+
+Then fifth move: "ERM P O T C U" to "E T P M C R U O" — E-T-P-M-C-R-U-O — 'P' at position 2.
+
+So shift = 2 - 3 = -1 → distance = 1.
+
+But wait — the video shows "ERMOTC U" — which is 7 letters? That can’t be. It must be a typo.
+
+Looking at the video transcript:
+
+At 0:08: "E R M P O T C U" — 8 letters — "ERM P O T C U" — that’s 8 letters: E-R-M-P-O-T-C-U
+
+At 0:09: "E T P M C R U O" — 8 letters: E-T-P-M-C-R-U-O
+
+So we have 5 moves? But the question says "across all word moves" — and we have 5 word moves.
+
+But let’s count the moves:
+
+1. "COMPUTER" → "COMPUTE R" — no change → 0
+2. "COMPUTER" → "EPCMOUTR" — 1 move
+3. "EPCMOUTR" → "PECOURMT" — 2nd move
+4. "PECOURMT" → "ERM P O T C U" — 3rd move
+5. "ERM P O T C U" → "E T P M C R U O" — 4th move
+
+So 4 word moves? Or 5?
+
+Actually, the video shows:
+
+- "COMPUTER" → "COMPUTE R" → "COMPUTER" (same) — so no move
+- Then "COMPUTER" → "EPCMOUTR" — 1st move
+- Then "EPCMOUTR" → "PECOURMT" — 2nd move
+- Then "PECOURMT" → "ERM P O T C U" — 3rd move
+- Then "ERM P O T C U" → "E T P M C R U O" — 4th move
+
+So 4 moves.
+
+But the question says "across all word moves" — so we have 4 moves.
+
+So the shifts are:
+
+Move 1: 'P' from 3 to 1 → shift = -2 → distance = 2
+
+Move 2: 'P' from 1 to 0 → shift = -1 → distance = 1
+
+Move 3: 'P' from 0 to 3 → shift = +3 → distance = 3
+
+Move 4: 'P' from 3 to 2 → shift = -1 → distance = 1
+
+Sum = 2 + 1 + 3 + 1 = 7
+
+But wait — is the first move from "COMPUTER" to "COMPUTE R" — no change — so no shift.
+
+So we have 4 moves.
+
+But let’s double-check the positions.
+
+Initial: "COMPUTER" — positions: 0:C, 1:O, 2:M, 3:P, 4:U, 5:T, 6:E, 7:R
+
+Move 1: "EPCMOUTR" — positions: 0:E, 1:P, 2:C, 3:M, 4:O, 5:U, 6:T, 7:R
+
+So 'P' is at position 1 — from 3 → shift = -2 → distance = 2
+
+Move 2: "PECOURMT" — positions: 0:P, 1:E, 2:C, 3:O, 4:U, 5:R, 6:M, 7:T
+
+So 'P' is at position 0 — from 1 → shift = -1 → distance = 1
+
+Move 3: "ERM P O T C U" — positions: 0:E, 1:R, 2:M, 3:P, 4:O, 5:T, 6:C, 7:U
+
+So 'P' is at position 3 — from 0 → shift = +3 → distance = 3
+
+Move 4: "E T P M C R U O" — positions: 0:E, 1:T, 2:P, 3:M, 4:C, 5:R, 6:U, 7:O
+
+So 'P' is at position 2 — from 3 → shift = -1 → distance = 1
+
+Sum = 2 + 1 + 3 + 1 = 7
+
+But wait — the video shows "E R M P O T C U" — which is 8 letters — and "E T P M C R U O" — 8 letters — so yes.
+
+But is "E R M P O T C U" — that’s E-R-M-P-O-T-C-U — positions 0-7 — 'P' at 3.
+
+Then "E T P M C R U O" — E-T-P-M-C-R-U-O — 'P' at 2.
+
+So shift = 2 - 3 = -1 → distance = 1.
+
+So total distance = 2 + 1 + 3 + 1 = 7.
+
+But wait — the video shows "E R M P O T C U" — but "ERM P O T C U" — that’s 8 letters — yes.
+
+So the answer is 7.
+
+But let’s check if there are more moves.
+
+The video shows "E T P M C R U O" — then it stops.
+
+So 4 moves.
+
+But the question says "across all word moves" — and we have 4 moves.
+
+So sum = 2 + 1 + 3 + 1 = 7.
+
+But let’s confirm the positions.
+
+Initial: "COMPUTER" — 'P' at 3
+
+After move 1: "EPCMOUTR" — 'P' at 1 → distance = |1-3| = 2
+
+After move 2: "PECOURMT" — 'P' at 0 → distance = |0-1| = 1
+
+After move 3: "ERM P O T C U" — 'P' at 3 → distance = |3-0| = 3
+
+After move 4: "E T P M C R U O" — 'P' at 2 → distance = |2-3| = 1
+
+Sum = 2 + 1 + 3 + 1 = 7
+
+So the final answer is 7.
+
+But wait — is "E R M P O T C U" — is that "ERM P O T C U" — or is it "ERM P O T C U" — that’s 8 letters — yes.
+
+And "E T P M C R U O" — 8 letters — yes.
+
+So we are good.
+
+Therefore, the sum is 7.
+
+\boxed{7}

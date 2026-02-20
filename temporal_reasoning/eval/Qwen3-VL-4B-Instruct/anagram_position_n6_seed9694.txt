@@ -1,0 +1,133 @@
+We are given the word "MOUNTAIN" and asked to find the position of the letter 'I' after a shuffle of 3. The shuffle likely means rotating the string by 3 positions to the left (or right, depending on convention — we'll assume left for standard interpretation).
+
+Step 1: Original string is "MOUNTAIN".
+
+Step 2: Shuffle 3 means we take the first 3 characters and move them to the end. So, we split the string into two parts: first 3 characters "MOU" and the rest "NTAIN".
+
+Step 3: Rotate left by 3: take the last 3 characters "NTA" and put them at the front, and the first 3 characters "MOUNTAIN" become "IN" + "NTA" + "M" — wait, let's do it properly.
+
+Actually, if we shuffle left by 3, we take the last 3 characters and move them to the front. So:
+
+Original: M O U N T A I N
+
+After shuffle 3 (left by 3): take the last 3 characters "AIN" and move them to the front, then the first 3 characters "MOU" come after.
+
+So: A I N M O U N T
+
+Wait, let's do it step by step.
+
+Original: M O U N T A I N
+
+We want to rotate left by 3 positions. That means:
+
+- Position 0: M → goes to position 3
+- Position 1: O → goes to position 4
+- Position 2: U → goes to position 5
+- Position 3: N → goes to position 0
+- Position 4: T → goes to position 1
+- Position 5: A → goes to position 2
+- Position 6: I → goes to position 3? Wait, no.
+
+Actually, rotating left by 3 means:
+
+New string = original string[3:] + original string[:3]
+
+So:
+
+Original: M O U N T A I N
+
+Take last 3: A I N
+
+Take first 3: M O U
+
+So new string: A I N M O U
+
+Wait, that's 7 characters: A I N M O U — but we have 8 characters.
+
+Original: M O U N T A I N → 8 characters.
+
+Take last 3: positions 5,6,7 → A, I, N
+
+Take first 3: positions 0,1,2 → M, O, U
+
+So new string: A I N M O U — wait, that's 6 characters. We need to include all 8.
+
+Actually, correct way:
+
+New string = original[3:] + original[:3]
+
+original[3:] = positions 3 to 7 → N T A I N → N T A I N? Wait, let's index properly.
+
+Indices: 0:M, 1:O, 2:U, 3:N, 4:T, 5:A, 6:I, 7:N
+
+So original[3:] = positions 3 to 7 → N, T, A, I, N → "NTAIN"
+
+original[:3] = positions 0 to 2 → M, O, U → "MOU"
+
+So new string = "NTAIN" + "MOU" = "NTAINMOU"
+
+Wait, that's 7 characters? No: "NTAIN" is 5, "MOU" is 3, total 8: "NTAINMOU"
+
+But let's write it: N T A I N M O U
+
+Wait, that's 8 characters: N, T, A, I, N, M, O, U
+
+But original was M O U N T A I N — so after shuffle, it's N T A I N M O U
+
+Wait, let's check: we took last 3 (positions 5,6,7: A, I, N) and moved to front? No.
+
+original[3:] is positions 3 to 7: N, T, A, I, N — that's 5 characters.
+
+original[:3] is positions 0 to 2: M, O, U — 3 characters.
+
+So new string: "NTAIN" + "MOU" = "NTAINMOU" — but that's 8 characters: N T A I N M O U
+
+But we need to check if this is correct.
+
+Alternatively, if we rotate left by 3, we move the first 3 characters to the end.
+
+Original: M O U N T A I N
+
+After left rotate by 3: take first 3: M O U, move to end → N T A I N M O U
+
+Yes, that's correct.
+
+So after shuffle 3: "NTAINMOU"
+
+Now, we need to find the position of the letter 'I'.
+
+In "NTAINMOU", let's list the positions:
+
+0: N
+
+1: T
+
+2: A
+
+3: I
+
+4: N
+
+5: M
+
+6: O
+
+7: U
+
+So the letter 'I' is at position 3.
+
+Therefore, the answer is 3.
+
+But wait, let's double-check.
+
+Original: MOUNTAIN
+
+After shuffle 3: we move the first 3 letters to the end.
+
+So: M O U → moved to end → so the string becomes: N T A I N M O U
+
+Yes, position 3 is 'I'.
+
+So the position is 3.
+
+Final answer: \boxed{3}

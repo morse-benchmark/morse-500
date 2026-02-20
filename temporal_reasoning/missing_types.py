@@ -1,6 +1,7 @@
 import os
 import re
 from collections import Counter
+import argparse
 
 
 def find_missing_seeds(directory=".", target_count=10):
@@ -19,7 +20,6 @@ def find_missing_seeds(directory=".", target_count=10):
 
     # Count occurrences of each type
     counts = Counter(video_types)
-
     # Report results
     print(f"{'Video Type':<25} | {'Count':<6} | {'Status'}")
     print("-" * 45)
@@ -30,10 +30,16 @@ def find_missing_seeds(directory=".", target_count=10):
             status = f"MISSING {target_count - count}"
             print(f"{v_type:<25} | {count:<6} | {status}")
             missing_any = True
+        elif count > target_count:
+            status = f"EXTRA {count - target_count}"
+            print(f"{v_type:<25} | {count:<6} | {status}")
 
     if not missing_any:
         print("All video types have at least 10 seeds!")
 
 
 if __name__ == "__main__":
-    find_missing_seeds()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--count", type=int, default=10)
+    args = parser.parse_args()
+    find_missing_seeds(target_count=args.count)

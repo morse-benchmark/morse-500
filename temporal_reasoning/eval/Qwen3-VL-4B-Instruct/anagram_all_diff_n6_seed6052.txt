@@ -1,0 +1,104 @@
+We are given a sequence of word moves, starting with "BEAUTIFUL" and then a series of transformations. The question asks for the sum of the distance of all shifts that happened to the letter 'T' across all word moves.
+
+Let’s break this down step by step.
+
+---
+
+### Step 1: Understand the initial word and the position of 'T'
+
+The initial word is: **BEAUTIFUL**
+
+Let’s assign positions to each letter (A=1, B=2, ..., Z=26):
+
+B = 2  
+E = 5  
+A = 1  
+U = 21  
+T = 20 ← This is the 'T' we are tracking  
+I = 9  
+F = 6  
+U = 21  
+L = 12  
+
+So, the 'T' is at position **4** (if we count from 1) in the word "BEAUTIFUL".
+
+---
+
+### Step 2: Analyze each word move
+
+The video shows a series of word moves. We need to track the position of the letter 'T' in each move and calculate the shift (distance) from its previous position.
+
+Let’s list the word moves as they appear in the video:
+
+1. **BEAUTIFUL** → 'T' is at position 4 (as above).
+2. **I E B U L A F U T** → This is a rearrangement. Let’s find where 'T' is now.
+   - The word is: I E B U L A F U T → positions: 1:I, 2:E, 3:B, 4:U, 5:L, 6:A, 7:F, 8:U, 9:T
+   - 'T' is at position **9**.
+   - Shift from previous position (4) to 9: **+5**
+
+3. **U U I F B T L E A** → 'T' is at position 6 (since: U U I F B T L E A → positions 1:U, 2:U, 3:I, 4:F, 5:B, 6:T, 7:L, 8:E, 9:A)
+   - Shift from 9 to 6: **-3**
+
+4. **I L A U E F U T B** → 'T' is at position 8 (I L A U E F U T B → positions 1:I, 2:L, 3:A, 4:U, 5:E, 6:F, 7:U, 8:T, 9:B)
+   - Shift from 6 to 8: **+2**
+
+5. **A U E I F U B T L** → 'T' is at position 8 (A U E I F U B T L → positions 1:A, 2:U, 3:E, 4:I, 5:F, 6:U, 7:B, 8:T, 9:L)
+   - Shift from 8 to 8: **0**
+
+6. **A U E T L E T A U B** → Wait, this is not a valid word move? Let’s check the video.
+
+Actually, looking at the video, after "A U E I F U B T L", the next word is **A U E T L E T A U B** — but this is not a word. However, we are told to track the letter 'T'.
+
+In "A U E T L E T A U B", the 'T' appears at position 4 and 7.
+
+But the question says: "sum of the distance of all shifts that happened to the letter 'T' across all word moves".
+
+This implies that we should consider each occurrence of 'T' and track its shift from the previous position.
+
+So, let’s track each 'T' as it moves.
+
+---
+
+### Step 3: Track each 'T' and its shift
+
+We’ll go word by word, and for each 'T', we’ll note its position and compute the shift from the previous 'T'’s position.
+
+Let’s list the positions of 'T' in each word:
+
+1. **BEAUTIFUL** → 'T' at position 4 → Let’s call this position 0 (initial)
+2. **I E B U L A F U T** → 'T' at position 9 → shift = 9 - 4 = **+5**
+3. **U U I F B T L E A** → 'T' at position 6 → shift = 6 - 9 = **-3**
+4. **I L A U E F U T B** → 'T' at position 8 → shift = 8 - 6 = **+2**
+5. **A U E I F U B T L** → 'T' at position 8 → shift = 8 - 8 = **0**
+6. **A U E T L E T A U B** → 'T' at position 4 and 7 → shift from previous 'T' (position 8) to 4: **4 - 8 = -4**; shift from 4 to 7: **7 - 4 = +3**
+
+Wait — we need to be careful. The shift is from the previous position of 'T' to the current one.
+
+So, after word 5, 'T' is at position 8.
+
+In word 6, 'T' appears at position 4 and 7.
+
+So, from position 8 → position 4: shift = -4
+
+Then from position 4 → position 7: shift = +3
+
+So, total shifts so far: +5, -3, +2, 0, -4, +3
+
+---
+
+### Step 4: Sum all shifts
+
+Let’s add them up:
+
++5  
+-3 → total = 2  
++2 → total = 4  
+0 → total = 4  
+-4 → total = 0  
++3 → total = **3**
+
+---
+
+### Final Answer:
+
+\boxed{3}

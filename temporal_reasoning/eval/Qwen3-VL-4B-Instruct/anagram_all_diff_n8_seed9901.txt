@@ -1,0 +1,317 @@
+We are given a sequence of word moves, and we need to find the sum of the distance of all shifts that happened to the letter 'H' across all word moves.
+
+Let’s go step by step:
+
+---
+
+**Step 1: Understand the problem**
+
+We are to track the letter 'H' as it moves through a series of word transformations. For each transformation, we note how far the 'H' has shifted (in terms of position within the word). Then, we sum up all those distances.
+
+---
+
+**Step 2: List the word moves**
+
+The video shows the following word moves:
+
+1. CHOCOLATE → TOHLOCACE
+2. TOHLOCACE → OTECOLCHA
+3. OTECOLCHA → ETOC LCAOH
+4. ETOC LCAOH → THEO CAA C
+5. THEO CAA C → COEHTLAOC
+6. COEHTLAOC → ETICLHO AOC
+7. ETICLHO AOC → OLHOC CATE
+8. OLHOC CATE → HCACLTEOO
+
+---
+
+**Step 3: Identify the position of 'H' in each word**
+
+We need to find the position of 'H' in each word (1-indexed or 0-indexed? The problem says "distance of all shifts", so we assume it’s the absolute displacement from its previous position. But to be precise, we need to track its position in each word and compute the shift from the previous word.
+
+Let’s assume we start with the first word: **CHOCOLATE**
+
+- In "CHOCOLATE", the 'H' does not appear. So, we can consider it as not present, or we can assume it’s at position 0 or undefined. But since the next word has 'H', we must track the shift.
+
+Wait — the first word is "CHOCOLATE", which has no 'H'. The second word is "TOHLOCACE", which has 'H' at position 3 (if 0-indexed: T(0), O(1), H(2), L(3), O(4), C(5), A(6), C(7) — wait, let's count carefully).
+
+Actually, let’s index positions from 0:
+
+- "CHOCOLATE" → letters: C(0), H(1), O(2), C(3), O(4), L(5), A(6), T(7) → **'H' is at position 1**
+
+Wait — no! The word is "CHOCOLATE" — C, H, O, C, O, L, A, T — so 'H' is at index 1.
+
+But then the next word is "TOHLOCACE" — T, O, H, L, O, C, A, C, E — so 'H' is at index 2.
+
+So from "CHOCOLATE" to "TOHLOCACE", the 'H' moves from position 1 to position 2 → shift = +1.
+
+But wait — is the word move a rearrangement? The problem says "word moves", so we are to assume that the letters are rearranged, and we are to track the 'H' as it moves.
+
+So, we need to track the position of 'H' in each word.
+
+Let’s list the words and find the position of 'H' in each:
+
+---
+
+**Word 1: CHOCOLATE**
+
+Letters: C, H, O, C, O, L, A, T → 'H' at position 1 (0-indexed)
+
+---
+
+**Word 2: TOHLOCACE**
+
+Letters: T, O, H, L, O, C, A, C, E → 'H' at position 2
+
+→ Shift from previous: 2 - 1 = +1
+
+---
+
+**Word 3: OTECOLCHA**
+
+Letters: O, T, E, C, O, L, C, H, A → 'H' at position 7
+
+→ Shift: 7 - 2 = +5
+
+---
+
+**Word 4: ETOC LCAOH**
+
+Wait — this is written as "ETOC LCAOH" — probably a typo? It should be "ETOC LCAOH" → E, T, O, C, L, C, A, O, H → 'H' at position 8
+
+→ Shift: 8 - 7 = +1
+
+---
+
+**Word 5: THEO CAA C**
+
+Probably "THEO CAA C" → T, H, E, O, C, A, A, C → 'H' at position 1
+
+→ Shift: 1 - 8 = -7
+
+---
+
+**Word 6: COEHTLAOC**
+
+Letters: C, O, E, H, T, L, A, O, C → 'H' at position 3
+
+→ Shift: 3 - 1 = +2
+
+---
+
+**Word 7: ETICLHO AOC**
+
+Letters: E, T, I, C, L, H, O, A, O, C → 'H' at position 5
+
+→ Shift: 5 - 3 = +2
+
+---
+
+**Word 8: OLHOC CATE**
+
+Letters: O, L, H, O, C, C, A, T, E → 'H' at position 2
+
+→ Shift: 2 - 5 = -3
+
+---
+
+**Word 9: HCACLTEOO**
+
+Letters: H, C, A, C, L, T, E, O, O → 'H' at position 0
+
+→ Shift: 0 - 2 = -2
+
+---
+
+**Step 4: Sum all the shifts**
+
+List of shifts:
+
+1. +1
+2. +5
+3. +1
+4. -7
+5. +2
+6. +2
+7. -3
+8. -2
+
+Sum = 1 + 5 + 1 - 7 + 2 + 2 - 3 - 2
+
+Compute step by step:
+
+1 + 5 = 6
+
+6 + 1 = 7
+
+7 - 7 = 0
+
+0 + 2 = 2
+
+2 + 2 = 4
+
+4 - 3 = 1
+
+1 - 2 = -1
+
+---
+
+**Final Answer: -1**
+
+But wait — the problem asks for the "sum of the distance of all shifts". Does "distance" mean absolute value? Or is it the signed displacement?
+
+The problem says: "the sum of the distance of all shifts"
+
+In common usage, "distance" implies absolute value — but in the context of shifts, it could be signed. However, the word "distance" typically means absolute value.
+
+Let’s check the problem again: "the sum of the distance of all shifts"
+
+In math, "distance" is non-negative. So, if we interpret "distance" as absolute value, then we take absolute value of each shift.
+
+So, let’s recalculate with absolute values:
+
+Shifts:
+
+1. |+1| = 1
+
+2. |+5| = 5
+
+3. |+1| = 1
+
+4. |-7| = 7
+
+5. |+2| = 2
+
+6. |+2| = 2
+
+7. |-3| = 3
+
+8. |-2| = 2
+
+Sum = 1 + 5 + 1 + 7 + 2 + 2 + 3 + 2 = 
+
+1+5=6
+
+6+1=7
+
+7+7=14
+
+14+2=16
+
+16+2=18
+
+18+3=21
+
+21+2=23
+
+---
+
+**Final Answer: 23**
+
+But let’s double-check the word moves — perhaps the "word moves" are not rearrangements, but rather shifts of letters? Or is it a cipher?
+
+Wait — the problem says: "across all word moves"
+
+And the word moves are:
+
+- CHOCOLATE → TOHLOCACE
+
+This looks like a Caesar cipher? Or a letter shift?
+
+Let’s check if the 'H' is shifted in the word.
+
+In "CHOCOLATE", 'H' is at position 1 (0-indexed)
+
+In "TOHLOCACE", 'H' is at position 2 — so it moved one position to the right.
+
+But is that the only shift? Or is it that the entire word is shifted?
+
+Actually, the problem says: "the sum of the distance of all shifts that happened to the letter 'H' across all word moves"
+
+So, it’s about the letter 'H' — its position changed, and we are to sum the distances (in terms of position) that it moved.
+
+But in the context of the problem, it’s likely that the "word moves" are rearrangements, and we are to track the position of 'H' in each word.
+
+But in the last word, "HCACLTEOO", the 'H' is at position 0 — which is a shift from the previous word "OLHOC CATE" where 'H' was at position 2 → shift = -2.
+
+So, we have 8 shifts (from 8 word moves, since 8 transitions).
+
+We have 8 shifts: from word1 to word2, ..., word8 to word9.
+
+So, 8 shifts.
+
+We calculated the shifts as:
+
++1, +5, +1, -7, +2, +2, -3, -2
+
+Sum = -1
+
+But if we take absolute values, sum = 23.
+
+Which interpretation is correct?
+
+The problem says: "the sum of the distance of all shifts"
+
+In English, "distance" usually means absolute value — for example, "the distance from A to B" is always positive.
+
+So, it’s likely that we are to take absolute values.
+
+Moreover, if we take signed values, the answer is -1, which is not a positive number, and the problem says "Return the answer as a number" — but doesn't specify positive or negative.
+
+But the word "distance" suggests absolute value.
+
+Let’s see if there’s another way.
+
+Perhaps the "shifts" are the number of positions the 'H' moved, and we sum the absolute values.
+
+That would be 23.
+
+Alternatively, if we consider the net displacement, it’s -1.
+
+But the problem says "distance", not "displacement".
+
+In common usage, "distance" is absolute value.
+
+For example, "the distance traveled" is always positive.
+
+So, I think we should take absolute values.
+
+---
+
+**Final Answer: \boxed{23}**
+
+---
+
+**But wait — let’s check the word moves again.**
+
+The video shows:
+
+CHOCOLATE → TOHLOCACE
+
+In CHOCOLATE: 'H' is at position 1 (0-indexed)
+
+In TOHLOCACE: 'H' is at position 2 — so it moved +1
+
+Then TOHLOCACE → OTECOLCHA
+
+OTECOLCHA: 'H' is at position 7 — from 2 to 7 → +5
+
+OTECOLCHA → ETOC LCAOH → 'H' at position 8 → +1
+
+ETOC LCAOH → THEO CAA C → 'H' at position 1 → -7
+
+THEO CAA C → COEHTLAOC → 'H' at position 3 → +2
+
+COEHTLAOC → ETICLHO AOC → 'H' at position 5 → +2
+
+ETICLHO AOC → OLHOC CATE → 'H' at position 2 → -3
+
+OLHOC CATE → HCACLTEOO → 'H' at position 0 → -2
+
+Yes, that’s correct.
+
+Absolute values: 1,5,1,7,2,2,3,2 → sum=23
+
+---
+
+**Final Answer: \boxed{23}**
