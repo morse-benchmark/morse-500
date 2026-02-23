@@ -518,6 +518,8 @@ class Dice(ThreeDScene):
 
         # Center the entire row on screen
         cubes.move_to(ORIGIN)
+        if cubes.width > config.frame_width * 0.9:
+            cubes.width = config.frame_width * 0.9
         self.add(cubes)
         self.log_event(f"All {self.num_dice} cubes appear on screen")
 
