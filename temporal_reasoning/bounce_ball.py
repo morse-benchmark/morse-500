@@ -236,6 +236,8 @@ class bounce_ball(Scene):
         for i, line in enumerate(question_lines):
             if line:
                 text = Text(line, font_size=28, weight=BOLD if i == 0 else NORMAL)
+                if text.width > 0.9 * config.frame_width:
+                    text.scale_to_fit_width(config.frame_width * 0.9)
                 text.move_to(UP * (start_y - i * line_height))
                 question_texts.append(text)
 

@@ -795,19 +795,22 @@ class Cubes(ThreeDScene):
         title_text = title_text.replace("<C>", color)
         title_text = title_text.replace("<N>", str(N))
         lines = title_text.split("\n")
+        print(lines)
 
-        para = Paragraph(*lines, alignment="center", font_size=36, line_spacing=0.8)
-        para.move_to(ORIGIN)
-        if para.width > 0.9 * config.frame_width:
-            para.scale_to_fit_width(config.frame_width * 0.9)
-        self.add_fixed_in_frame_mobjects(para)
+        text = Text(title_text, font_size=36)
+
+        # para = Paragraph(*lines, alignment="center", font_size=36, line_spacing=0.8)
+        # para.move_to(ORIGIN)
+        # # if para.width > 0.9 * config.frame_width:
+        # #     para.scale_to_fit_width(config.frame_width * 0.9)
+        # self.add_fixed_in_frame_mobjects(para)
 
         self.log_event("Question text appears")
-        self.play(Write(para), run_time=1.5)
+        self.play(Write(text), run_time=1.5)
 
         # Show multiple choice options if applicable
         if self.p_type == "matching" or self.p_type == "missing_shape":
-            self.play(para.animate.to_edge(UP, buff=0.2 * config.frame_height))
+            self.play(text.animate.to_edge(UP, buff=0.2 * config.frame_height))
             self.wait(0.5)
             self.log_event("Multiple choice options appear")
             self.play(Write(option_groups, run_time=1))
