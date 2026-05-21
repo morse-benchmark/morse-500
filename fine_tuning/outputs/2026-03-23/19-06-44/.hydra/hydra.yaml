@@ -1,0 +1,209 @@
+hydra:
+  run:
+    dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  sweep:
+    dir: multirun/${now:%Y-%m-%d}/${now:%H-%M-%S}
+    subdir: ${hydra.job.num}
+  launcher:
+    _target_: hydra._internal.core_plugins.basic_launcher.BasicLauncher
+  sweeper:
+    _target_: hydra._internal.core_plugins.basic_sweeper.BasicSweeper
+    max_batch_size: null
+    params: null
+  help:
+    app_name: ${hydra.job.name}
+    header: '${hydra.help.app_name} is powered by Hydra.
+
+      '
+    footer: 'Powered by Hydra (https://hydra.cc)
+
+      Use --hydra-help to view Hydra specific help
+
+      '
+    template: '${hydra.help.header}
+
+      == Configuration groups ==
+
+      Compose your configuration from those groups (group=option)
+
+
+      $APP_CONFIG_GROUPS
+
+
+      == Config ==
+
+      Override anything in the config (foo.bar=value)
+
+
+      $CONFIG
+
+
+      ${hydra.help.footer}
+
+      '
+  hydra_help:
+    template: 'Hydra (${hydra.runtime.version})
+
+      See https://hydra.cc for more info.
+
+
+      == Flags ==
+
+      $FLAGS_HELP
+
+
+      == Configuration groups ==
+
+      Compose your configuration from those groups (For example, append hydra/job_logging=disabled
+      to command line)
+
+
+      $HYDRA_CONFIG_GROUPS
+
+
+      Use ''--cfg hydra'' to Show the Hydra config.
+
+      '
+    hydra_help: ???
+  hydra_logging:
+    version: 1
+    formatters:
+      simple:
+        format: '[%(asctime)s][HYDRA] %(message)s'
+    handlers:
+      console:
+        class: logging.StreamHandler
+        formatter: simple
+        stream: ext://sys.stdout
+    root:
+      level: INFO
+      handlers:
+      - console
+    loggers:
+      logging_example:
+        level: DEBUG
+    disable_existing_loggers: false
+  job_logging:
+    version: 1
+    formatters:
+      simple:
+        format: '[%(asctime)s][%(name)s][%(levelname)s] - %(message)s'
+    handlers:
+      console:
+        class: logging.StreamHandler
+        formatter: simple
+        stream: ext://sys.stdout
+      file:
+        class: logging.FileHandler
+        formatter: simple
+        filename: ${hydra.runtime.output_dir}/${hydra.job.name}.log
+    root:
+      level: INFO
+      handlers:
+      - console
+      - file
+    disable_existing_loggers: false
+  env: {}
+  mode: RUN
+  searchpath: []
+  callbacks: {}
+  output_subdir: .hydra
+  overrides:
+    hydra:
+    - hydra.mode=RUN
+    task:
+    - algorithm.adv_estimator=grpo
+    - data.train_files=/fs/nexus-scratch/mrislam/morse-500/fine_tuning/data/train_morse.parquet
+    - data.val_files=/fs/nexus-scratch/mrislam/morse-500/fine_tuning/data/val_morse.parquet
+    - data.train_batch_size=64
+    - data.max_prompt_length=2048
+    - data.max_response_length=512
+    - data.filter_overlong_prompts=True
+    - data.truncation=error
+    - data.video_key=video
+    - actor_rollout_ref.model.path=Qwen/Qwen3-VL-4B-Instruct
+    - actor_rollout_ref.actor.optim.lr=1e-6
+    - actor_rollout_ref.actor.optim.optimizer=AdamW8bit
+    - actor_rollout_ref.actor.optim.optimizer_impl=bitsandbytes.optim
+    - actor_rollout_ref.model.use_remove_padding=True
+    - actor_rollout_ref.actor.ppo_mini_batch_size=16
+    - actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1
+    - actor_rollout_ref.actor.use_kl_loss=True
+    - actor_rollout_ref.actor.kl_loss_coef=0.001
+    - actor_rollout_ref.actor.kl_loss_type=low_var_kl
+    - actor_rollout_ref.actor.entropy_coeff=0
+    - actor_rollout_ref.model.enable_gradient_checkpointing=True
+    - actor_rollout_ref.actor.fsdp_config.param_offload=False
+    - actor_rollout_ref.actor.fsdp_config.optimizer_offload=True
+    - actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1
+    - actor_rollout_ref.rollout.tensor_model_parallel_size=1
+    - actor_rollout_ref.rollout.name=vllm
+    - actor_rollout_ref.rollout.gpu_memory_utilization=0.60
+    - actor_rollout_ref.rollout.n=4
+    - actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=1
+    - actor_rollout_ref.ref.fsdp_config.param_offload=True
+    - algorithm.use_kl_in_reward=False
+    - trainer.critic_warmup=0
+    - trainer.logger=["console"]
+    - trainer.project_name=morse500_grpo
+    - trainer.experiment_name=qwen3_4b_morse
+    - trainer.n_gpus_per_node=1
+    - trainer.nnodes=1
+    - trainer.save_freq=20
+    - trainer.test_freq=5
+    - trainer.total_epochs=15
+  job:
+    name: main_ppo
+    chdir: null
+    override_dirname: actor_rollout_ref.actor.entropy_coeff=0,actor_rollout_ref.actor.fsdp_config.optimizer_offload=True,actor_rollout_ref.actor.fsdp_config.param_offload=False,actor_rollout_ref.actor.kl_loss_coef=0.001,actor_rollout_ref.actor.kl_loss_type=low_var_kl,actor_rollout_ref.actor.optim.lr=1e-6,actor_rollout_ref.actor.optim.optimizer=AdamW8bit,actor_rollout_ref.actor.optim.optimizer_impl=bitsandbytes.optim,actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu=1,actor_rollout_ref.actor.ppo_mini_batch_size=16,actor_rollout_ref.actor.use_kl_loss=True,actor_rollout_ref.model.enable_gradient_checkpointing=True,actor_rollout_ref.model.path=Qwen/Qwen3-VL-4B-Instruct,actor_rollout_ref.model.use_remove_padding=True,actor_rollout_ref.ref.fsdp_config.param_offload=True,actor_rollout_ref.ref.log_prob_micro_batch_size_per_gpu=1,actor_rollout_ref.rollout.gpu_memory_utilization=0.60,actor_rollout_ref.rollout.log_prob_micro_batch_size_per_gpu=1,actor_rollout_ref.rollout.n=4,actor_rollout_ref.rollout.name=vllm,actor_rollout_ref.rollout.tensor_model_parallel_size=1,algorithm.adv_estimator=grpo,algorithm.use_kl_in_reward=False,data.filter_overlong_prompts=True,data.max_prompt_length=2048,data.max_response_length=512,data.train_batch_size=64,data.train_files=/fs/nexus-scratch/mrislam/morse-500/fine_tuning/data/train_morse.parquet,data.truncation=error,data.val_files=/fs/nexus-scratch/mrislam/morse-500/fine_tuning/data/val_morse.parquet,data.video_key=video,trainer.critic_warmup=0,trainer.experiment_name=qwen3_4b_morse,trainer.logger=["console"],trainer.n_gpus_per_node=1,trainer.nnodes=1,trainer.project_name=morse500_grpo,trainer.save_freq=20,trainer.test_freq=5,trainer.total_epochs=15
+    id: ???
+    num: ???
+    config_name: ppo_trainer
+    env_set: {}
+    env_copy: []
+    config:
+      override_dirname:
+        kv_sep: '='
+        item_sep: ','
+        exclude_keys: []
+  runtime:
+    version: 1.3.2
+    version_base: '1.3'
+    cwd: /fs/nexus-scratch/mrislam/morse-500/fine_tuning
+    config_sources:
+    - path: hydra.conf
+      schema: pkg
+      provider: hydra
+    - path: /fs/nexus-scratch/mrislam/morse-500/verl/verl/trainer/config
+      schema: file
+      provider: main
+    - path: ''
+      schema: structured
+      provider: schema
+    output_dir: /fs/nexus-scratch/mrislam/morse-500/fine_tuning/outputs/2026-03-23/19-06-44
+    choices:
+      distillation: distillation
+      algorithm@algorithm.rollout_correction: rollout_correction
+      reward: reward
+      model@actor_rollout_ref.model: hf_model
+      rollout@actor_rollout_ref.rollout: rollout
+      data: legacy_data
+      model_engine: dp
+      critic: dp_critic
+      critic/../engine@critic.model.fsdp_config: fsdp
+      critic/../optim@critic.optim: fsdp
+      ref@actor_rollout_ref.ref: dp_ref
+      ref/../engine@actor_rollout_ref.ref.fsdp_config: fsdp
+      actor@actor_rollout_ref.actor: dp_actor
+      actor/../engine@actor_rollout_ref.actor.fsdp_config: fsdp
+      actor/../optim@actor_rollout_ref.actor.optim: fsdp
+      hydra/env: default
+      hydra/callbacks: null
+      hydra/job_logging: default
+      hydra/hydra_logging: default
+      hydra/hydra_help: default
+      hydra/help: default
+      hydra/sweeper: basic
+      hydra/launcher: basic
+      hydra/output: default
+  verbose: false

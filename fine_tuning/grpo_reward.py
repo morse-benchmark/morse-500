@@ -1,14 +1,13 @@
-"""Reward function for GRPO training on temporal_reasoning.
+"""Reward function for VERL GRPO training.
 
-This is intentionally simple: reward is 1.0 for an exact normalized match,
-otherwise 0.0. Customize `normalize_answer` for partial credit or
-category-specific scoring.
+Implements VERL custom reward API:
+compute_score(data_source, solution_str, ground_truth, extra_info, **kwargs)
 """
 
 from __future__ import annotations
 
 import re
-from typing import Iterable, List
+from typing import Any
 
 
 _BOXED_RE = re.compile(r"\\boxed\{([^}]*)\}")
@@ -30,16 +29,17 @@ def score_answer(prediction: str, target: str) -> float:
     return 1.0 if normalize_answer(prediction) == normalize_answer(target) else 0.0
 
 
-def reward_fn(samples: Iterable[dict], **_: object) -> List[float]:
-    """Compute rewards for a batch of samples.
-
-    Expected sample keys (choose one path and keep your verl config aligned):
-      - prediction: `response` or `output_text`
-      - reference: `answer` or `reference`
-    """
-    rewards: List[float] = []
-    for sample in samples:
-        prediction = sample.get("response") or sample.get("output_text") or ""
-        target = sample.get("answer") or sample.get("reference") or ""
-        rewards.append(score_answer(str(prediction), str(target)))
-    return rewards
+def compute_score(
+    data_source: str,
+    solution_str: str,
+    ground_truth: str | list[str] | None,
+    extra_info: dict[str, Any] | None = None,
+    **_: Any,
+) -> float:
+    """Return scalar reward for one rollout sample."""
+    del data_source, extra_info
+    if ground_truth is None:
+        return 0.0
+    if isinstance(ground_truth, list):
+        return max(score_answer(solution_str, str(target)) for target in ground_truth) if ground_truth else 0.0
+    return score_answer(solution_str, str(ground_truth))

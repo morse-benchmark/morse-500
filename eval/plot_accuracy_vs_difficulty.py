@@ -136,7 +136,7 @@ def plot_accuracy(
         )
 
     n = len(selected)
-    n_cols = min(4, n)
+    n_cols = min(6, n)
     n_rows = math.ceil(n / n_cols)
 
     fig, axes = plt.subplots(

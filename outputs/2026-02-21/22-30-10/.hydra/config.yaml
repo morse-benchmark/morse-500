@@ -1,0 +1,146 @@
+model:
+  _target_: verl.workers.config.HFModelConfig
+  path: Qwen/Qwen3-VL-4B-Instruct
+  hf_config_path: null
+  tokenizer_path: Qwen/Qwen3-VL-4B-Instruct
+  use_shm: false
+  trust_remote_code: true
+  custom_chat_template: null
+  external_lib: null
+  override_config:
+    _attn_implementation: eager
+  enable_gradient_checkpointing: true
+  enable_activation_offload: false
+  use_remove_padding: false
+  lora_rank: 16
+  lora_alpha: 32
+  target_modules: all-linear
+  exclude_modules: null
+  lora_adapter_path: null
+  use_liger: false
+  use_fused_kernels: false
+  fused_kernel_options:
+    impl_backend: torch
+  tiled_mlp:
+    enabled: false
+    num_shards: 4
+engine:
+  _target_: verl.workers.config.FSDPEngineConfig
+  wrap_policy:
+    min_num_params: 0
+  param_offload: false
+  optimizer_offload: false
+  offload_policy: false
+  reshard_after_forward: true
+  fsdp_size: -1
+  forward_prefetch: false
+  model_dtype: fp32
+  use_orig_params: false
+  seed: 42
+  full_determinism: false
+  ulysses_sequence_parallel_size: 1
+  entropy_from_logits_with_chunking: false
+  use_torch_compile: false
+  entropy_checkpointing: false
+  forward_only: false
+  strategy: fsdp
+  dtype: bfloat16
+optim:
+  _target_: verl.workers.config.FSDPOptimizerConfig
+  optimizer: AdamW
+  optimizer_impl: torch.optim
+  lr: 0.001
+  lr_warmup_steps_ratio: 0.0
+  total_training_steps: -1
+  weight_decay: 0.01
+  lr_warmup_steps: -1
+  betas:
+  - 0.9
+  - 0.999
+  clip_grad: 1.0
+  min_lr_ratio: 0.0
+  num_cycles: 0.5
+  lr_scheduler_type: constant
+  warmup_style: null
+  override_optimizer_config: null
+profiler:
+  _target_: verl.utils.profiler.ProfilerConfig
+  tool: torch
+  enable: false
+  all_ranks: false
+  ranks: []
+  save_path: outputs/profile
+  tool_config:
+    npu:
+      _target_: verl.utils.profiler.config.NPUToolConfig
+      contents: []
+      level: level0
+      analysis: true
+      discrete: false
+      name: npu
+    nsys:
+      _target_: verl.utils.profiler.config.NsightToolConfig
+      discrete: ${oc.select:global_profiler.global_tool_config.nsys.discrete}
+      name: nsight
+    torch:
+      _target_: verl.utils.profiler.config.TorchProfilerToolConfig
+      step_start: 0
+      step_end: null
+      manual_save: true
+      name: torch
+    torch_memory:
+      _target_: verl.utils.profiler.config.TorchMemoryToolConfig
+      trace_alloc_max_entries: ${oc.select:global_profiler.global_tool_config.torch_memory.trace_alloc_max_entries,100000}
+      stack_depth: ${oc.select:global_profiler.global_tool_config.torch_memory.stack_depth,32}
+      name: torch_memory
+data:
+  train_batch_size: 1
+  micro_batch_size_per_gpu: 1
+  max_token_len_per_gpu: 4096
+  use_dynamic_bsz: false
+  train_files: /fs/nexus-scratch/mrislam/morse-500/fine_tuning/data/morse_train_sft_train.parquet
+  val_files: /fs/nexus-scratch/mrislam/morse-500/fine_tuning/data/morse_train_sft_val.parquet
+  train_max_samples: 8
+  val_max_samples: 2
+  messages_key: messages
+  tools_key: tools
+  enable_thinking_key: enable_thinking
+  pad_mode: no_padding
+  max_length: 4096
+  truncation: error
+  balance_dp_token: false
+  custom_cls:
+    path: null
+    name: null
+  use_shm: false
+  apply_chat_template_kwargs: {}
+  ignore_input_ids_mismatch: false
+  video_key: videos
+checkpoint:
+  _target_: verl.trainer.config.CheckpointConfig
+  save_contents:
+  - model
+  - optimizer
+  - extra
+  load_contents: ${checkpoint.save_contents}
+trainer:
+  default_local_dir: checkpoints/${trainer.project_name}/${trainer.experiment_name}
+  default_hdfs_dir: null
+  project_name: morse500
+  experiment_name: qwen3-vl-4b-verl-sft
+  total_epochs: 1
+  total_training_steps: null
+  logger:
+  - console
+  seed: 1
+  save_freq: 50
+  test_freq: 50
+  max_ckpt_to_keep: null
+  resume_mode: auto
+  resume_from_path: null
+  device: cuda
+  nnodes: 1
+  n_gpus_per_node: 1
+  profile_interval:
+  - -1
+  - -1
