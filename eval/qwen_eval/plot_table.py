@@ -1,5 +1,7 @@
 import os
 import glob
+import argparse
+import re
 import pandas as pd
 import numpy as np
 
@@ -36,7 +38,11 @@ main_categories = [
 
 
 # Prepare to collect data
-files_pattern = "extract/extract_sz512_*.csv"
+parser = argparse.ArgumentParser(description="Tabulate exact-match benchmark accuracy.")
+parser.add_argument("--input-dir", default="extract")
+parser.add_argument("--output", help="Optional scores CSV")
+args = parser.parse_args()
+files_pattern = os.path.join(args.input_dir, "extract_sz*_*.csv")
 files = glob.glob(files_pattern)
 if not files:
     raise ValueError(f"No files found matching the pattern: {files_pattern}")
@@ -49,10 +55,11 @@ numerical_data = []  # Will store just the numeric values for heatmap
 
 for file_path in files:
     # model_name = os.path.basename(file_path).replace('extract_sz512_', '').replace('.csv', '')
-    model_name = os.path.basename(file_path).replace('extract_sz512_', '').replace('.csv', '')
+    model_name = re.sub(r'^extract_sz[0-9]+_', '', os.path.basename(file_path))[:-4]
     
     # Load model data
-    df = pd.read_csv(file_path)
+    # "None" is a valid benchmark answer, not a missing-value marker.
+    df = pd.read_csv(file_path, keep_default_na=False)
     
     # Clean data
     df['ground_truth'] = df['ground_truth'].astype(str).str.strip()
@@ -124,3 +131,5 @@ numerical_df = numerical_df.sort_values('avg_acc', ascending=False)
 print("\n" + "="*50 + "\n")
 print(results_df.to_string(index=False))
 print("\n" + "="*50 + "\n")
+if args.output:
+    results_df.to_csv(args.output, index=False)

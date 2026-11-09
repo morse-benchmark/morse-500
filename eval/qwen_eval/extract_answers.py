@@ -1,9 +1,9 @@
 import argparse
 import asyncio
+from pathlib import Path
 from tqdm.asyncio import tqdm_asyncio    # tqdm wrapper for asyncio
-from openai import AsyncOpenAI
+from openai import AsyncOpenAI, DefaultAsyncHttpxClient, OpenAIError
 import pandas as pd
-from datasets import load_dataset
 
 
 ### API Setup
@@ -15,6 +15,7 @@ openai_api_base = "http://localhost:8000/v1"
 client = AsyncOpenAI(
     api_key=openai_api_key,
     base_url=openai_api_base,
+    http_client=DefaultAsyncHttpxClient(trust_env=False),
 )
 # test
 # curl -X GET http://localhost:8000/v1/models
@@ -125,7 +126,7 @@ Example 11
 demo_prompt = demo_prompt.strip()
 
 
-MAX_TOKENS    = 50                       # answer length
+MAX_TOKENS    = 512                      # long ordering sequences must fit
 TEMPERATURE   = 0
 async def extract_answer_async(sema: asyncio.Semaphore,
                                row_idx: int,
@@ -152,17 +153,22 @@ async def extract_answer_async(sema: asyncio.Semaphore,
                 ],
             )
 
+        if resp.choices[0].finish_reason != "stop":
+            raise ValueError(f"Incomplete extraction: {resp.choices[0].finish_reason}")
         # first non-empty line
         answer = next(
-            (ln.strip() for ln in resp.choices[0].message.content.splitlines()
+            (ln.strip() for ln in (resp.choices[0].message.content or "").splitlines()
              if ln.strip()),
             "",
         )
+        if not answer:
+            raise ValueError("Empty extraction response")
         return row_idx, answer, question
 
-    except Exception as exc:
+    except (OpenAIError, ValueError) as exc:
         print(f"[error row {row_idx}] {exc}")
-        return row_idx, "Error", question
+        extraction_errors.append(row_idx)
+        return row_idx, "", question
     
 
 # ─── 1. Parse CLI arguments ──────────────────────────────────────────────
@@ -180,9 +186,17 @@ parser.add_argument(
 )
 parser.add_argument(
     "-c", "--concurrency", type=int, default=10,
-    help="Maximum simultaneous API calls (default=5)."
+    help="Maximum simultaneous local extraction calls (default=10)."
+)
+parser.add_argument(
+    "--allow-failed-predictions", action="store_true",
+    help="Keep empty/ERROR predictions as incorrect without sending them to Qwen."
 )
 args = parser.parse_args()
+if args.concurrency < 1:
+    parser.error("--concurrency must be positive")
+if Path(args.csv_file).resolve() == Path(args.out or args.csv_file.replace("pred", "extract")).resolve():
+    parser.error("Input and output must be different files; supply --out")
 
 # ─── 2. Global constants that now use args ───────────────────────────────
 CSV_FILE   = args.csv_file
@@ -192,8 +206,21 @@ SAVE_EVERY  = 100                # rows after which we flush to disk
 # 2.  Async extraction driver ─────────────────────────────────────────────────
 
 # Create new column for extracted answers
-df = pd.read_csv(CSV_FILE)
-df['extracted_answer'] = None
+df = pd.read_csv(CSV_FILE, keep_default_na=False, dtype=str)
+required = {"video", "ground_truth", "question_text", "prediction"}
+if not required.issubset(df.columns):
+    parser.error(f"Input CSV needs columns: {sorted(required)}")
+if df.empty or df["video"].duplicated().any():
+    parser.error("Input must be nonempty and contain unique videos")
+failed_predictions = df["prediction"].apply(
+    lambda value: not str(value).strip() or str(value).strip().startswith("ERROR:")
+)
+if failed_predictions.any() and not args.allow_failed_predictions:
+    parser.error("Predictions contain errors/empty answers; use --allow-failed-predictions to count them as incorrect")
+if failed_predictions.any():
+    print(f"Counting {failed_predictions.sum()} failed predictions as incorrect; keeping all {len(df)} rows.")
+df['extracted_answer'] = ""
+extraction_errors = []
 
 def build_prompt(question: str, response: str) -> str:
     """
@@ -216,6 +243,8 @@ async def producer() -> None:
     tasks  = []
 
     for row_idx, row in df.iterrows():
+        if failed_predictions.at[row_idx]:
+            continue
         q_text = row["question_text"]
         m_resp = str(row["prediction"])
 
@@ -243,6 +272,11 @@ async def main():
     cols = [c for c in cols if c != "question_text"] + ["question_text"]
     df_reordered = df[cols]
     df[cols].to_csv(OUT_NAME, index=False)
+    if extraction_errors:
+        raise RuntimeError(
+            f"{len(extraction_errors)} Qwen extraction requests failed; "
+            "partial output saved, no valid score should be generated. Rerun extraction."
+        )
     print(f"✅ All done – answers written to {OUT_NAME}")
 
 # 3.  Kick off the event loop ─────────────────────────────────────────────────
